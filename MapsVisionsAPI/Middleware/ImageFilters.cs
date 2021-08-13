@@ -75,17 +75,17 @@ namespace MapsVisionsAPI.Middleware
             int x = 0;
             foreach(var c in contours)
             {
-                
-               Mat img_contours =Cv2.
-# draw the contours on the empty image
-cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
+
+               // Mat img_contours = Cv2.
+// draw the contours on the empty image
+/*cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3);
 
                 saveMatImage(c, "contours"+x.ToString(), imagePath);
                 x++;
                 double area=  Cv2.ContourArea(c);
                 if (area < 10)
                     Cv2.DrawContours(opening, new[] { c }, -1, Scalar.Black, -1);
-            }
+            */}
             /*
             for c in cnts:
                 area = cv2.contourArea(c)
