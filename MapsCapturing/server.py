@@ -4,11 +4,22 @@ from bing import TileSystem
 import sqlite_util as db
 import PIL.Image as Image
 from flask_cors import CORS
+import uuid
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 t = TileSystem()
-DB_PATH = 'db/map.db'
+# 
+HOST = 'uwtset1.tacoma.uw.edu'
+USER = 'mapsuser'
+PWD = 'mapsuser'
+BASE = 'mapsvisions'
+MSSQL = db.MSSQL(HOST,USER,PWD,BASE)
+MSSQL.GetConnect()
+
+def get_uuid():
+    idd = str(uuid.uuid1())
+    return idd.replace('-','')
 
 def download_tile(xtile, ytile, tileZoom, source):
     qkStr = t.TileXYToQuadKey(xtile, ytile, tileZoom)
@@ -21,10 +32,11 @@ def download_tile(xtile, ytile, tileZoom, source):
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
     print('DOWNLOAD {} SUCCESS'.format(source))
-    pic_name = 'map/{}/{}.png'.format(source, qkStr)
+    capture_id = get_uuid()
+    pic_name = 'map/{}/{}.png'.format(source, capture_id)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
-    return pic_name
+    return capture_id, pic_name
 
 def multi_pic(lat, lon, tileZoom, multi, source):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
@@ -66,26 +78,51 @@ def multi_pic(lat, lon, tileZoom, multi, source):
             to_image.paste(from_image, ((x - 1) * IMAGE_SIZE, (y - 1) * IMAGE_SIZE))
             i += 1
     to_image.save('map/{}/combine/{}_{}_{} {}.png'.format(source, lat, lon, tileZoom, multi)) # 保存新图
-    pic_url = 'map/{}/combine/{}_{}_{} {}.png'.format(source, lat, lon, tileZoom, multi)
-    return pic_url
+    capture_id = get_uuid()
+    result = []
+    pic_url = 'map/{}/combine/{}.png'.format(source, capture_id)
+    result.append(pic_url)
+    # 切割成四份
+    four_name = ['left-top', 'right-top', 'left-bottom', 'right-bottom']
+    img = Image.open(pic_url)
+    size_img = img.size
+    weight = int(size_img[0] // 2)
+    height = int(size_img[1] // 2)
+    i = 0
+    for j in range(2):
+        for k in range(2):
+            box = (weight * k, height * j, weight * (k + 1), height * (j + 1))
+            region = img.crop(box)
+            # 输出路径
+            tmp_url = 'map/{}/combine/{}_{}'.format(source, capture_id, four_name[i])
+            region.save(tmp_url)
+            result.append(tmp_url)
+            i += 1
+    return result
  
 @app.route('/pic')
 def download_pic():
-    lat = request.args["lat"];
+    lat = request.args["lat"]
     lon = request.args["lon"]
     tileZoom =int(request.args["tileZoom"])
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
-    bing_pic = download_tile(tx, ty, tileZoom, 'bing')
-    google_pic = download_tile(tx, ty, tileZoom, 'google')
-    osm_pic = download_tile(tx, ty, tileZoom, 'osm')
+    #bing
+    bing_id, bing_pic = download_tile(tx, ty, tileZoom, 'bing')
+    location_photos.inser_map(bing_id, lat, lon, 'B', bing_pic)
+    #google
+    google_id, google_pic = download_tile(tx, ty, tileZoom, 'google')
+    location_photos.inser_map(google_id, lat, lon, 'G', google_pic)
+    #osm
+    osm_id, osm_pic = download_tile(tx, ty, tileZoom, 'osm')
+    location_photos.inser_map(osm_id, lat, lon, 'O', osm_pic)
     result = {'bing': bing_pic, 'google': google_pic, 'osm': osm_pic}
 
     return jsonify(result)
 
 @app.route('/multi')
 def multi():
-    lat = request.args["lat"];
+    lat = request.args["lat"]
     lon = request.args["lon"]
     tileZoom = int(request.args["tileZoom"])
     multi = int(request.args["multi"])
