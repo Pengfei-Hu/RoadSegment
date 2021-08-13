@@ -1,0 +1,125 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>fd8dde05-87a3-4635-864b-4773ab9abc60</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>MapsCapturing.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>MapsCapturing</Name>
+    <RootNamespace>MapsCapturing</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include=".idea\" />
+    <Folder Include=".idea\inspectionProfiles\" />
+    <Folder Include=".vs\" />
+    <Folder Include=".vs\Image Capturing\" />
+    <Folder Include=".vs\Image Capturing\config\" />
+    <Folder Include=".vs\Image Capturing\v16\" />
+    <Folder Include="db\" />
+    <Folder Include="map\" />
+    <Folder Include="map\bing\" />
+    <Folder Include="map\google\" />
+    <Folder Include="map\osm\" />
+    <Folder Include="static\" />
+    <Folder Include="static\layui\" />
+    <Folder Include="static\layui\css\" />
+    <Folder Include="static\layui\css\modules\" />
+    <Folder Include="static\layui\css\modules\laydate\" />
+    <Folder Include="static\layui\css\modules\laydate\default\" />
+    <Folder Include="static\layui\css\modules\layer\" />
+    <Folder Include="static\layui\css\modules\layer\default\" />
+    <Folder Include="static\layui\font\" />
+    <Folder Include="__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".idea\.gitignore" />
+    <Content Include=".idea\dataSources.xml" />
+    <Content Include=".idea\inspectionProfiles\profiles_settings.xml" />
+    <Content Include=".idea\misc.xml" />
+    <Content Include=".idea\modules.xml" />
+    <Content Include=".idea\other.xml" />
+    <Content Include=".idea\ui+image  capturing.iml" />
+    <Content Include=".vs\Image Capturing\config\applicationhost.config" />
+    <Content Include=".vs\ProjectSettings.json" />
+    <Content Include=".vs\slnx.sqlite" />
+    <Content Include=".vs\VSWorkspaceState.json" />
+    <Content Include="db\map.db" />
+    <Content Include="map\B-Maho.png" />
+    <Content Include="map\bing\1023310012101110.png" />
+    <Content Include="map\bing\1032200112101000.png" />
+    <Content Include="map\bing\1223112212123310.png" />
+    <Content Include="map\bing\1223312030301332.png" />
+    <Content Include="map\bing\1233302102.png" />
+    <Content Include="map\bing\1233302121200222.png" />
+    <Content Include="map\bing\12333021212002223.png" />
+    <Content Include="map\bing\12333021212021131.png" />
+    <Content Include="map\bing\3010220130301022.png" />
+    <Content Include="map\G-Maho.png" />
+    <Content Include="map\google\1023310012101110.png" />
+    <Content Include="map\google\1032200112101000.png" />
+    <Content Include="map\google\1223112212123310.png" />
+    <Content Include="map\google\1223312030301332.png" />
+    <Content Include="map\google\1233302102.png" />
+    <Content Include="map\google\1233302121200222.png" />
+    <Content Include="map\google\12333021212002223.png" />
+    <Content Include="map\google\12333021212021131.png" />
+    <Content Include="map\google\3010220130301022.png" />
+    <Content Include="map\O-Maho.png" />
+    <Content Include="map\osm\1023310012101110.png" />
+    <Content Include="map\osm\1032200112101000.png" />
+    <Content Include="map\osm\1223112212123310.png" />
+    <Content Include="map\osm\1223312030301332.png" />
+    <Content Include="map\osm\1233302102.png" />
+    <Content Include="map\osm\1233302121200222.png" />
+    <Content Include="map\osm\12333021212002223.png" />
+    <Content Include="map\osm\12333021212021131.png" />
+    <Content Include="map\osm\3010220130301022.png" />
+    <Content Include="README.md" />
+    <Content Include="static\layui\css\layui.css" />
+    <Content Include="static\layui\css\modules\code.css" />
+    <Content Include="static\layui\css\modules\laydate\default\laydate.css" />
+    <Content Include="static\layui\css\modules\layer\default\icon-ext.png" />
+    <Content Include="static\layui\css\modules\layer\default\icon.png" />
+    <Content Include="static\layui\css\modules\layer\default\layer.css" />
+    <Content Include="static\layui\css\modules\layer\default\loading-0.gif" />
+    <Content Include="static\layui\css\modules\layer\default\loading-1.gif" />
+    <Content Include="static\layui\css\modules\layer\default\loading-2.gif" />
+    <Content Include="static\layui\font\iconfont.eot" />
+    <Content Include="static\layui\font\iconfont.svg" />
+    <Content Include="static\layui\font\iconfont.ttf" />
+    <Content Include="static\layui\font\iconfont.woff" />
+    <Content Include="static\layui\font\iconfont.woff2" />
+    <Content Include="static\layui\layui.js" />
+    <Content Include="static\Map Capturing.html" />
+    <Content Include="static\Zoom In.html" />
+    <Content Include="__pycache__\bing.cpython-39.pyc" />
+    <Content Include="__pycache__\sqlite_util.cpython-39.pyc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="bing.py" />
+    <Compile Include="get_map.py" />
+    <Compile Include="server.py" />
+    <Compile Include="sqlite_util.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
