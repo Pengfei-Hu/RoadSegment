@@ -2339,6 +2339,14 @@
     <Folder Include="src\css\" />
     <Folder Include="src\css\fonts\" />
     <Folder Include="src\css\images\" />
+    <Folder Include="src\css\layui\" />
+    <Folder Include="src\css\layui\css\" />
+    <Folder Include="src\css\layui\css\modules\" />
+    <Folder Include="src\css\layui\css\modules\laydate\" />
+    <Folder Include="src\css\layui\css\modules\laydate\default\" />
+    <Folder Include="src\css\layui\css\modules\layer\" />
+    <Folder Include="src\css\layui\css\modules\layer\default\" />
+    <Folder Include="src\css\layui\font\" />
     <Folder Include="src\js\" />
     <Folder Include="src\js\viewModels\" />
     <Folder Include="src\js\views\" />

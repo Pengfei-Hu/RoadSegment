@@ -21,10 +21,10 @@ class MSSQL:
         else:
             return cur
 
-    def inser_map(self, capture_id, lat, lon, map_provider, capture_url):
-        val = [capture_id, lat, lon, map_provider, capture_url,'whole']
+    def inser_map(self, lat, lon, map_provider, capture_url):
+        val = (lat, lon, map_provider, capture_url,'whole')
         c = self.GetConnect()
-        c.execute("INSERT INTO location_photos(capture_id,lat,lnq,map_provider,capture_url,quarter) VALUES (?,?,?,?,?,?)",val)
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,capture_url,quarter) VALUES (%s,%s,%s,%s,%s)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
