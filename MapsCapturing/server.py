@@ -1,25 +1,14 @@
-from os import error
 from flask import Flask, jsonify, request
 import requests
 from bing import TileSystem
 import sqlite_util as db
 import PIL.Image as Image
 from flask_cors import CORS
-import uuid
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 t = TileSystem()
-
-HOST = 'uwtset1.tacoma.uw.edu'
-USER = 'mapsuser'
-PWD = 'mapsuser'
-BASE = 'mapsvisions'
-location_photos = db.MSSQL(HOST,USER,PWD,BASE)
-
-def get_uuid():
-    idd = str(uuid.uuid1())
-    return idd.replace('-','')
+DB_PATH = 'db/map.db'
 
 def download_tile(xtile, ytile, tileZoom, source):
     qkStr = t.TileXYToQuadKey(xtile, ytile, tileZoom)
@@ -32,13 +21,12 @@ def download_tile(xtile, ytile, tileZoom, source):
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
     print('DOWNLOAD {} SUCCESS'.format(source))
-    capture_id = get_uuid()
-    pic_name = 'map/{}/{}.png'.format(source, capture_id)
+    pic_name = 'map/{}/{}.png'.format(source, qkStr)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
-    return capture_id, pic_name
+    return pic_name
 
-def multi_pic_whole(lat, lon, tileZoom, multi, source):
+def multi_pic(lat, lon, tileZoom, multi, source):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
@@ -70,95 +58,42 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source):
     IMAGE_SIZE = 256  #   Image size is 256*256
     IMAGE_ROW = 2 ** multi  # The row of image
     IMAGE_COLUMN = 2 ** multi # The column of image
-    to_image = Image.new('RGB', (IMAGE_COLUMN * IMAGE_SIZE, IMAGE_ROW * IMAGE_SIZE)) # Create New Images
+    to_image = Image.new('RGB', (IMAGE_COLUMN * IMAGE_SIZE, IMAGE_ROW * IMAGE_SIZE)) #创建一个新图
     i = 0
     for y in range(1, IMAGE_ROW + 1):
         for x in range(1, IMAGE_COLUMN + 1):
             from_image = Image.open('map/{}/combine/single/{}.png'.format(source,i))
             to_image.paste(from_image, ((x - 1) * IMAGE_SIZE, (y - 1) * IMAGE_SIZE))
             i += 1
-    pic_url = 'map/{}/combine/{}.png'.format(source, get_uuid())
-    to_image.save(pic_url) # Save Images
+    to_image.save('map/{}/combine/{}_{}_{} {}.png'.format(source, lat, lon, tileZoom, multi)) # 保存新图
+    pic_url = 'map/{}/combine/{}_{}_{} {}.png'.format(source, lat, lon, tileZoom, multi)
     return pic_url
-
-def multi_pic_part(lat, lon, tileZoom, multi, source, part_list):
-    px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
-    tx, ty = t.PixelXYToTileXY(px, py)
-    qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
-    new_qkr = qkStr + part_list
-    new_tx, new_ty = t.QuadKeyToTileXY(new_qkr)
-    if source == 'google':
-        url = 'http://mt0.google.com/vt/lyrs=m@174000000&src=app&x={}&s=&y={}&z={}'.format(new_tx,new_ty,tileZoom + multi)
-    elif source == 'bing':
-        url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604'.format(new_qkr)
-    elif source == 'osm':
-        url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,new_tx,new_ty)
-    else:
-        return "error"
-    response = requests.get(url, stream=True)
-    assert response.status_code == 200, "connect error"
-    print('DOWNLOAD {} SUCCESS'.format(part_list))
-    pic_name = 'map/{}/combine/single/{}.png'.format(source, part_list)
-    # Save Images
-    with open(pic_name, 'wb') as out_file:
-        out_file.write(response.content)
-    part_list = list(map(int,part_list))
-    return pic_name
  
 @app.route('/pic')
 def download_pic():
-    lat = request.args["lat"]
+    lat = request.args["lat"];
     lon = request.args["lon"]
     tileZoom =int(request.args["tileZoom"])
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
-    #bing
-    _, bing_pic = download_tile(tx, ty, tileZoom, 'bing')
-    location_photos.inser_map(lat, lon, 'B', bing_pic)
-    #google
-    _, google_pic = download_tile(tx, ty, tileZoom, 'google')
-    location_photos.inser_map(lat, lon, 'G', google_pic)
-    #osm
-    _, osm_pic = download_tile(tx, ty, tileZoom, 'osm')
-    location_photos.inser_map(lat, lon, 'O', osm_pic)
+    bing_pic = download_tile(tx, ty, tileZoom, 'bing')
+    google_pic = download_tile(tx, ty, tileZoom, 'google')
+    osm_pic = download_tile(tx, ty, tileZoom, 'osm')
     result = {'bing': bing_pic, 'google': google_pic, 'osm': osm_pic}
+
     return jsonify(result)
 
-@app.route('/multi/whole')
-def multi_whole():
-    lat = request.args["lat"]
+@app.route('/multi')
+def multi():
+    lat = request.args["lat"];
     lon = request.args["lon"]
     tileZoom = int(request.args["tileZoom"])
-    endZoomLevel = int(request.args["endzoomLevel"])
-    bing_urls = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'bing')
-    location_photos.inser_map_whole(lat, lon, 'B', tileZoom, bing_urls, endZoomLevel)
-
-    google_urls = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'google')
-    location_photos.inser_map_whole(lat, lon, 'G', tileZoom, bing_urls, endZoomLevel)
-
-    osm_urls = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'osm')
-    location_photos.inser_map_whole(lat, lon, 'O', tileZoom, bing_urls, endZoomLevel)
-
-    result = {'bing': bing_urls, 'google': google_urls, 'osm': osm_urls}
-    return jsonify(result)
-
-@app.route('/multi/part')
-def multi_part():
-    lat = request.args["lat"].strip()
-    lon = request.args["lon"].strip()
-    tileZoom = int(request.args["tileZoom"].strip())
-    endZoomLevel = int(request.args["endzoomLevel"].strip())
-    part_list = request.args['partlist'].strip()
-    #BING
-    bing_urls = multi_pic_part(lat, lon, tileZoom, endZoomLevel, 'bing', part_list)
-    location_photos.inser_map_part(lat, lon, 'B', tileZoom, bing_urls, part_list, endZoomLevel)
-    #GOOGLE
-    google_urls = multi_pic_part(lat, lon, tileZoom, endZoomLevel, 'google', part_list)
-    location_photos.inser_map_part(lat, lon, 'G', tileZoom, google_urls, part_list, endZoomLevel)
-    #OSM
-    osm_urls = multi_pic_part(lat, lon, tileZoom, endZoomLevel, 'osm', part_list)
-    location_photos.inser_map_part(lat, lon, 'O', tileZoom, osm_urls, part_list, endZoomLevel)
+    multi = int(request.args["multi"])
+    bing_urls = multi_pic(lat, lon, tileZoom, multi, 'bing')
+    google_urls = multi_pic(lat, lon, tileZoom, multi, 'google')
+    osm_urls = multi_pic(lat, lon, tileZoom, multi, 'osm')
     result = {'bing':bing_urls,'google':google_urls,'osm':osm_urls}
+
     return jsonify(result)
 
 @app.route('/')

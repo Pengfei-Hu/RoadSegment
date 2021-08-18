@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+  <head>
+    <title>Maps UI</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1">
+    <link rel="icon" href="css/images/favicon.ico" type="image/x-icon" />
+
+    <!-- This is the main css file for the default theme -->
+<!-- injector:theme -->
+<link rel="stylesheet" href="css/redwood/10.0.4/web/redwood.css" id="css" />
+<!-- endinjector -->
+
+    <!-- This contains icon fonts used by the starter template -->
+    <link rel="stylesheet" href="css/demo-alta-site-min.css" type="text/css"/>
+    <link rel="stylesheet" id="uxiconFont" href="https://static.oracle.com/cdn/fnd/gallery/2101.3.0/images/iconfont/ojuxIconFont.min.css">
+
+    <!-- This is where you would add any app specific styling -->
+    <link rel="stylesheet" href="css/app.css" type="text/css"/>
+
+  </head>
+  <body class="oj-web-applayout-body">
+    <!-- Template for rendering navigation items shared between nav bar and nav list -->
+    <script type="text/html" id="navTemplate">
+      <li><a href="#">
+        <span :class="[[$data.detail.iconClass]]"></span>
+        <oj-bind-text value="[[$data.detail.label]]"></oj-bind-text>
+      </a></li>
+    </script>
+
+    <div id="globalBody"   class="oj-offcanvas-outer-wrapper oj-offcanvas-page">
+
+      <div id="announce" tabindex="-1" class="sendOffScreen" :aria-live="[[manner]]" aria-atomic="true">
+          <p id="ariaLiveMessage"><oj-bind-text value="[[message]]"></oj-bind-text></p>
+      </div>
+
+
+      <div id="navDrawer"  role="navigation" class="oj-contrast-marker oj-web-applayout-offcanvas oj-offcanvas-start">
+        <oj-navigation-list id="navDrawerList" data="[[navDataProvider]]"
+                            edge="start"
+                            item.renderer="[[KnockoutTemplateUtils.getRenderer('navTemplate', true)]]"
+                            on-click="[[toggleDrawer]]"
+                            selection="{{selection.path}}">
+        </oj-navigation-list>
+      </div>
+      <div id="pageContent"  class="withoutPaddingOrMargin oj-web-applayout-page">
+
+        <header role="banner" class="withoutPaddingOrMargin  oj-web-applayout-header" >
+          <div class="oj-web-applayout-max-width oj-flex-bar oj-sm-align-items-center">
+            <!-- Offcanvas toggle button -->
+            <div class="oj-flex-bar-start oj-md-hide">
+              <oj-button id="drawerToggleButton" class="oj-button-lg" on-oj-action="[[toggleDrawer]]" chroming="borderless" display="icons">
+                <span slot="startIcon" class="oj-web-applayout-offcanvas-icon"></span>
+                <span>Application Navigation</span>
+              </oj-button>
+            </div>
+            <div class="oj-flex-bar-middle oj-sm-align-items-baseline">
+              <span role="img" class="oj-icon demo-oracle-icon" title="MapsVision Logo" alt="MapsVisions Logo"></span>
+              <h1 class="oj-sm-only-hide oj-web-applayout-header-title" title="Application Name"><oj-bind-text value="[[appName]]"></oj-bind-text></h1>
+            </div>
+            <div class="oj-flex-bar-end">
+              <!-- Responsive Toolbar -->
+              <oj-toolbar>
+                <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
+                  <span><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
+                  <span slot="endIcon" :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span>
+                  <oj-menu id="menu1" slot="menu">
+                    <oj-option id="pref" value="pref">Preferences</oj-option>
+                    <oj-option id="help" value="help">Help</oj-option>
+                    <oj-option id="about" value="about">About</oj-option>
+                    <oj-option id="out" value="out">Sign Out</oj-option>
+                  </oj-menu>
+                </oj-menu-button>
+              </oj-toolbar>
+            </div>
+          </div>
+          <div role="navigation" class="oj-web-applayout-max-width oj-web-applayout-navbar">
+            <oj-navigation-list id="navTabBar" class="oj-sm-only-hide oj-md-condense oj-md-justify-content-flex-end"
+                                data="[[navDataProvider]]"
+                                edge="top"
+                                item.renderer="[[KnockoutTemplateUtils.getRenderer('navTemplate', true)]]"
+                                selection="{{selection.path}}">
+            </oj-navigation-list>
+          </div>
+        </header>
+        <oj-module role="main"  class="withoutPaddingOrMargin  oj-web-applayout-content" config="[[moduleAdapter.koObservableConfig]]">
+        </oj-module>
+        <footer class="oj-web-applayout-footer" role="contentinfo">
+          <div class="oj-web-applayout-footer-item oj-web-applayout-max-width">
+            <ul>
+              <oj-bind-for-each data="[[footerLinks]]">
+                <template>
+                  <li>
+                    <a :id="[[$current.data.linkId]]" :href="[[$current.data.linkTarget]]">
+                      <oj-bind-text value="[[$current.data.name]]"></oj-bind-text>
+                    </a>
+                  </li>
+                </template>
+              </oj-bind-for-each>
+            </ul>
+          </div>
+          <div class="oj-web-applayout-footer-item oj-web-applayout-max-width oj-text-secondary-color oj-text-sm">
+            
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      // The "oj_whenReady" global variable enables a strategy that the busy context whenReady,
+      // will implicitly add a busy state, until the application calls applicationBootstrapComplete
+      // on the busy state context.
+      window["oj_whenReady"] = true;
+    </script>
+    <script type="text/javascript" src="js/libs/require/require.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+
+  </body>
+
+</html>
