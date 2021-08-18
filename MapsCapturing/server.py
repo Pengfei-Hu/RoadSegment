@@ -131,21 +131,33 @@ def multi_whole():
     tileZoom = int(request.args["tileZoom"])
     endZoomLevel = int(request.args["endzoomLevel"])
     bing_urls = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'bing')
+    location_photos.inser_map_whole(lat, lon, 'B', tileZoom, bing_urls, endZoomLevel)
+
     google_urls = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'google')
+    location_photos.inser_map_whole(lat, lon, 'G', tileZoom, bing_urls, endZoomLevel)
+
     osm_urls = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'osm')
-    result = {'bing':bing_urls,'google':google_urls,'osm':osm_urls}
+    location_photos.inser_map_whole(lat, lon, 'O', tileZoom, bing_urls, endZoomLevel)
+
+    result = {'bing': bing_urls, 'google': google_urls, 'osm': osm_urls}
     return jsonify(result)
 
 @app.route('/multi/part')
 def multi_part():
-    lat = request.args["lat"]
-    lon = request.args["lon"]
-    tileZoom = int(request.args["tileZoom"])
-    endZoomLevel = int(request.args["endzoomLevel"])
-    part_list = request.args['partlist']
+    lat = request.args["lat"].strip()
+    lon = request.args["lon"].strip()
+    tileZoom = int(request.args["tileZoom"].strip())
+    endZoomLevel = int(request.args["endzoomLevel"].strip())
+    part_list = request.args['partlist'].strip()
+    #BING
     bing_urls = multi_pic_part(lat, lon, tileZoom, endZoomLevel, 'bing', part_list)
+    location_photos.inser_map_part(lat, lon, 'B', tileZoom, bing_urls, part_list, endZoomLevel)
+    #GOOGLE
     google_urls = multi_pic_part(lat, lon, tileZoom, endZoomLevel, 'google', part_list)
+    location_photos.inser_map_part(lat, lon, 'G', tileZoom, google_urls, part_list, endZoomLevel)
+    #OSM
     osm_urls = multi_pic_part(lat, lon, tileZoom, endZoomLevel, 'osm', part_list)
+    location_photos.inser_map_part(lat, lon, 'O', tileZoom, osm_urls, part_list, endZoomLevel)
     result = {'bing':bing_urls,'google':google_urls,'osm':osm_urls}
     return jsonify(result)
 

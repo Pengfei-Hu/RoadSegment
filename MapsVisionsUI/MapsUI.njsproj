@@ -12,8 +12,7 @@
     <ProjectGuid>cbfdd76a-f554-4818-9996-3454128458e1</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>web\js\main.js</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
