@@ -20,58 +20,117 @@
             <oj-bind-if test="[[showTable()]]">
                 <div id="table-contrainer" style="width: 1px; min-width: 100%;">
 
-                    <oj-table id="mapImgsTable" data='[[dataProvider]]'
+                    <oj-table id="mapImgsTable"
+                              data='[[dataProvider]]'
                               selection-mode='{"row": "single", "column": "multiple"}'
                               dnd='{"reorder": {"columns": "enabled"}}'
                               scroll-policy='loadMoreOnScroll'
-                              scroll-policy-options='{"fetchSize": 10}'
+                              scroll-policy-options='{"fetchSize": 20}'
+                              class='oj-bg-body demo-table-container'
+                              layout='fixed'
                               columns='[
-                    {"headerText":"id", "field":"capture_id",
-                    "resizable":"enabled"},
-
-                    {"headerText":"lng", "field":"lng",
-                    "resizable":"enabled"},
-
-                    {"headerText":"lat", "field":"lat",
-                    "resizable":"enabled"},
-
-                    {"headerText":"provider", "field":"map_provider",
-                    "headerClassName":"oj-sm-only-hide",
-                    "className":"oj-sm-only-hide",
-                    "resizable":"enabled"},
-
-                    {"headerText":"zoom", "field":"zoom_level",
-                    "headerClassName":"oj-sm-only-hide",
-                    "className":"oj-sm-only-hide",
-                    "resizable":"enabled"},
-
-                    {"headerText":"Image", "field":"capture_url",
-                     "sortable":"disabled",
-                        "template":"imageTemplate"},
-
-                    {"headerText":"Action",
-                        "headerStyle":"text-align: center;",
-                        "style":"text-algin: center; padding:0px",
-                        "sortable":"disabled",
-                        "template":"actionsTemplate"
-                    }]'
+                    {"headerText":"lng", "field":"lng"},
+                    {"headerText":"lat", "field":"lat"},
+                    {"headerText":"zoom", "field":"zoom_level"},
+                     {"headerText":"Bing Image", "field":"bing.imgPath",
+                     "sortable":"disabled","template":"bingImageTemplate"},
+                    {"headerText":"Google Image", "field":"google.imgPath",
+                     "sortable":"disabled","template":"googleImageTemplate"},
+                    {"headerText":"OSM Image", "field":"osm.imgPath",
+                     "sortable":"disabled","template":"osmImageTemplate"}, {
+                                  "headerText": "Action",
+                                  "headerStyle": "text-align: center;",
+                                  "frozenEdge": "end",
+                                  "style":"text-align: center; padding-top: 0px; padding-bottom: 0px;",
+                                  "template": "actionTemplate"
+                              }]'
                               style="width: 1px; min-width: 100%;">
-                        <template slot="actionsTemplate" data-oj-as="cell">
-                            <oj-button id="ReadingTextButton" chroming="borderless"
-                                       on-oj-action="[[ReadingText]]">
-                                <span slot="startIcon" class="oj-ux-ico-words"></span>
-                                Reading Text
-                            </oj-button>
-                            <oj-button id="ReadingTextButton" chroming="borderless"
-                                       on-oj-action="">
-                                <span slot="startIcon" class=""></span>
-                                Picture details
-                            </oj-button>
-                        </template>
-                        <template slot="imageTemplate" data-oj-as="cell">
+                        <oj-menu id="contextMenu" slot="contextMenu" on-oj-menu-action="[[myActionFunction]]"
+                                    on-oj-before-open="[[myBeforeOpenFunction]]" aria-label="Extract Text">
+                            <oj-option value="ExtractText">Extract text of this map</oj-option>
+                            <oj-option value="ExtractAllText" >Extract text f the maps</oj-option>
+                        </oj-menu>
+
+                        <template slot="bingImageTemplate" data-oj-as="cell">
                             <img :src="[[cell.data]]" width="200" />
                         </template>
+                        <template slot="googleImageTemplate" data-oj-as="cell">
+                            <img :src="[[cell.data]]" width="200" />
+                        </template>
+                        <template slot="osmImageTemplate" data-oj-as="cell">
+                            <img :src="[[cell.data]]" width="200" />
+                        </template>
+
+
+                        <template slot="rowTemplate" data-oj-as='row'>
+                            <tr>
+                                <!-- ko if: row.item.metadata.treeDepth === 0 -->
+                                <td>
+                                    <oj-row-expander context="[[row]]"></oj-row-expander>
+                                    <span><oj-bind-text value="[[row.item.data.lng]]"></oj-bind-text></span>
+                                </td>
+                                <td>
+                                    <span><oj-bind-text value="[[row.item.data.lat]]"></oj-bind-text></span>
+                                </td>
+                                <td>
+                                    <span><oj-bind-text value="[[row.item.data.zoom_level]]"></oj-bind-text></span>
+                                </td>
+                                <td>
+                                    <oj-bind-if test="[[row.item.data.bing!=null]]">
+                                        <img :src="[[row.item.data.bing.imgPath]]" width="200" />
+                                    </oj-bind-if>
+
+                                </td>
+                                <td>
+                                    <oj-bind-if test="[[row.item.data.google!=null]]">
+                                        <img :src="[[row.item.data.google.imgPath]]" width="200" />
+                                    </oj-bind-if>
+                                </td>
+                                <td>
+                                    <oj-bind-if test="[[row.item.data.osm!=null]]">
+                                        <img :src="[[row.item.data.osm.imgPath]]" width="200" />
+                                    </oj-bind-if>
+                                </td>
+                                <td>
+                                    <template slot="actionTemplate" data-oj-as="cell">
+                                        <oj-menu-button chroming="borderless" display="icons" >
+                                            Action
+                                            <oj-menu slot="menu" >
+                                                <oj-option value="approve" >
+                                                    <span class="oj-ux-ico-check" slot="startIcon"></span>Approve
+                                                </oj-option>
+                                                <oj-option value="delete">
+                                                    <span class="oj-ux-ico-delete-circle" slot="startIcon"></span>Delete
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-menu-button>
+                                    </template>
+                                </td>
+                                <!-- /ko -->
+                                <!-- ko if: row.item.metadata.treeDepth === 1 -->
+                                <td colspan="1">
+                                    <span><oj-bind-text value="[[row.item.data.lng]]"></oj-bind-text></span>
+                                </td>
+                                <td colspan="6">
+                                    New Page
+                                </td>
+                                <!-- /ko -->
+                            </tr>
+                        </template>
                     </oj-table>
+                    <p class="bold">
+                        Last selected menu item:
+                        <span id="results1">
+                            <oj-bind-text value="[[selectedMenuItem]]"></oj-bind-text>
+                        </span>
+                    </p>
+
+                    <p class="bold">
+                        Launched from:
+                        <span id="results">
+                            <oj-bind-text value="[[launchedFrom]]"></oj-bind-text>
+                        </span>
+                    </p>
                 </div>
             </oj-bind-if>
 

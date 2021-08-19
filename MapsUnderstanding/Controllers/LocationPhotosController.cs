@@ -13,6 +13,8 @@ namespace MapsVisionsAPI.Controllers
     [Route("[controller]")]
     public class LocationPhotosController : Controller
     {
+        private string mainSolutionFolder = "C:\\Users\\Adel\\source\\repos\\WebDataScience\\MapsVisionGit";
+        private string pythonServer = "https://localhost:44370/Resources/Images/";
         private IGenericRepository<Location_Photos> repository = null;
         private readonly MapsVisionsDbContext _DbContext;
 
@@ -44,9 +46,31 @@ namespace MapsVisionsAPI.Controllers
                 var alldata = repository.GetAll();
                 var model = from s in alldata
                                       where s.quarter.Trim()=="whole"
-                                      select s;
+                                      select new { s.lat, s.lng, s.zoom_level, 
+                                          Google=(  from g in alldata
+                                                    where g.lat == s.lat &&
+                                                    g.lng == s.lng &&
+                                                    g.quarter.Trim()== s.quarter.Trim() &&
+                                                    g.zoom_level== s.zoom_level &&
+                                                    g.map_provider.Trim() == "G"
+                                                    select new { ImgPath = pythonServer + g.capture_url }).FirstOrDefault(),
+                                          Bing = (from g in alldata
+                                                    where g.lat == s.lat &&
+                                                    g.lng == s.lng &&
+                                                    g.quarter.Trim() == s.quarter.Trim() &&
+                                                    g.zoom_level == s.zoom_level &&
+                                                    g.map_provider.Trim() == "B"
+                                                    select new { ImgPath = pythonServer + g.capture_url }).FirstOrDefault(),
+                                          OSM = (from g in alldata
+                                                    where g.lat == s.lat &&
+                                                    g.lng == s.lng &&
+                                                    g.quarter.Trim() == s.quarter.Trim() &&
+                                                    g.zoom_level == s.zoom_level &&
+                                                    g.map_provider.Trim() == "O"
+                                                    select new { ImgPath = pythonServer + g.capture_url }).FirstOrDefault()
+                                      };
                            
-                return Ok(new { data = model });
+                return Ok(new { data = model.Distinct() });
             }
             catch (Exception ex)
             {

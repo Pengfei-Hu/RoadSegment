@@ -1,0 +1,31 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 2756184 */
+  src: url('iconfont.woff2?t=1629362362204') format('woff2'),
+       url('iconfont.woff?t=1629362362204') format('woff'),
+       url('iconfont.ttf?t=1629362362204') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-layui-extend-tuya_huabanfuben-copy:before {
+  content: "\e75d";
+}
+
+.icon-layui-extend-tuya_huabanfuben-copy1:before {
+  content: "\e75e";
+}
+
+.icon-layui-extend-tuya_huabanfuben-copy2:before {
+  content: "\e75f";
+}
+
+.icon-layui-extend-tuya_huabanfuben:before {
+  content: "\e75c";
+}
+

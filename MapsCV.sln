@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapsUnderstanding", "MapsVisionsAPI\MapsUnderstanding.csproj", "{3882ADA0-0D22-48F5-8837-CB485D7FA31B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapsUnderstanding", "MapsUnderstanding\MapsUnderstanding.csproj", "{3882ADA0-0D22-48F5-8837-CB485D7FA31B}"
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MapsCapturing", "MapsCapturing\MapsCapturing.pyproj", "{FD8DDE05-87A3-4635-864B-4773AB9ABC60}"
 EndProject
@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{78
 		Database\MapsVisionsDataScript_1.sql = Database\MapsVisionsDataScript_1.sql
 	EndProjectSection
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MapsUI", "MapsVisionsUI\MapsUI.njsproj", "{CBFDD76A-F554-4818-9996-3454128458E1}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MapsUI", "MapsUI\MapsUI.njsproj", "{CBFDD76A-F554-4818-9996-3454128458E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapsTestBed", "MapsTestBed\MapsTestBed.csproj", "{AB245D72-C922-4771-A995-2A8F57CE5F8C}"
 EndProject

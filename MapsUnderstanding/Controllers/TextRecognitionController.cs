@@ -12,6 +12,7 @@ using System.Diagnostics;
 using MapsVisionsAPI.Data.Entities;
 using MapsVisionsAPI.Data;
 using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace MapsVisionsAPI.Controllers
 {
@@ -33,6 +34,31 @@ namespace MapsVisionsAPI.Controllers
           //  bool gray = ImageFilters.applyBestEffects1(imagePath);
             return Ok(new  {Confidence= confidence, wordsList = wordsList, Gray=false });
         }
+
+        [HttpGet("ReadTextList")]
+        public IActionResult ReadTextList()
+        {
+            
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images", "Map1.jpg");
+            Request.Headers.TryGetValue("imagePath", out var imageUrl);
+            imageUrl = imageUrl.ToString().Substring(imageUrl.ToString().IndexOf("Resources/Images"));
+            Debug.WriteLine(imageUrl.ToString());
+            float confidence = 0.0f;
+            string allText = "";
+            string[] wordsList;
+            
+            /*using (WebClient client = new WebClient())
+            {
+                client.DownloadFile(new Uri(imageUrl), imagePath);
+            }*/
+        
+            Tess.TesseractReader(imageUrl.ToString(), out confidence, out allText, out _);
+            wordsList = TextProcessing.castLinedTextToStringArray(allText);
+            //  bool gray = ImageFilters.applyBestEffects1(imagePath);
+            return Ok(new { Confidence = confidence, wordsList = wordsList, Gray = false, imagePath= imageUrl.ToString() });
+        }
+
+
         [HttpPost("applyFilters")]
         public IActionResult applyFilters()
         {

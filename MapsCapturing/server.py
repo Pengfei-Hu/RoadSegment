@@ -13,7 +13,7 @@ t = TileSystem()
 DB_PATH = 'db/map.db'
 
 
-HOST = 'uwtset1.tacoma.uw.edu'
+HOST = 'ADELSABOURPC'
 USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
@@ -164,6 +164,8 @@ def multi_all():
     lon = request.args["lon"]
     tileZoom = int(request.args["startz"])
     endZoomLevel = int(request.args["endz"])
+
+
     bing_result, dic = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'bing')
     bing_url = 'map/{}/combine/single/'.format('bing')
     location_photos.inser_map_all(lat, lon, 'B', tileZoom, bing_url, endZoomLevel, dic)
@@ -173,7 +175,10 @@ def multi_all():
     osm_result, dic = multi_pic_whole(lat, lon, tileZoom, endZoomLevel, 'osm')
     osm_url = 'map/{}/combine/single/'.format('osm')
     location_photos.inser_map_all(lat, lon, 'O', tileZoom, osm_url, endZoomLevel, dic)
+
+
     result = {'bing': bing_result, 'google': google_result, 'osm': osm_result}
+
     return jsonify(result)
 
 
