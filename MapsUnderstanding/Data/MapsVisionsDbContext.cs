@@ -1,4 +1,5 @@
 ﻿using MapsVisionsAPI.Data.Entities;
+using MapsVisionsAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,8 +16,8 @@ namespace MapsVisionsAPI.Data
 
             }
             public DbSet<MapImageRecogResults> MapImageRecogResults { get; set; }
+            public DbSet<Location_Photos> Location_Photos { get; set; }
 
-
-        }
+    }
 
 }

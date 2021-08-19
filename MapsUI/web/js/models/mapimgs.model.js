@@ -98,25 +98,26 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                 }
             });
             }
-            getAllImgs(notify) {
-                let api_url = this.mapsImgsEndpoint
+            getAllLocationWholePhotos(notify) {
+                let api_url = this.mapsImgsEndpoint + "LocationPhotos/AllLocationWholePhotos";
                 this.initializeModelCollection(api_url);
                 let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
 
                 mapsImgsRow.fetch({
                     headers: {
-                        'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
+                       // 'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
                         'Content-Type': 'application/json'
                     },
                     success: function (coll, data) {
                         //format result from server to be as table array provider
+
                         var arrObjs = Object.entries(data).map((val) => {
                             return val[1]
                         });
                         //remove any null elements in array
-                        arrObjs = arrObjs.filter(clas => clas != null)
-                        //    console.log(arrObjs);
-                        notify(true, arrObjs);
+                        arrObjs = arrObjs.filter(img => img != null)
+                        console.log(arrObjs);
+                        notify(true, arrObjs[0]);
                     },
                     error: function (model, xhr, options) {
                         notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
