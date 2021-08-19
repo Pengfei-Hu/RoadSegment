@@ -4,14 +4,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta http-equiv=”Access-Control-Allow-Origin" content="*">
   <title>index</title>
-  <link rel="stylesheet" href="layui/css/layui.css">
+  <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <link rel="stylesheet" href="../static/layui/css/modules/layui-icon-extend/iconfont.css">
 </head>
 <body>
 <div class="oj-hybrid-padding">
-  <h1>About Content Area</h1>
-
+  <h1 style="text-align: center">About Content Area</h1>
       <div>
-          <form class="layui-form" action="">
+          <form class="layui-form" action="" style="text-align: center">
               <div class="layui-form-item">
                   <div class="layui-inline">
                       <label class="layui-form-label">lat</label>
@@ -28,7 +28,7 @@
                   <div class="layui-inline">
                       <label class="layui-form-label">startzoomLevel</label>
                       <div class="layui-input-inline">
-                          <input type="text" name="tileZoom"  class="layui-input">
+                          <input type="text" name="startzoomLevel"  class="layui-input">
                       </div>
                   </div>
                   <div class="layui-inline">
@@ -38,32 +38,30 @@
                       </div>
                   </div>
                 <br>
-                  <div class="layui-btn-group">
-                      <button type="submit" class="layui-btn" lay-submit="" lay-filter="ul" >UL</button>
-                      <button type="submit" class="layui-btn" lay-submit="" lay-filter="ur" >UR</button>
-                      <br>
-                      <button type="submit" class="layui-btn" lay-submit=""  lay-filter="whole" >whole</button>
-                      <br>
-                      <button type="submit" class="layui-btn" lay-submit=""  lay-filter="ll" >LL</button>
-                      <button type="submit" class="layui-btn" lay-submit="" lay-filter="lr" >LR</button>
-                  </div>
-
+              </div>
+              <div class="layui-btn-group"  >
+                  <button type="submit" class="layui-btn layui-btn-primary" lay-submit="" lay-filter="ul"  style="width: 100px"><i class="layui-icon iconfont icon-layui-extend-tuya_huabanfuben-copy1"></i></button>
+                  <button type="submit" class="layui-btn layui-btn-primary" lay-submit="" lay-filter="ur" style="width: 100px"><i class="layui-icon iconfont icon-layui-extend-tuya_huabanfuben-copy"></i></button>
+                  <br>
+                  <button type="submit" class="layui-btn layui-btn-primary" lay-submit=""  lay-filter="ll" style="width: 100px"><i class="layui-icon iconfont icon-layui-extend-tuya_huabanfuben"></i></button>
+                  <button type="submit" class="layui-btn layui-btn-primary" lay-submit="" lay-filter="lr" style="width: 100px"><i class="layui-icon iconfont icon-layui-extend-tuya_huabanfuben-copy2"></i></button>
+                  <br>
+                  <button type="submit" class="layui-btn layui-btn-primary" lay-submit=""  lay-filter="go" style="width: 100px">go</button>
+                  <button type="submit" class="layui-btn layui-btn-primary" lay-submit=""  lay-filter="back" style="width: 100px">back</button>
+              </div>
           </form>
 
+      </div>
 
-
-
-          <div class="layui-row" id="test1">
-
-          </div>
+      <div class="layui-row" id="test1">
 
       </div>
+
       <!--To change the content of this section, you will make edits to the about.html file located in the /js/views folder.-->
-  </div>
-</div>
+
 </div>
 
-<script src="layui/layui.js"></script>
+<script src="../static/layui/layui.js"></script>
 <script>
     layui.use(function(){
         $ = layui.$
@@ -78,28 +76,28 @@
         /**
          * get map button
          */
-
+        let lat = getParameter("lat")
+        let lon = getParameter("lon")
+        let startzoomLevel = getParameter("startzoomLevel")
+        let endzoomLevel = getParameter("endzoomLevel")
+        $("[name='lat']").val(decodeURI(lat))
+        $("[name='lon']").val(decodeURI(lon))
+        $("[name='startzoomLevel']").val(decodeURI(startzoomLevel))
+        $("[name='endzoomLevel']").val(decodeURI(endzoomLevel))
 
         var partlist = "";
 
 
+        var data_multi = 1
 
 
-
-
-        var data_multi = 0
-
-
-
-
-        console.log("123")
 
 
 
         form.on('submit(ul)', function(data){
-            console.log("url");
+
             partlist += "0"
-            console.log("url");
+
             if (partlist != ""){
                 send_info(data)
             }else {
@@ -120,7 +118,7 @@
             data_multi += 1
             return false;
             });
-        form.on('submit(whole)', function(data){
+        form.on('submit(go)', function(data){
             partlist = ""
                if (partlist != ""){
                 send_info(data)
@@ -150,15 +148,31 @@
             data_multi += 1
             return false;
             });
+        form.on('submit(back)', function(data){
+            data_multi = data_multi - 2;
+            console.log(partlist)
+            if (partlist.length > 1){
+                partlist = partlist.substring(0, partlist.length - 1);
+            }else if (partlist.length == 1){
+                partlist=""
+            }
+            if (partlist != ""){
+                send_info(data)
+            }else {
+                send_mu(data)
+            }
+            data_multi += 1
+            return false;
+            });
 
             function send_info(data) {
                 console.log("part");
              $.ajax({
-                 url: 'http://127.0.0.1:5000/multi/part',
+                 url: 'http://127.0.0.1:5000/multi/select',
                  datatype: 'json',
                  type: 'get',
                  crossDomain: true,
-                 data: "lon=" + data.field.lon.trim() + "&lat= " + data.field.lat.trim() + "&tileZoom= " + data.field.tileZoom.trim() + "&endzoomLevel=" + data_multi.toString() + "&partlist=" + partlist,
+                 data: "lon=" + data.field.lon.trim() + "&lat= " + data.field.lat.trim() + "&startz= " + data.field.startzoomLevel.trim() + "&endz=" + data_multi.toString() + "&partlist=" + partlist,
                  success: function (data) {
                      var str = '';
                      //Google
@@ -186,7 +200,7 @@
 
             function send_mu(data) {
                  $.ajax({
-                 url: 'http://127.0.0.1:5000/multi/whole',
+                 url: 'http://127.0.0.1:5000/multi/go',
                  datatype: 'json',
                  type: 'get',
                  crossDomain: true,
@@ -196,24 +210,29 @@
                      //Google
                      str += '<div class="layui-col-xs4 layui-col-sm4 layui-col-md4">';
                      str += '<p>Bing</p>';
-                     str += '<img src=../' + data.bing + '>';
+                     str += '<img src=' + data.bing + '>';
                      str += '</div>';
                      //Bing
 
                      str += '<div class="layui-col-xs4 layui-col-sm4 layui-col-md4">';
                      str += '<p>Google</p>';
-                     str += '<img src=../' + data.google + '>';
+                     str += '<img src=' + data.google + '>';
                      str += '</div>';
                      //OSM
                      str += '<div class="layui-col-xs4 layui-col-sm4 layui-col-md4">';
                      str += '<p>OSM</p>';
-                     str += '<img src=../' + data.osm + '>';
+                     str += '<img src=' + data.osm + '>';
                      str += '</div>';
 
                      $("#test1").html("");
                      $("#test1").append(str);
                  }
              })
+            }
+        function getParameter(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
+            var r = location.search.substr(1).match(reg);
+            if (r!=null) return (r[2]); return null;
             }
 
 

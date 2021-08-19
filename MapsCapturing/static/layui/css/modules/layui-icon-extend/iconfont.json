@@ -1,0 +1,37 @@
+{
+  "id": "2756184",
+  "name": "MapCapturing",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "23714465",
+      "name": "箭头",
+      "font_class": "layui-extend-tuya_huabanfuben-copy",
+      "unicode": "e75d",
+      "unicode_decimal": 59229
+    },
+    {
+      "icon_id": "23714484",
+      "name": "箭头",
+      "font_class": "layui-extend-tuya_huabanfuben-copy1",
+      "unicode": "e75e",
+      "unicode_decimal": 59230
+    },
+    {
+      "icon_id": "23714490",
+      "name": "箭头",
+      "font_class": "layui-extend-tuya_huabanfuben-copy2",
+      "unicode": "e75f",
+      "unicode_decimal": 59231
+    },
+    {
+      "icon_id": "6999495",
+      "name": "箭头",
+      "font_class": "layui-extend-tuya_huabanfuben",
+      "unicode": "e75c",
+      "unicode_decimal": 59228
+    }
+  ]
+}
