@@ -9,6 +9,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 t = TileSystem()
 DB_PATH = 'db/map.db'
+app = Flask(__name__, static_folder="map")
 
 def download_tile(xtile, ytile, tileZoom, source):
     qkStr = t.TileXYToQuadKey(xtile, ytile, tileZoom)
