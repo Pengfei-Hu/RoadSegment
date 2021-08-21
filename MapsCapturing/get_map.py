@@ -7,7 +7,27 @@ import requests
 from bing import TileSystem
 import sqlite_util as db
 import PIL.Image as Image
+import googlemaps
+import pandas as pd
+import numpy as np
 
+gmaps=googlemaps.Client(key='my key')
+co=[(35.098129999999998, 135.71893),(26.211069999999999, 127.6876),(35.670479999999998, 139.74091999999999)]
+s = [] # Same as your code but I make an empty list
+for x, y in co:
+   coor = (x,y)
+   reverse_geocode_result = gmaps.reverse_geocode(coor)
+   s.append(reverse_geocode_result[0]['address_components'])
+
+result = [] # result for each element contains both local and adm_lvl_1
+for j in s:
+    l=[]
+    for i in j:
+        if i['types'][0]=='administrative_area_level_1':
+            l.append(i['long_name'])
+        elif i['types'][0]=='locality':
+            l.append(i['long_name'])
+    result.append(l)
 
 # Local Database address
 DB_PATH = 'db/map.db'
