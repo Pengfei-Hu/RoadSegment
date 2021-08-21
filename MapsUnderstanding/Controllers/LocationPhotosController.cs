@@ -14,7 +14,7 @@ namespace MapsVisionsAPI.Controllers
     public class LocationPhotosController : Controller
     {
         private string mainSolutionFolder = "C:\\Users\\Adel\\source\\repos\\WebDataScience\\MapsVisionGit";
-        private string pythonServer = "https://localhost:44370/Resources/Images/";
+        private string pythonServer = "http://localhost:5000/";
         private IGenericRepository<Location_Photos> repository = null;
         private readonly MapsVisionsDbContext _DbContext;
 
@@ -74,6 +74,7 @@ namespace MapsVisionsAPI.Controllers
             }
             catch (Exception ex)
             {
+                Debug.Write(ex);
                 return BadRequest(new { error = ex.Message });
             }
         }

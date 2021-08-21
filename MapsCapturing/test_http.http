@@ -1,0 +1,33 @@
+@hostname = 127.0.0.1
+@port = 5000
+@host = {{hostname}}:{{port}}
+@lat = 10
+@lon = 10
+@tileZoom = 10
+@endzoomLevel = 2
+@partlist = 01
+
+
+###
+GET http://{{host}}/
+
+###
+GET http://{{host}}/multi/part
+    ?lat={{lat}}
+    &lon={{lon}}
+    &tileZoom={{tileZoom}}
+    &endzoomLevel={{endzoomLevel}}
+    &partlist={{partlist}}
+
+###
+GET http://{{host}}/pic
+    ?lat={{lat}}
+    &lon={{lon}}
+    &tileZoom={{tileZoom}}
+
+###
+GET http://{{host}}/multi/all
+    ?lat={{lat}}
+    &lon={{lon}}
+    &startz={{tileZoom}}
+    &endz={{endzoomLevel}}

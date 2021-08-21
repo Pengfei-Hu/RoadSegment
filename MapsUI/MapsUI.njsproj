@@ -77,12 +77,12 @@
     <Content Include="src\js\settings.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="src\js\viewModels\about.js" />
-    <Content Include="src\js\viewModels\customers.js" />
+    <Content Include="src\js\viewModels\visual.js" />
+    <Content Include="src\js\viewModels\capturing.js" />
     <Content Include="src\js\viewModels\dashboard.js" />
     <Content Include="src\js\viewModels\mapscv.js" />
-    <Content Include="src\js\views\about.html" />
-    <Content Include="src\js\views\customers.html" />
+    <Content Include="src\js\views\visual.html" />
+    <Content Include="src\js\views\capturing.html" />
     <Content Include="src\js\views\dashboard.html" />
     <Content Include="src\js\views\mapscv.html" />
     <Content Include="staged-themes\alta\android\alta.css" />

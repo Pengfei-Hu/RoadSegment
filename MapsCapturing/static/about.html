@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="oj-hybrid-padding">
-  <h1 style="text-align: center">About Content Area</h1>
+  <h1 style="text-align: center">Images Visualization</h1>
       <div>
           <form class="layui-form" action="" style="text-align: center">
               <div class="layui-form-item">
@@ -31,12 +31,7 @@
                           <input type="text" name="startzoomLevel"  class="layui-input">
                       </div>
                   </div>
-                  <div class="layui-inline">
-                      <label class="layui-form-label">endzoomLevel</label>
-                      <div class="layui-input-inline">
-                          <input type="text" name="endzoomLevel"  class="layui-input">
-                      </div>
-                  </div>
+
                 <br>
               </div>
               <div class="layui-btn-group"  >
@@ -172,7 +167,7 @@
                  datatype: 'json',
                  type: 'get',
                  crossDomain: true,
-                 data: "lon=" + data.field.lon.trim() + "&lat= " + data.field.lat.trim() + "&startz= " + data.field.startzoomLevel.trim() + "&endz=" + data_multi.toString() + "&partlist=" + partlist,
+                 data: "lon=" + data.field.lon.trim() + "&lat=" + data.field.lat.trim() + "&startz=" + data.field.startzoomLevel.trim() + "&endz=" + data_multi.toString() + "&partlist=" + partlist,
                  success: function (data) {
                      var str = '';
                      //Google
@@ -228,7 +223,8 @@
                      $("#test1").append(str);
                  }
              })
-            }
+        }
+
         function getParameter(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)","i");
             var r = location.search.substr(1).match(reg);

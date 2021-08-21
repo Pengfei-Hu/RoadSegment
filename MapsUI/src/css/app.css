@@ -22,3 +22,8 @@
     float: left;
     padding: 7px;
 }
+
+.fullScreen {
+    width: 1px;
+    min-width: 100%
+}

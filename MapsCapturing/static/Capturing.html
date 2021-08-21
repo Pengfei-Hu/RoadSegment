@@ -50,22 +50,28 @@
 
 
         form.on('submit(download)', function(data){
-        $.ajax({
-            url: 'http://127.0.0.1:5000/multi/all',
-            datatype: 'json',
-            type: 'get',
-            crossDomain: true,
-            data: "lon=" + data.field.lon + "&lat=" + data.field.lat + "&startz=" + data.field.startzoomLevel + "&endz=" + data.field.endzoomLevel,
-            success: function (){
-                alert("Map captured successfully！");
-            },
-            error: function (err) {
-                console.log(err);
-                alert("Map captured FAILED");
-            }
+            
+                $.ajax({
+
+                url: 'http://127.0.0.1:5000/multi/all',
+                datatype: 'json',
+                type: 'get',
+                crossDomain: true,
+                data: "lon=" + data.field.lon + "&lat=" + data.field.lat + "&startz=" + data.field.startzoomLevel + "&endz=" + data.field.endzoomLevel,
+                success: function (){
+            
+                    alert("Map captured successfully！");
+                },
+                error: function (){
+                    alert("Map captured FAILED");
+                }
+                });
+                return false; //Prevent form redirection. If you need to jump to the form, just remove this paragraph.
+                
             });
-            return false; //Prevent form redirection. If you need to jump to the form, just remove this paragraph.
-        });
+        
+
+
         form.on('submit(go)', function(data){
             location.href = "about.html" + "?lat=" + data.field.lat + "&lon=" + data.field.lon + "&startzoomLevel=" + data.field.startzoomLevel + "&endzoomLevel=" + data.field.endzoomLevel
         });

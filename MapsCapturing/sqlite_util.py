@@ -4,53 +4,55 @@
 from numpy.lib.function_base import append
 import pymssql
 
-
 class MSSQL:
-    def __init__(self, host, user, pwd, db):
+    def __init__(self,host,user,pwd,db):
         self.host = host
         self.user = user
         self.pwd = pwd
         self.db = db
-
+ 
     def GetConnect(self):
         if not self.db:
-            raise (NameError, 'No data')
-        self.conn = pymssql.connect(server=self.host, user=self.user, password=self.pwd, database=self.db,
-                                    charset='utf8')
+            raise(NameError,'No data')
+        self.conn = pymssql.connect(server=self.host,user=self.user,password=self.pwd,database=self.db,charset='utf8')
         cur = self.conn.cursor()
         print("Connection Success!")
         if not cur:
-            raise (NameError, 'Connect Failure')
+            raise(NameError,'Connect Failure')
         else:
             return cur
 
     def inser_map(self, lat, lon, map_provider, capture_url):
-        val = (lat, lon, map_provider, capture_url, 'whole')
+        val = (lat, lon, map_provider, capture_url,'whole')
         c = self.GetConnect()
-        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,capture_url,quarter) VALUES (%s,%s,%s,%s,%s)",
-                        val)
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,capture_url,quarter) VALUES (%s,%s,%s,%s,%s)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
         return idd
 
     def inser_map_part(self, lat, lon, map_provider, zoom_level, capture_url, part_list, multi):
-        val = (lat, lon, map_provider, zoom_level + multi, capture_url, part_list, zoom_level)
+        val = (lat, lon, map_provider, zoom_level+multi, capture_url,part_list,zoom_level)
         c = self.GetConnect()
-        idd = c.execute(
-            "INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",
-            val)
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",val)
+        self.conn.commit()
+        self.conn.close()
+        print("Records created successfully")
+        return idd
+    
+    def inser_map_whole(self, lat, lon, map_provider, zoom_level, capture_url, multi):
+        val = (lat, lon, map_provider, zoom_level+multi, capture_url,'whole',zoom_level)
+        c = self.GetConnect()
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
         return idd
 
-    def inser_map_whole(self, lat, lon, map_provider, zoom_level, capture_url, multi):
-        val = (lat, lon, map_provider, zoom_level + multi, capture_url, 'whole', zoom_level)
+    def inser_map_original(self, lat, lon, map_provider, zoom_level, capture_url):
+        val = (lat, lon, map_provider, zoom_level, capture_url,'whole',zoom_level)
         c = self.GetConnect()
-        idd = c.execute(
-            "INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",
-            val)
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
@@ -58,12 +60,10 @@ class MSSQL:
 
     def inser_map_all(self, lat, lon, map_provider, zoom_level, capture_url, multi, dic):
         c = self.GetConnect()
-        for i in range(2 ** (multi * 2)):
+        for i in range(2**(multi * 2)):
             pic_url = capture_url + '{}.png'.format(i)
-            val = (lat, lon, map_provider, zoom_level + multi, pic_url, dic[i], zoom_level)
-            idd = c.execute(
-                "INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",
-                val)
+            val = (lat, lon, map_provider, zoom_level+multi, pic_url,dic[i],zoom_level)
+            idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id) VALUES (%s,%s,%s,%d,%s,%s,%d)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
@@ -71,13 +71,30 @@ class MSSQL:
 
     def select_map_part(self, lat, lon, zoom_level, multi, quarter):
         c = self.GetConnect()
-        val = (lat, lon, zoom_level + multi, quarter)
-        c.execute("SELECT * FROM location_photos WHERE lat = %s AND lng = %s AND zoom_level = %d AND quarter = %s ",
-                  val)
+        val =  (lat, lon, zoom_level+ multi, quarter)
+        c.execute("SELECT * FROM location_photos WHERE lat = %d AND lng = %d AND zoom_level = %d AND quarter = %s ", val)
         data_list = c.fetchall()
         res = {}
         for data in data_list:
-            source = data[3].strip()
+            source =data[3].strip()
+            if source == 'B':
+                res['bing'] = data[5]
+            elif source == 'G':
+                res['google'] = data[5]
+            else:
+                res['osm'] = data[5]
+        self.conn.close()
+        print("Records SELECT successfully")
+        return res
+
+    def select_map_whole(self, lat, lon, zoom_level, multi, quarter):
+        c = self.GetConnect()
+        val =  (lat, lon, zoom_level+ multi, quarter)
+        c.execute("SELECT * FROM location_photos WHERE lat = %s AND lng = %s AND zoom_level = %d AND quarter = %s ", val)
+        data_list = c.fetchall()
+        res = {}
+        for data in data_list:
+            source =data[3].strip()
             if source == 'B':
                 res['bing'] = data[5]
             elif source == 'G':

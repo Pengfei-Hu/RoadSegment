@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>fd8dde05-87a3-4635-864b-4773ab9abc60</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>server.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -204,11 +203,7 @@
     <Content Include=".vs\slnx.sqlite" />
     <Content Include=".vs\VSWorkspaceState.json" />
     <Content Include="db\map.db" />
-    <Content Include="map\bing\combine\single\01.png" />
-    <Content Include="map\google\100149afff9311eb90c05c879c963213.png" />
-    <Content Include="map\google\combine\single\01.png" />
-    <Content Include="map\osm\1024c382ff9311eb8bde5c879c963213.png" />
-    <Content Include="map\osm\combine\single\01.png" />
+    <Content Include="static\Capturing.html" />
     <Content Include="static\layui\css\layui.css" />
     <Content Include="static\layui\css\modules\code.css" />
     <Content Include="static\layui\css\modules\laydate\default\laydate.css" />

@@ -3,6 +3,16 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+/.git/*
+/.idea/*
+/.vs/*
+/__pycache/*
+/db/*
+*/map/bing/*
+*/map/google/*
+*/map/osm/*
+*/static/*
+
 # User-specific files
 *.rsuser
 *.suo
