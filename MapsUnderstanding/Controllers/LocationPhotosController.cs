@@ -50,6 +50,7 @@ namespace MapsVisionsAPI.Controllers
                                           Google=(  from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
+                                                    
                                                     g.quarter.Trim()== s.quarter.Trim() &&
                                                     g.zoom_level== s.zoom_level &&
                                                     g.map_provider.Trim() == "G"
@@ -57,6 +58,7 @@ namespace MapsVisionsAPI.Controllers
                                           Bing = (from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
+                                                   
                                                     g.quarter.Trim() == s.quarter.Trim() &&
                                                     g.zoom_level == s.zoom_level &&
                                                     g.map_provider.Trim() == "B"
@@ -64,6 +66,7 @@ namespace MapsVisionsAPI.Controllers
                                           OSM = (from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
+                                                   
                                                     g.quarter.Trim() == s.quarter.Trim() &&
                                                     g.zoom_level == s.zoom_level &&
                                                     g.map_provider.Trim() == "O"

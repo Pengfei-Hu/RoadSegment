@@ -29,6 +29,7 @@
 
                     <oj-table id="mapImgsTable"
                               data='[[dataProvider]]'
+                              on-selected-changed='{{selectedChangedListener}}'
                               selection-mode='{"row": "single", "column": "multiple"}'
                               dnd='{"reorder": {"columns": "enabled"}}'
                               scroll-policy='loadMoreOnScroll'

@@ -7,7 +7,7 @@
 define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',
     "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojinputtext", "ojs/ojlabel"],
 
- function(oj, ko, $, accUtils, $ ) {
+ function(oj, ko, $, accUtils ) {
     function CapturingViewModel() {
         var self = this;
 
@@ -21,7 +21,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',
             /*var lat = document.getElementById("lat");
             var lon = $('lon').val();
 */
-            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + s
+            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.endzoomLevel();
             $.ajax({
                     url: 'http://127.0.0.1:5000/multi/all',
                     datatype: 'json',
@@ -36,7 +36,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',
                        console.log(err);
                         alert("Map captured FAILED");
                     }
-                });elf.endzoomLevel();
+            });
+          
             
 
         }

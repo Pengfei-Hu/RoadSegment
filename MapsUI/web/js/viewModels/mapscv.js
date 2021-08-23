@@ -23,7 +23,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.googleImagePath = ko.observable("https://magic.seripap.com/2018/google-tile-example.png");
         self.osmImagePath = ko.observable("https://store-images.s-microsoft.com/image/apps.12957.14298299359319137.e613e659-a3fd-4321-897d-c7e23e9e70b6.052b26ed-8e69-44af-868f-e6f446897446?mode=scale&q=90&h=1080&w=1920");
         self.lat = ko.observable(80.6469622);
-        self.lon = ko.observable(7.8612675);
+        self.lng = ko.observable(7.8612675);
         self.startzoomLevel = ko.observable(15);
         //self.endzoomLevel = ko.observable(2);
 
@@ -67,7 +67,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.selectedMenuItem = ko.observable("None selected yet");
         self.launchedFrom = ko.observable("None launched yet");
 
-        self.myActionFunction = (event) => {
+        self.myActionFunction = (event, data, idx) => {
             cell = self.launchedFrom().split(',');
             if (event.detail.selectedValue == "ExtractText") {
                 if (cell[1] == 4)
@@ -80,8 +80,18 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     ExtractText(cell[0], "all");
 
             } else if (event.detail.selectedValue == "Visualize") {
+                console.log(event.detail);
+                console.log(data);
+                console.log(idx);
+                if (self.allLocationWholePhotos()[cell[0]] != undefined) {
+                    self.lat(self.allLocationWholePhotos()[cell[0]].lat);
+                    self.lng(self.allLocationWholePhotos()[cell[0]].lng);
+                    self.startzoomLevel(self.allLocationWholePhotos()[cell[0]].zoom_level);
+                    console.log("row=" + cell[0]);
+                    console.log(self.startzoomLevel());
+                }
                 self.showTable(false);
-                self.display();
+                
             }
 
             self.selectedMenuItem(event.detail.selectedValue);
@@ -98,7 +108,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     console.log(context.rowIndex);
                     self.launchedFrom(+ context.rowIndex + ", " + context.columnIndex );
                 }
-                self.lon(self.allLocationWholePhotos()[context.rowIndex].lng);
+                self.lng(self.allLocationWholePhotos()[context.rowIndex].lng);
                 self.lat(self.allLocationWholePhotos()[context.rowIndex].lat);
             }
         };
@@ -129,7 +139,41 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.closeDialog = () => {
             document.getElementById("msgDialog").close();
         }
+        this.selectedChangedListener = (event) => {
 
+            const row = event.detail.value.row;
+            console.log(document.getElementById("mapImgsTable"));
+            /*
+            let selectionText = "";
+            if (event.detail.value.row.isAddAll()) {
+                const iterator = event.detail.value.row.deletedValues();
+                iterator.forEach(function (key) {
+                    selectionText =
+                        selectionText.length === 0 ? `${key}` : `${selectionText}, ${key}`;
+                });
+                if (iterator.size > 0) {
+                    selectionText = " except " + selectionText;
+                }
+                selectionText = "All rows are selected" + selectionText;
+            }
+            else {
+                const row = event.detail.value.row;
+                const column = event.detail.value.column;
+                if (row.values().size > 0) {
+                    row.values().forEach(function (key) {
+                        selectionText += selectionText.length === 0 ? key : ", " + key;
+                    });
+                    selectionText = "Row Keys: " + selectionText;
+                }
+                if (column.values().size > 0) {
+                    column.values().forEach(function (key) {
+                        selectionText += selectionText.length === 0 ? key : ", " + key;
+                    });
+                    selectionText = "Column Keys: " + selectionText;
+                }
+            }
+            this.selectionInfo(selectionText);*/
+        };
         /*
          * The old work. that dr-ali stopped
         self.fileContent = ko.observable("");
@@ -238,8 +282,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         }
         self.server = ko.observable("http://localhost:5000/");
         function send_info() {
-            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString() + "&partlist=" + self.partlist();
-
+            var data = "lon=" + self.lng() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString() + "&partlist=" + self.partlist();
+            console.log(data);
             $.ajax({
                 url: 'http://127.0.0.1:5000/multi/select',
                 datatype: 'json',
@@ -258,8 +302,9 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             })
         }
         function send_mu(data) {
-            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString();
+            var data = "lon=" + self.lng() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString();
             //           "lon=" + data.field.lon + "&lat= " + data.field.lat + "&tileZoom= " + data.field.tileZoom + "&endzoomLevel=" + data_multi,
+            console.log(data);
             $.ajax({
                 url: 'http://127.0.0.1:5000/multi/go',
                 datatype: 'json',
