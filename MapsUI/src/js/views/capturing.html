@@ -10,23 +10,22 @@
         </h4>
         <div class="oj-flex">
 
-            <oj-form-layout max-columns="5" direction="row">
+            <oj-form-layout class="inCenter" max-columns="5" direction="row">
 
-                <oj-input-text  value="{{lat}}" label-hint="Latutude:"></oj-input-text>
+                <oj-input-text value="{{lat}}" label-hint="Latutude:"></oj-input-text>
 
-                <oj-input-text  value="{{lon}}" label-hint="longtude"></oj-input-text>
+                <oj-input-text value="{{lon}}" label-hint="longtude"></oj-input-text>
 
                 <oj-input-text value="{{startzoomLevel}}" label-hint="Start Zoom Level"></oj-input-text>
 
                 <oj-input-text value="{{endzoomLevel}}" label-hint="End Zoom Level"></oj-input-text>
 
-                <oj-button on-oj-action="[[download]]">
+                <oj-button id='button2' on-oj-action='[[downloadImages]]' class="oj-button-lg">
                     Download Now
                     <span slot="endIcon" class="oj-ux-ico-download"></span>
-
                 </oj-button>
 
-  
+
             </oj-form-layout>
 
 

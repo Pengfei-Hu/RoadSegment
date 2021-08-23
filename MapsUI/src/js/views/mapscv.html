@@ -7,6 +7,13 @@
             </oj-bind-text>
         </h4>
         <div class="oj-flex">
+            <map name="quadrantmap">
+                <area shape="rect" coords="0,0,255,255" alt="upperLeft" href="#" onclick="upperLeft();">
+                <area shape="rect" coords="255,0,450,255" alt="upperRight" href="#" onclick="upperRight();">
+                <area shape="rect" coords="0,255,255,450" alt="bottomLeft" href="#" onclick="bottomLeft();">
+                <area shape="rect" coords="255,255,450,450" alt="bottomRight" href="#" onclick="bottomRight();">
+            </map>
+
             <oj-dialog style="display:none" id="msgDialog"
                        dialog-title="[[msgTitle]]">
                 <div slot="body">
@@ -132,17 +139,19 @@
                             <oj-bind-text value="[[launchedFrom]]"></oj-bind-text>
                         </span>
                     </p>
+                    
+
                 </div>
             </oj-bind-if>
 
             <oj-bind-if test="[[!showTable()]]">
                 <div style="display:inline">
-                <oj-button on-oj-action="[[backToMain]]">
+                    <oj-button on-oj-action="[[backToMain]]">
 
-                    <span slot='startIcon' class="oj-ux-ico-back"></span>
-                    Back to main
-                </oj-button>
-                <hr />
+                        <span slot='startIcon' class="oj-ux-ico-back"></span>
+                        Back to main
+                    </oj-button>
+                    <hr />
                 </div>
 
                 <br />
@@ -187,13 +196,13 @@
                         </tr>
                         <tr>
                             <td>
-                                <img width="400px" :src="[[bingImagePath]]" />
+                                <img width="450px" usemap="#quadrantmap" :src="[[bingImagePath]]" />
                             </td>
                             <td>
-                                <img width="400px" :src="[[googleImagePath]]" />
+                                <img width="450px" usemap="#quadrantmap" :src="[[googleImagePath]]" />
                             </td>
                             <td>
-                                <img width="400px" :src="[[osmImagePath]]" />
+                                <img width="450px" usemap="#quadrantmap" :src="[[osmImagePath]]" />
                             </td>
                         </tr>
                         <tr>
@@ -212,59 +221,59 @@
 
 
             </oj-bind-if>
-                <!--
-                    The Old Work
-        <div id="form-container">
-            <div class="ContentBeside">
-                <oj-file-picker accept='["image/*"]' id="myFile"
-                                class="demo-max-width-25em"
-                                selection-mode="single"
-                                on-oj-select='[[selectFiles]]'>
+            <!--
+                The Old Work
+    <div id="form-container">
+        <div class="ContentBeside">
+            <oj-file-picker accept='["image/*"]' id="myFile"
+                            class="demo-max-width-25em"
+                            selection-mode="single"
+                            on-oj-select='[[selectFiles]]'>
 
-                </oj-file-picker>
-            </div>
-            <div class="ContentBeside oj-sm-padding-1x-top">
-                Image file name:
-                <oj-bind-text value="[[fileNames]]"></oj-bind-text>
-                <br />
-
-                <oj-button id="deleteButton" chroming="borderless"
-                           on-oj-action="[[uploadMapImage]]">
-                    Upload Now
-                    <span slot="endIcon" class="oj-ux-ico-upload"></span>
-
-                </oj-button>
-                <br />
-                <oj-bind-text value="[[fileNames]]"></oj-bind-text>
-            </div>
-            <div class="ContentBeside oj-sm-padding-1x-top">
-                <img role="img" :src="[[imagePath]]" width="85%"></img>
-            </div>
+            </oj-file-picker>
         </div>
+        <div class="ContentBeside oj-sm-padding-1x-top">
+            Image file name:
+            <oj-bind-text value="[[fileNames]]"></oj-bind-text>
+            <br />
 
-        <hr class="oj-header-border" />
+            <oj-button id="deleteButton" chroming="borderless"
+                       on-oj-action="[[uploadMapImage]]">
+                Upload Now
+                <span slot="endIcon" class="oj-ux-ico-upload"></span>
 
-        <div>
-            <oj-label-value label-edge="start" label-width="30%">
-                <oj-label slot="label" id="radiosetlabel">
-                    Choose the process you want to apply
-                </oj-label>
-                <oj-radioset slot="value" id="radioSetId" labelled-by="radiosetlabel"
-                             value="red" class="oj-choice-direction-row">
-                    <oj-option id="blueopt" value="blue">Normal Tesseract Reading</oj-option>
-                    <oj-option id="greenopt" value="green">Tesseract Reading Details</oj-option>
-                    <oj-option id="redopt" value="red">Results Accuracy</oj-option>
-                    <oj-option id="limeopt" value="lime">Apply changes to the image </oj-option>
-                    <oj-option id="aquaopt" value="aqua">Results Accuracy After changes</oj-option>
-                </oj-radioset>
-            </oj-label-value>
+            </oj-button>
+            <br />
+            <oj-bind-text value="[[fileNames]]"></oj-bind-text>
         </div>
-        <oj-button id="submitButton" chroming="borderless"
-                   on-oj-action="">
-            Submit
-            <span slot="endIcon" class="oj-ux-ico-submit"></span>
+        <div class="ContentBeside oj-sm-padding-1x-top">
+            <img role="img" :src="[[imagePath]]" width="85%"></img>
+        </div>
+    </div>
 
-        </oj-button>
-        -->
+    <hr class="oj-header-border" />
+
+    <div>
+        <oj-label-value label-edge="start" label-width="30%">
+            <oj-label slot="label" id="radiosetlabel">
+                Choose the process you want to apply
+            </oj-label>
+            <oj-radioset slot="value" id="radioSetId" labelled-by="radiosetlabel"
+                         value="red" class="oj-choice-direction-row">
+                <oj-option id="blueopt" value="blue">Normal Tesseract Reading</oj-option>
+                <oj-option id="greenopt" value="green">Tesseract Reading Details</oj-option>
+                <oj-option id="redopt" value="red">Results Accuracy</oj-option>
+                <oj-option id="limeopt" value="lime">Apply changes to the image </oj-option>
+                <oj-option id="aquaopt" value="aqua">Results Accuracy After changes</oj-option>
+            </oj-radioset>
+        </oj-label-value>
+    </div>
+    <oj-button id="submitButton" chroming="borderless"
+               on-oj-action="">
+        Submit
+        <span slot="endIcon" class="oj-ux-ico-submit"></span>
+
+    </oj-button>
+    -->
         </div>
 </div>

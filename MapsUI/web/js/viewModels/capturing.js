@@ -4,27 +4,25 @@
 /*
  * Your customer ViewModel code goes here
  */
-define(['accUtils', 'jquery', 'knockout', , "ojs/ojbutton", , "ojs/ojinputtext"],
- function(accUtils, $ , ko) {
+define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',
+    "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojinputtext", "ojs/ojlabel"],
+
+ function(oj, ko, $, accUtils, $ ) {
     function CapturingViewModel() {
-        let self = this;
+        var self = this;
 
         self.lat = ko.observable(80.6469622);
         self.lon = ko.observable(7.8612675);
         self.startzoomLevel = ko.observable(15);
         self.endzoomLevel = ko.observable(2);
 
-
-
-
-
-        self.download = () => {
+        this.downloadImages = () => {
             
             /*var lat = document.getElementById("lat");
             var lon = $('lon').val();
 */
-            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + s               $.ajax({
-
+            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + s
+            $.ajax({
                     url: 'http://127.0.0.1:5000/multi/all',
                     datatype: 'json',
                     type: 'get',

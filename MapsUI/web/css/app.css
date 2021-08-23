@@ -27,3 +27,8 @@
     width: 1px;
     min-width: 100%
 }
+
+.inCenter {
+    text-align: center;
+    align-content: center;
+}

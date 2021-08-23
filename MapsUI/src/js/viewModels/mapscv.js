@@ -8,7 +8,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
     'ojs/ojarraydataprovider',
     "ojs/ojflattenedtreedataproviderview", "ojs/ojarraytreedataprovider", "ojs/ojknockouttemplateutils",
     "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander",
-    "ojs/ojfilepicker", 'ojs/ojinputtext', "ojs/ojformlayout", 'ojs/ojavatar','ojs/ojinputtext', 'ojs/ojdialog',
+    "ojs/ojfilepicker",  "ojs/ojformlayout", 'ojs/ojavatar','ojs/ojinputtext', 'ojs/ojdialog',
     'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton"],
     function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, ArrayDataProvider, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
     function MapsCVViewModel() {
@@ -20,7 +20,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.partlist = ko.observable("");
         self.data_multi = ko.observable(0);
         self.bingImagePath = ko.observable("https://e3.365dm.com/18/05/1600x900/skynews-world-map-map_4298829.jpg?bypass-service-worker&20180502134213");
-        self.googleImagePath = ko.observable("https://geology.com/world/world-map.gif");
+        self.googleImagePath = ko.observable("https://magic.seripap.com/2018/google-tile-example.png");
         self.osmImagePath = ko.observable("https://store-images.s-microsoft.com/image/apps.12957.14298299359319137.e613e659-a3fd-4321-897d-c7e23e9e70b6.052b26ed-8e69-44af-868f-e6f446897446?mode=scale&q=90&h=1080&w=1920");
         self.lat = ko.observable(80.6469622);
         self.lon = ko.observable(7.8612675);
@@ -130,7 +130,6 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             document.getElementById("msgDialog").close();
         }
 
-
         /*
          * The old work. that dr-ali stopped
         self.fileContent = ko.observable("");
@@ -180,6 +179,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         }
 
         self.upperRight = () => {
+            
             self.partlist(self.partlist() + "1");
             if (self.partlist() != "") {
                 send_info()
@@ -190,6 +190,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         }
 
         self.display = () => {
+
             self.partlist("");
             if (self.partlist() != "") {
                 send_info()
@@ -200,6 +201,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         }
 
         self.bottomLeft = () => {
+
             self.partlist(self.partlist() + "2");
             if (self.partlist() != "") {
                 send_info()

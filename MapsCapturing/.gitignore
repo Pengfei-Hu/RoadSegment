@@ -8,10 +8,10 @@
 /.vs/*
 /__pycache/*
 /db/*
-*/map/bing/*
-*/map/google/*
-*/map/osm/*
-*/static/*
+/map/bing/*
+/map/google/*
+/map/osm/*
+/static/*
 
 # User-specific files
 *.rsuser

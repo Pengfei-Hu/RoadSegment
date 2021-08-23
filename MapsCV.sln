@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{78
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MapsUI", "MapsUI\MapsUI.njsproj", "{CBFDD76A-F554-4818-9996-3454128458E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapsTestBed", "MapsTestBed\MapsTestBed.csproj", "{AB245D72-C922-4771-A995-2A8F57CE5F8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapsTestBed", "MapsTestBed\MapsTestBed.csproj", "{AB245D72-C922-4771-A995-2A8F57CE5F8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapsRepos", "MapsRepos\MapsRepos.csproj", "{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{AB245D72-C922-4771-A995-2A8F57CE5F8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB245D72-C922-4771-A995-2A8F57CE5F8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB245D72-C922-4771-A995-2A8F57CE5F8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
