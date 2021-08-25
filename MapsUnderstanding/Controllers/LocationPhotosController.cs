@@ -29,7 +29,6 @@ namespace MapsVisionsAPI.Controllers
         {
             try
             {
-             
                 var model = repository.GetAll();
                 return Ok(new { data = model });
             }
@@ -46,7 +45,7 @@ namespace MapsVisionsAPI.Controllers
                 var alldata = repository.GetAll();
                 var model = from s in alldata
                                       where s.quarter.Trim()=="whole"
-                                      select new { s.lat, s.lng, s.zoom_level, 
+                                      select new { s.lat, s.lng, s.zoom_level ,
                                           Google=(  from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&

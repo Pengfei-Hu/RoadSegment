@@ -4,20 +4,21 @@
 /*
  * Your customer ViewModel code goes here
  */
-define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',
+define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',  "ojs/ojprogress-bar",
     "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojinputtext", "ojs/ojlabel"],
 
  function(oj, ko, $, accUtils ) {
     function CapturingViewModel() {
         var self = this;
-
+        
         self.lat = ko.observable(80.6469622);
         self.lon = ko.observable(7.8612675);
         self.startzoomLevel = ko.observable(15);
         self.endzoomLevel = ko.observable(2);
 
         this.downloadImages = () => {
-            
+            var progress = document.getElementById("progressBarWrapper");
+            progress.style.visibility = "visible";
             /*var lat = document.getElementById("lat");
             var lon = $('lon').val();
 */
@@ -29,10 +30,12 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',
                    crossDomain: true,
                    data: data,
                     success: function () {
-
+                        progress.style.visibility = "hidden";
                         alert("Map captured successfully！");
+                       
                     },
-                   error: function (err) {
+                error: function (err) {
+                    progress.style.visibility = "hidden";
                        console.log(err);
                         alert("Map captured FAILED");
                     }

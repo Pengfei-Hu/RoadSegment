@@ -78,8 +78,11 @@ class MSSQL:
 
     def select_map_part(self, lat, lon, zoom_level, multi, quarter):
         c = self.GetConnect()
+        query = "SELECT * FROM location_photos WHERE lat = %d AND lng = %d AND zoom_level = %d AND quarter = %s "
         val =  (lat, lon, zoom_level+ multi, quarter)
-        c.execute("SELECT * FROM location_photos WHERE lat = %d AND lng = %d AND zoom_level = %d AND quarter = %s ", val)
+        print(query)
+        print(val)
+        c.execute(query, val)
         data_list = c.fetchall()
         res = {}
         for data in data_list:

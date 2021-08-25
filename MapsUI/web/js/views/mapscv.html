@@ -29,7 +29,7 @@
 
                     <oj-table id="mapImgsTable"
                               data='[[dataProvider]]'
-                              on-selected-changed='{{selectedChangedListener}}'
+                              
                               selection-mode='{"row": "single", "column": "multiple"}'
                               dnd='{"reorder": {"columns": "enabled"}}'
                               scroll-policy='loadMoreOnScroll'
@@ -49,15 +49,11 @@
                                   "headerText": "Action",
                                   "headerStyle": "text-align: center;",
                                   "frozenEdge": "end",
-                                  "style":"text-align: center; padding-top: 0px; padding-bottom: 0px;",
-                                  "template": "actionTemplate"
-                              }]'
+                                  "style":"text-align: center; padding-top: 0px; padding-bottom: 0px;"}]'
                               style="width: 1px; min-width: 100%;">
                         <oj-menu id="contextMenu" slot="contextMenu" on-oj-menu-action="[[myActionFunction]]"
                                  on-oj-before-open="[[myBeforeOpenFunction]]" aria-label="Extract Text">
                             <oj-option value="ExtractText">Extract text of this map</oj-option>
-                            <oj-option value="ExtractAllText">Extract text from all maps childern</oj-option>
-                            <oj-option value="Visualize">Visualize</oj-option>
                         </oj-menu>
 
                         <template slot="bingImageTemplate" data-oj-as="cell">
@@ -101,19 +97,17 @@
                                     </oj-bind-if>
                                 </td>
                                 <td>
-                                    <template slot="actionTemplate" data-oj-as="cell">
-                                        <oj-menu-button chroming="borderless" display="icons">
-                                            Action
-                                            <oj-menu slot="menu">
-                                                <oj-option value="approve">
-                                                    <span class="oj-ux-ico-check" slot="startIcon"></span>Approve
-                                                </oj-option>
-                                                <oj-option value="delete">
-                                                    <span class="oj-ux-ico-delete-circle" slot="startIcon"></span>Delete
-                                                </oj-option>
-                                            </oj-menu>
-                                        </oj-menu-button>
-                                    </template>
+                                    
+                                    <oj-menu-button chroming="borderless" display="icons" data-oj-clickthrough="disabled">
+                                        Action
+                                        <oj-menu slot="menu" on-oj-menu-action="[[actionMenuListener]]">
+                                            <oj-option value="ExtractAllText">
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Extract text</oj-option>
+                                            <oj-option value="Visualize">
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Visualize</oj-option>
+                                        </oj-menu>
+                                    </oj-menu-button>
+
                                 </td>
                                 <!-- /ko -->
                                 <!-- ko if: row.item.metadata.treeDepth === 1 -->
@@ -126,6 +120,7 @@
                                 <!-- /ko -->
                             </tr>
                         </template>
+
                     </oj-table>
                     <p class="bold">
                         Last selected menu item:
@@ -148,46 +143,55 @@
             <oj-bind-if test="[[!showTable()]]">
                 <div style="display:inline">
                     <oj-button on-oj-action="[[backToMain]]">
-
                         <span slot='startIcon' class="oj-ux-ico-back"></span>
                         Back to main
                     </oj-button>
-                    <hr />
+                    <oj-button on-oj-action="[[preZoomLevel]]">
+                        <span slot='startIcon' class="oj-ux-ico-previous"></span>
+                        Previous Zoom Level
+                    </oj-button>
                 </div>
 
                 <br />
-                <div>
-                    <oj-button on-oj-action="[[upperLeft]]">
 
-                        <span slot='startIcon' class="oj-ux-ico-arrow-up-left"></span>
-                        Upper Left
-                    </oj-button>
-                    <oj-button on-oj-action="[[upperRight]]">
-                        <span slot='startIcon' class="oj-ux-ico-arrow-up-right"></span>
-                        Upper Right
-                    </oj-button>
-                    <oj-button on-oj-action="[[bottomLeft]]">
-                        <span slot='endIcon' class="oj-ux-ico-arrow-down-left"></span>
-                        Bottom Left
-                    </oj-button>
+                <!--
+    <div>
+        <oj-button on-oj-action="[[upperLeft]]">
 
-                    <oj-button on-oj-action="[[bottomRight]]">
-                        <span slot='startIcon' class="oj-ux-ico-arrow-down-right "></span>
-                        Bottom Right
+            <span slot='startIcon' class="oj-ux-ico-arrow-up-left"></span>
+            Upper Left
+        </oj-button>
+        <oj-button on-oj-action="[[upperRight]]">
+            <span slot='startIcon' class="oj-ux-ico-arrow-up-right"></span>
+            Upper Right
+        </oj-button>
+        <oj-button on-oj-action="[[bottomLeft]]">
+            <span slot='endIcon' class="oj-ux-ico-arrow-down-left"></span>
+            Bottom Left
+        </oj-button>
 
-                    </oj-button>
-                    <oj-button on-oj-action="[[display]]">
-                        <span slot='startIcon' class="oj-ux-ico-avatar"></span>
-                        Display
-                    </oj-button>
-                    <oj-button on-oj-action="[[preZoomLevel]]">
-                        <span slot='endIcon' class="oj-ux-ico-avatar"></span>
-                        Previous Zoom Level
-                    </oj-button>
+        <oj-button on-oj-action="[[bottomRight]]">
+            <span slot='startIcon' class="oj-ux-ico-arrow-down-right "></span>
+            Bottom Right
 
-                </div>
+        </oj-button>
+        <oj-button on-oj-action="[[display]]">
+            <span slot='startIcon' class="oj-ux-ico-avatar"></span>
+            Display
+        </oj-button>
+        <oj-button on-oj-action="[[preZoomLevel]]">
+            <span slot='endIcon' class="oj-ux-ico-avatar"></span>
+            Previous Zoom Level
+        </oj-button>
 
+    </div>
+        -->
                 <table class=" fullScreen oj-helper-text-align-center" role="presentation">
+                    <caption>
+                        <h3>
+                            <oj-bind-text style="font-size: 18px!important" value="[[address]]"></oj-bind-text>
+                        </h3>
+                    </caption>
                     <tbody>
                         <tr>
                             <th>Bing</th>
@@ -206,18 +210,18 @@
                                 <img width="450px" usemap="#quadrantmap" :src="[[osmImagePath]]" />
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <oj-bind-text value="[[bingImagePath]]"> </oj-bind-text>
-                            </td>
-                            <td>
-                                <oj-bind-text value="[[googleImagePath]]"> </oj-bind-text>
-                            </td>
-                            <td>
-                                <oj-bind-text value="[[osmImagePath]]"> </oj-bind-text>
-                            </td>
-                        </tr>
-                </table>
+                        <!-- <tr>
+         <td>
+             <oj-bind-text value="[[bingImagePath]]"> </oj-bind-text>
+         </td>
+         <td>
+             <oj-bind-text value="[[googleImagePath]]"> </oj-bind-text>
+         </td>
+         <td>
+             <oj-bind-text value="[[osmImagePath]]"> </oj-bind-text>
+         </td>
+     </tr>-->
+</table>
 
 
 

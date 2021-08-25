@@ -246,9 +246,11 @@ def multi_all():
 def multi_select():
     lat = request.args["lat"]
     lon = request.args["lon"]
-    tileZoom = request.args["startz"]
-    endZoomLevel = request.args["endz"]
+    tileZoom =float( request.args["startz"])
+    endZoomLevel =float( request.args["endz"])
     part_list = request.args['partlist']
+    type(tileZoom)
+    type(endZoomLevel)
     multi = endZoomLevel - tileZoom
     result = location_photos.select_map_part(lat,lon, tileZoom, multi, part_list)
     return jsonify(result)
@@ -276,7 +278,7 @@ def geocoding():
 #    reverse_geocode_result = gmaps.reverse_geocode((lat, lon))
 #    result = reverse_geocode_result[4]["formatted_address"]
     result = get_geocoding(lat, lon)
-    
+    print(result)
     return result
 
 

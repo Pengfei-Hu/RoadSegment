@@ -4,6 +4,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
             constructor() {
                 //this.mapsImgsEndpoint = JSON.parse(settings).apiserver;
                 this.mapsImgsEndpoint = "https://localhost:44370/";
+                this.pythonEndpoint = "http://localhost:5000/";
             }
             initializeModelCollection(endpoint) {
                 this.MapsImgsModelDef = oj.Model.extend({
@@ -124,7 +125,27 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     }
                 });
             }
-      
+
+            getAddressOfLatLng(lat, lng, notify) {
+                let api_url = this.pythonEndpoint + "geocoding?" + "lon=" + lng + "&lat=" + lat;
+                this.initializeModelCollection(api_url);
+                let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
+
+                mapsImgsRow.fetch({
+                    headers: {
+                        // 'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
+                        
+                        'Content-Type': 'application/json'
+                    },
+                    success: function (coll, data) {
+                        notify(true, data);
+                    },
+                    error: function (model, xhr, options) {
+                       
+                        notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
+                    }
+                });
+            }
 
 
         }//end of class

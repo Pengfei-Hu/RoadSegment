@@ -18,15 +18,16 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.msgBody = ko.observable();
         self.allLocationWholePhotos = ko.observableArray([]);
         self.partlist = ko.observable("");
+        self.lastCorrectPartlist = ko.observable("");
         self.data_multi = ko.observable(0);
-        self.bingImagePath = ko.observable("https://e3.365dm.com/18/05/1600x900/skynews-world-map-map_4298829.jpg?bypass-service-worker&20180502134213");
-        self.googleImagePath = ko.observable("https://magic.seripap.com/2018/google-tile-example.png");
-        self.osmImagePath = ko.observable("https://store-images.s-microsoft.com/image/apps.12957.14298299359319137.e613e659-a3fd-4321-897d-c7e23e9e70b6.052b26ed-8e69-44af-868f-e6f446897446?mode=scale&q=90&h=1080&w=1920");
+        self.bingImagePath = ko.observable("https://blogs.bing.com/BingBlogs/files/dc/dce88d2a-2bf9-4c65-9cca-1c425d571e75.png");
+        self.googleImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Google_Maps_Logo_2020.svg/1137px-Google_Maps_Logo_2020.svg.png");
+        self.osmImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg");
         self.lat = ko.observable(80.6469622);
         self.lng = ko.observable(7.8612675);
         self.startzoomLevel = ko.observable(15);
-        //self.endzoomLevel = ko.observable(2);
-
+        self.endzoomLevel = ko.observable(17);
+        self.address = ko.observable("");
 
 
         //Get All Data from the array to the table interface
@@ -139,41 +140,35 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.closeDialog = () => {
             document.getElementById("msgDialog").close();
         }
-        this.selectedChangedListener = (event) => {
 
-            const row = event.detail.value.row;
-            console.log(document.getElementById("mapImgsTable"));
-            /*
-            let selectionText = "";
-            if (event.detail.value.row.isAddAll()) {
-                const iterator = event.detail.value.row.deletedValues();
-                iterator.forEach(function (key) {
-                    selectionText =
-                        selectionText.length === 0 ? `${key}` : `${selectionText}, ${key}`;
-                });
-                if (iterator.size > 0) {
-                    selectionText = " except " + selectionText;
-                }
-                selectionText = "All rows are selected" + selectionText;
+        self.actionMenuListener = (event, context) => {
+            var selectMenuItem = event.detail.selectedValue;
+            var rowData = context.item.data
+            console.log(rowData);
+            if (selectMenuItem == "ExtractAllText") {
+
+            } else if (selectMenuItem == "Visualize") {
+                self.startzoomLevel(rowData["zoom_level"]);
+                self.lat(rowData["lat"]);
+                self.lng(rowData["lng"]);
+
+                self.display();
+                self.showTable(false);
             }
-            else {
-                const row = event.detail.value.row;
-                const column = event.detail.value.column;
-                if (row.values().size > 0) {
-                    row.values().forEach(function (key) {
-                        selectionText += selectionText.length === 0 ? key : ", " + key;
-                    });
-                    selectionText = "Row Keys: " + selectionText;
-                }
-                if (column.values().size > 0) {
-                    column.values().forEach(function (key) {
-                        selectionText += selectionText.length === 0 ? key : ", " + key;
-                    });
-                    selectionText = "Column Keys: " + selectionText;
-                }
+
+           /* const rowIndex = this.empArray.indexOf(context.item.data);
+            if (event.detail.selectedValue === "delete") {
+                this.empArray.splice(rowIndex, 1);
             }
-            this.selectionInfo(selectionText);*/
+            else if (event.detail.selectedValue === "approve") {
+                const rowData = context.item.data;
+                rowData.Status = "Approved";
+                this.empArray.splice(rowIndex, 1, rowData);
+            }*/
         };
+
+
+  
         /*
          * The old work. that dr-ali stopped
         self.fileContent = ko.observable("");
@@ -213,76 +208,89 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
 
         self.upperLeft = () => {
             self.partlist(self.partlist() + "0");
-
+            self.data_multi(self.data_multi() + 1);
             if (self.partlist() != "") {
                 send_info()
             } else {
                 send_mu()
             }
-            self.data_multi(self.data_multi() + 1);
+            
         }
 
         self.upperRight = () => {
-            
+            self.data_multi(self.data_multi() + 1);
             self.partlist(self.partlist() + "1");
             if (self.partlist() != "") {
                 send_info()
             } else {
                 send_mu()
             }
-            self.data_multi(self.data_multi() + 1);
+            
         }
 
         self.display = () => {
-
+            self.data_multi(self.startzoomLevel());
             self.partlist("");
             if (self.partlist() != "") {
                 send_info()
             } else {
                 send_mu()
             }
-            self.data_multi(self.data_multi() + 1);
+            MapImgModel.getAddressOfLatLng(self.lat(), self.lng(), (success, result) => {
+                
+                    self.address(result);
+                
+
+            });
+
         }
 
         self.bottomLeft = () => {
-
+            self.data_multi(self.data_multi() + 1);
             self.partlist(self.partlist() + "2");
             if (self.partlist() != "") {
                 send_info()
             } else {
                 send_mu()
             }
-            self.data_multi(self.data_multi() + 1);
+            
         }
 
         self.bottomRight = () => {
+            self.data_multi(self.data_multi() + 1);
             self.partlist(self.partlist() + "3");
             if (self.partlist() != "") {
                 send_info()
             } else {
                 send_mu()
             }
-            self.data_multi(self.data_multi() + 1);
+           
         }
         self.preZoomLevel = () => {
-            self.data_multi(self.data_multi() - 2);
-
-            console.log(self.partlist());
+           // self.data_multi(self.data_multi() - 1);
+            // self.data_multi(self.data_multi() + 1);
+           // if (self.partlist() != self.lastCorrectPartlist()) {
             if (self.partlist().length > 1) {
                 self.partlist(self.partlist().substring(0, self.partlist().length - 1));
+                self.data_multi(self.data_multi() - 1);
             } else if (self.partlist().length == 1) {
                 self.partlist("");
+                self.data_multi(self.data_multi() - 1);
+            } else if (self.partlist().length == 0) {
+                alert("It is the first level we have");
             }
+            
             if (self.partlist() != "") {
                 send_info()
             } else {
                 send_mu()
             }
-            self.data_multi(self.data_multi() + 1);
+            
         }
         self.server = ko.observable("http://localhost:5000/");
         function send_info() {
-            var data = "lon=" + self.lng() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString() + "&partlist=" + self.partlist();
+            var data = "lon=" + self.lng() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString() + "&partlist=" + self.partlist().toString();
+            console.log('http://127.0.0.1:5000/multi/select get:')
             console.log(data);
             $.ajax({
                 url: 'http://127.0.0.1:5000/multi/select',
@@ -291,12 +299,28 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 crossDomain: true,
                 data: data,
                 success: function (data) {
-                    self.bingImagePath(self.server() + data.bing);
-                    self.googleImagePath(self.server() + data.google);
-                    self.osmImagePath(self.server() + data.osm);
+                    console.log(data);
+                    console.log("success send_info");
+                    if (data.bing != undefined) {
+                        self.bingImagePath(self.server() + data.bing);
+                        self.googleImagePath(self.server() + data.google);
+                        self.osmImagePath(self.server() + data.osm);
+                        self.lastCorrectPartlist(self.partlist());
+                    } else {
+                        if (self.data_multi() > self.startzoomLevel())
+                            self.data_multi(self.data_multi() - 1);
+                        else
+                            self.data_multi(self.data_multi() + 1);
+                        console.log("DataMulti=" + self.data_multi());
+                        self.partlist(self.lastCorrectPartlist().substring(0, self.lastCorrectPartlist().length ));
+                        console.log("partlist=" + self.partlist());
+                        console.log("lastCorrectPartlist=" + self.lastCorrectPartlist());
+                        alert("We don't have another level yet.")
+                    }
 
                 },
                 error: function (err) {
+                    alert("This is the depth level we have (send_info)")
                     console.log(err);
                 }
             })
@@ -304,6 +328,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         function send_mu(data) {
             var data = "lon=" + self.lng() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString();
             //           "lon=" + data.field.lon + "&lat= " + data.field.lat + "&tileZoom= " + data.field.tileZoom + "&endzoomLevel=" + data_multi,
+            //lon=7.8612675&lat=80.6469622&startz=12&endz=0
             console.log(data);
             $.ajax({
                 url: 'http://127.0.0.1:5000/multi/go',
@@ -312,11 +337,16 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 crossDomain: true,
                 data: data,
                 success: function (data) {
+                    console.log(data);
+                    console.log("success send_mu");
+                    console.log("http://127.0.0.1:5000/multi/go get:")
+                    console.log(data);
                     self.bingImagePath(self.server() + data.bing);
                     self.googleImagePath(self.server() + data.google);
                     self.osmImagePath(self.server() + data.osm);
                 },
                 error: function (err) {
+                    alert("This is the depth level we have (go)")
                     console.log(err);
                 }
             })
