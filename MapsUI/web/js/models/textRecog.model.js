@@ -18,8 +18,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                 this.mapsImgs = new this.MapsImgsCollDef;
 
             }
-            readTextList(imagePath, notify) {
-                let api_url = this.mapsImgsEndpoint + "TextRecognition/ReadTextList";
+            getImageDetails(api_url, imagePath, notify) {
                 this.initializeModelCollection(api_url);
                 let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
                 mapsImgsRow.fetch({
@@ -29,6 +28,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                         'Content-Type': 'application/json'
                     },
                     success: (coll, data) => {
+                        console.log(api_url);
                         console.log(data);
                         notify(true, data);
                     },
@@ -38,6 +38,14 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                         console.log(options);
                     },
                 });//end fetch
+            }
+            readTextList(imagePath, notify) {
+                let api_url = this.mapsImgsEndpoint + "TextRecognition/TextList";
+                this.getImageDetails(api_url, imagePath, notify);
+            }
+            readDetailsText(imagePath, notify) {
+                let api_url = this.mapsImgsEndpoint + "TextRecognition/readDetailsText";
+                this.getImageDetails(api_url, imagePath, notify);
             }
 
         }//end of class

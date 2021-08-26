@@ -103,7 +103,93 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
             saveMatImage(result, "result", imagePath);
             return true;
         }
+        
+        public static string removeBKEffects(string imagePath)
+        {
+            Mat image;
+            Mat img_gray = new Mat();
+            Mat thresh = new Mat();
+            OpenCvSharp.Point[][] contours;
+            // OpenCvSharp.Point[][] acceptedContours;
+            float confidence;
+            string allText;
+            string csvText;
+            string path = imagePath.Substring(0, imagePath.LastIndexOf("\\"));
+            string grayImgPath = Path.Combine(path, "gray.png");
+            string filePath = Path.Combine(path, "gray.txt");
 
+            TesseractReading tess = new TesseractReading();
+            image = Cv2.ImRead(imagePath); // BitmapConverter.ToMat(original)
+                                           // convert the image to grayscale format
+            Cv2.CvtColor(image, img_gray, ColorConversionCodes.BGR2GRAY);
+
+            Cv2.Threshold(img_gray, thresh, 200, 255, ThresholdTypes.BinaryInv);
+            Cv2.ImWrite(grayImgPath, thresh);
+            tess.TesseractReader(grayImgPath, out confidence, out allText, out csvText);
+
+
+            //Mat[] contours;
+            HierarchyIndex[] hierarchy;
+            Cv2.FindContours(thresh, out contours, out hierarchy, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+            Mat image_txt = image.EmptyClone(); // New White Image
+            image_txt = image_txt.SetTo(Scalar.White);
+
+            List<OpenCvSharp.Rect> rects = getRectangles(ref image_txt, new StringReader(csvText), filePath);
+
+            //Cv2.InRange()
+            for (int i = 1; i < contours.Length; i++)
+            {
+                if (Cv2.ContourArea(contours[i]) > 4 && Cv2.ContourArea(contours[i]) < 85)
+                {
+
+                    Console.WriteLine("ContourArea=" + Cv2.ContourArea(contours[i]));
+                    // if (ContourIntoRect(contours[i], rects))
+                    Cv2.DrawContours(image_txt, contours, i, Scalar.Black);
+                    // else
+                    //   Cv2.DrawContours(image_txt, contours, i, Scalar.Red);
+
+                    /* Cv2.ImShow("Image Text", image_txt);
+                     Cv2.WaitKey(0);
+                     Cv2.DestroyAllWindows();*/
+                }
+            }
+            Bitmap bitmap = BitmapConverter.ToBitmap(image_txt);
+            string newImgPath = imagePath.Substring(0, imagePath.LastIndexOf("."))+ "_text.png";
+            bitmap.Save(newImgPath);
+            return newImgPath;
+        }
+        private static List<OpenCvSharp.Rect> getRectangles(ref Mat img_txt, StringReader csvText, string filePath)
+        {
+            string line = "";
+            List<OpenCvSharp.Rect> rects = new List<OpenCvSharp.Rect>();
+            while ((line = csvText.ReadLine()) != null)
+            {
+                var cells = line.Split("\t");
+                string word = cells[11].Trim();
+                if ((cells[10].Trim() != "-1") && (word != ""))
+                {
+                    /*if (word.Length > 2)
+                    {*/
+                    OpenCvSharp.Rect rect = new OpenCvSharp.Rect(
+                            Int32.Parse(cells[6].Trim()),
+                            Int32.Parse(cells[7].Trim()),
+                            Int32.Parse(cells[8].Trim()),
+                            Int32.Parse(cells[9].Trim()));
+                    rects.Add(rect);
+                    //   Cv2.Rectangle(img_txt, rect, Scalar.Purple);
+                    File.AppendAllText(filePath, line + "\n");
+                    /*Cv2.ImShow("Image Text", img_gray);
+                    Cv2.WaitKey(0);
+                    Cv2.DestroyAllWindows();*/
+                    /*}*/
+                }
+            }
+            return rects;
+            //Cv2.ImShow("Gray mage", img_gray);
+            //Cv2.WaitKey(0);
+            //Cv2.DestroyAllWindows();
+
+        }
 
     }
 }

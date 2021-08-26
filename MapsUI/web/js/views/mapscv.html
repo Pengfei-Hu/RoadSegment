@@ -13,6 +13,10 @@
                 <area shape="rect" coords="0,255,255,450" alt="bottomLeft" href="#" onclick="bottomLeft();">
                 <area shape="rect" coords="255,255,450,450" alt="bottomRight" href="#" onclick="bottomRight();">
             </map>
+            <oj-messages messages="[[messagesDataprovider]]"
+                         position='{"my":{"vertical" :"top", "horizontal": "middle"},
+                                    "at": {"vertical": "top", "horizontal": "middle"}}'
+                         display="notification"></oj-messages>
 
             <oj-dialog style="display:none" id="msgDialog"
                        dialog-title="[[msgTitle]]">
@@ -29,7 +33,6 @@
 
                     <oj-table id="mapImgsTable"
                               data='[[dataProvider]]'
-                              
                               selection-mode='{"row": "single", "column": "multiple"}'
                               dnd='{"reorder": {"columns": "enabled"}}'
                               scroll-policy='loadMoreOnScroll'
@@ -97,14 +100,19 @@
                                     </oj-bind-if>
                                 </td>
                                 <td>
-                                    
+
                                     <oj-menu-button chroming="borderless" display="icons" data-oj-clickthrough="disabled">
                                         Action
                                         <oj-menu slot="menu" on-oj-menu-action="[[actionMenuListener]]">
-                                            <oj-option value="ExtractAllText">
-                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Extract text</oj-option>
                                             <oj-option value="Visualize">
-                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Visualize</oj-option>
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Visualize
+                                            </oj-option>
+                                            <oj-option value="ExtractAllText">
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Extract text
+                                            </oj-option>
+                                            <oj-option value="ExtractDetails">
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Extract text details
+                                            </oj-option>
                                         </oj-menu>
                                     </oj-menu-button>
 
@@ -135,7 +143,7 @@
                             <oj-bind-text value="[[launchedFrom]]"></oj-bind-text>
                         </span>
                     </p>
-                    
+
 
                 </div>
             </oj-bind-if>
@@ -144,7 +152,7 @@
                 <div style="display:inline">
                     <oj-button on-oj-action="[[backToMain]]">
                         <span slot='startIcon' class="oj-ux-ico-back"></span>
-                        Back to main
+                        Back to Maps List
                     </oj-button>
                     <oj-button on-oj-action="[[preZoomLevel]]">
                         <span slot='startIcon' class="oj-ux-ico-previous"></span>
@@ -154,38 +162,6 @@
 
                 <br />
 
-                <!--
-    <div>
-        <oj-button on-oj-action="[[upperLeft]]">
-
-            <span slot='startIcon' class="oj-ux-ico-arrow-up-left"></span>
-            Upper Left
-        </oj-button>
-        <oj-button on-oj-action="[[upperRight]]">
-            <span slot='startIcon' class="oj-ux-ico-arrow-up-right"></span>
-            Upper Right
-        </oj-button>
-        <oj-button on-oj-action="[[bottomLeft]]">
-            <span slot='endIcon' class="oj-ux-ico-arrow-down-left"></span>
-            Bottom Left
-        </oj-button>
-
-        <oj-button on-oj-action="[[bottomRight]]">
-            <span slot='startIcon' class="oj-ux-ico-arrow-down-right "></span>
-            Bottom Right
-
-        </oj-button>
-        <oj-button on-oj-action="[[display]]">
-            <span slot='startIcon' class="oj-ux-ico-avatar"></span>
-            Display
-        </oj-button>
-        <oj-button on-oj-action="[[preZoomLevel]]">
-            <span slot='endIcon' class="oj-ux-ico-avatar"></span>
-            Previous Zoom Level
-        </oj-button>
-
-    </div>
-        -->
                 <table class=" fullScreen oj-helper-text-align-center" role="presentation">
                     <caption>
                         <h3>
@@ -210,18 +186,156 @@
                                 <img width="450px" usemap="#quadrantmap" :src="[[osmImagePath]]" />
                             </td>
                         </tr>
-                        <!-- <tr>
-         <td>
-             <oj-bind-text value="[[bingImagePath]]"> </oj-bind-text>
-         </td>
-         <td>
-             <oj-bind-text value="[[googleImagePath]]"> </oj-bind-text>
-         </td>
-         <td>
-             <oj-bind-text value="[[osmImagePath]]"> </oj-bind-text>
-         </td>
-     </tr>-->
-</table>
+                        <oj-bind-if test="[[showImagesPath()]]">
+                            <tr>
+                                <td>
+                                    <oj-bind-text value="[[bingImagePath]]"> </oj-bind-text>
+                                </td>
+                                <td>
+                                    <oj-bind-text value="[[googleImagePath]]"> </oj-bind-text>
+                                </td>
+                                <td>
+                                    <oj-bind-text value="[[osmImagePath]]"> </oj-bind-text>
+                                </td>
+                            </tr>
+                        </oj-bind-if>
+                        <oj-bind-if test="[[showExtractedTextUnderMaps()]]">
+                            <tr>
+                                <td>
+                                    <b>OCR Results:</b> <br />
+                                    <oj-bind-text value="[[bingOCRResult]]"> </oj-bind-text>
+
+                                </td>
+                                <td>
+                                    <b>OCR Results:</b> <br />
+                                    <oj-bind-text value="[[googleOCRResult]]"> </oj-bind-text>
+                                </td>
+                                <td>
+                                    <b>OCR Results:</b> <br />
+                                    <oj-bind-text value="[[osmOCRResult]]"> </oj-bind-text>
+                                </td>
+                            </tr>
+                        </oj-bind-if>
+                        <oj-bind-if test="[[showExtractedTextDetails()]]">
+                            <tr>
+                                <td>
+                                    <b>OCR Results Details:</b> <br />
+
+                                    <oj-table id='tableBingDetails' aria-label='Details'
+                                              data='[[bingDetailsOCRResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "left",
+                                                     "field": "left",
+                                                     "headerClassName": "oj-sm-only-hide",
+                                                     "className": "oj-sm-only-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "right",
+                                                     "field": "right",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "width",
+                                                     "field": "width",
+                                                     "headerClassName": "oj-sm-only-hide",
+                                                     "className": "oj-sm-only-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "height",
+                                                     "field": "height",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "confidence",
+                                                     "field": "confidence",
+                                                     "headerClassName": "oj-md-down-hide",
+                                                     "className": "oj-md-down-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "text",
+                                                     "field": "text",
+                                                     "headerClassName": "oj-md-down-hide",
+                                                     "className": "oj-md-down-hide",
+                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table>
+
+                                </td>
+                                <td>
+                                    <b>OCR Results Details:</b> <br />
+
+                                    <oj-table id='tableGoogleDetails' aria-label='Details'
+                                              data='[[googleDetailsOCRResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "left",
+                                                     "field": "left",
+                                                     "headerClassName": "oj-sm-only-hide",
+                                                     "className": "oj-sm-only-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "right",
+                                                     "field": "right",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "width",
+                                                     "field": "width",
+                                                     "headerClassName": "oj-sm-only-hide",
+                                                     "className": "oj-sm-only-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "height",
+                                                     "field": "height",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "confidence",
+                                                     "field": "confidence",
+                                                     "headerClassName": "oj-md-down-hide",
+                                                     "className": "oj-md-down-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "text",
+                                                     "field": "text",
+                                                     "headerClassName": "oj-md-down-hide",
+                                                     "className": "oj-md-down-hide",
+                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table>
+
+                                </td>
+                                <td>
+                                    <b>OCR Results Details:</b> <br />
+                                    <oj-table id='osmGoogleDetails' aria-label='Details'
+                                              data='[[osmDetailsOCRResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "left",
+                                                     "field": "left",
+                                                     "headerClassName": "oj-sm-only-hide",
+                                                     "className": "oj-sm-only-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "right",
+                                                     "field": "right",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "width",
+                                                     "field": "width",
+                                                     "headerClassName": "oj-sm-only-hide",
+                                                     "className": "oj-sm-only-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "height",
+                                                     "field": "height",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "confidence",
+                                                     "field": "confidence",
+                                                     "headerClassName": "oj-md-down-hide",
+                                                     "className": "oj-md-down-hide",
+                                                     "resizable": "enabled"},
+                                                    {"headerText": "text",
+                                                     "field": "text",
+                                                     "headerClassName": "oj-md-down-hide",
+                                                     "className": "oj-md-down-hide",
+                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table>
+                                </td>
+                            </tr>
+                        </oj-bind-if>
+                </table>
 
 
 

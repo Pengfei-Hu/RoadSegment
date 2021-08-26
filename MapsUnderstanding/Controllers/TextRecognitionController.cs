@@ -13,6 +13,7 @@ using MapsVisionsAPI.Data.Entities;
 using MapsVisionsAPI.Data;
 using Microsoft.Extensions.Configuration;
 using System.Net;
+using MapsUnderstanding.Models;
 
 namespace MapsVisionsAPI.Controllers
 {
@@ -20,59 +21,94 @@ namespace MapsVisionsAPI.Controllers
     [Route("[controller]")]
     public class TextRecognitionController : Controller
     {
+       // protected readonly string mapsFolder = "C:\\Users\\Adel\\source\\repos\\WebDataScience\\MapsVisionGit\\MapsCapturing\\";
         TesseractReading Tess = new TesseractReading();
+        public string mapsPath()
+        {
+            string ApiDir = Directory.GetCurrentDirectory();
+            string mapsDir = ApiDir.Substring(0,ApiDir.LastIndexOf("\\") );
+            return mapsDir + "\\MapsCapturing";
+        }
         [HttpGet("TextList")]
         public IActionResult GetTextList()
         {
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images","Map1.jpg");
-            float confidence = 0.0f;
-            string allText = "";
-            string[] wordsList;
-
-            Tess.TesseractReader(imagePath, out confidence,out allText,out _);
-            wordsList = TextProcessing.castLinedTextToStringArray(allText);
-          //  bool gray = ImageFilters.applyBestEffects1(imagePath);
-            return Ok(new  {Confidence= confidence, wordsList = wordsList, Gray=false });
-        }
-
-        [HttpGet("ReadTextList")]
-        public IActionResult ReadTextList()
-        {
-            
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images", "Map1.jpg");
-            Request.Headers.TryGetValue("imagePath", out var imageUrl);
-            imageUrl = imageUrl.ToString().Substring(imageUrl.ToString().IndexOf("Resources/Images"));
-            Debug.WriteLine(imageUrl.ToString());
-            float confidence = 0.0f;
-            string allText = "";
-            string[] wordsList;
-            
-            /*using (WebClient client = new WebClient())
+            try
             {
-                client.DownloadFile(new Uri(imageUrl), imagePath);
-            }*/
-        
-            Tess.TesseractReader(imageUrl.ToString(), out confidence, out allText, out _);
-            wordsList = TextProcessing.castLinedTextToStringArray(allText);
-            //  bool gray = ImageFilters.applyBestEffects1(imagePath);
-            return Ok(new { Confidence = confidence, wordsList = wordsList, Gray = false, imagePath= imageUrl.ToString() });
+                Request.Headers.TryGetValue("imagePath", out var imageName);
+                imageName = imageName.ToString().Replace("/", "\\");
+                var imagePath = Path.Combine(mapsPath(), imageName);
+                float confidence = 0.0f;
+                string allText = "";
+                string[] wordsList;
+
+                Tess.TesseractReader(imagePath, out confidence, out allText, out _);
+                wordsList = TextProcessing.castLinedTextToStringArray(allText);
+                //  bool gray = ImageFilters.applyBestEffects1(imagePath);
+                return Ok(new {Success=true, Confidence = confidence, wordsList = wordsList, imagePath= imagePath });
+            }catch(ArgumentNullException ex)
+            {
+                return BadRequest(new { Success = false, message ="you must add imagePath in headers of your request", error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, error = ex.Message });
+            }
         }
 
-
-        [HttpPost("applyFilters")]
-        public IActionResult applyFilters()
+        [HttpGet("readDetailsText")]
+        public IActionResult readDetailsText()
         {
             try
             {
-                string[] imgs = { "Google-Map3.jpg" };
-                foreach(var img in imgs)
-                {
-                    var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images", img);
-                    Debug.WriteLine(imagePath);
-                    ImageFilters.applyBestEffects1(imagePath);
-                }
-                return Ok(new { message = "filters applied over the images successfully" });
+                Request.Headers.TryGetValue("imagePath", out var imageName);
+                imageName = imageName.ToString().Replace("/", "\\");
+                var imagePath = Path.Combine(mapsPath(), imageName);
+                float confidence = 0.0f;
+                string detailedText = "";
+                List<TessTextDef> wordsList=new List<TessTextDef>();
+                Tess.TesseractReader(imagePath, out confidence, out _, out detailedText);
+                wordsList = TextProcessing.CastCSVToDataTable(new StringReader(detailedText));
+                return Ok(new { Success = true, Confidence = confidence, wordsList = wordsList, imagePath= imagePath, detailedText= detailedText });
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new { Success = false, message = "you must add imagePath in headers of your request", error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return BadRequest(new { Success = false, error = ex.Message });
+            }
+        }
+
+
+        [HttpPost("applyFilters1")]
+        public IActionResult applyFilters1()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("imagePath", out var imageName);
+                imageName = imageName.ToString().Replace("/", "\\");
+                var imagePath = Path.Combine(mapsPath(), imageName);
+                ImageFilters.applyBestEffects1(imagePath);
+                return Ok(new { message = "filters applied over the images successfully", imagePath=imagePath });
             }catch(Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        [HttpPost("applyFilters2")]
+        public IActionResult applyFilters2()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("imagePath", out var imageName);
+                imageName = imageName.ToString().Replace("/", "\\");
+                var imagePath = Path.Combine(mapsPath(), imageName);
+                ImageFilters.removeBKEffects(imagePath);
+                return Ok(new { message = "filters group(2) applied over the images successfully", imagePath = imagePath });
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
@@ -108,24 +144,28 @@ namespace MapsVisionsAPI.Controllers
         {
             try
             {
-                    var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images\\Thresh", "MANAPAYA-Normal.jpg");
+                   // var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Resources\\Images\\Thresh", "MANAPAYA-Normal.jpg");
                     Request.Headers.TryGetValue("correctWords", out var allWords);
-                    if (allWords.Count == 0)
+                    Request.Headers.TryGetValue("imagePath", out var imageName);
+                    imageName = imageName.ToString().Replace("/", "\\");
+                    var imagePath = Path.Combine(mapsPath(), imageName);
+
+                if (allWords.Count == 0)
                         return BadRequest(new { error = "you must send the correctWords in headers. That contains all correct words in the image" });
                     else
                     {
                         string[] correctWords = allWords[0].Split(",");
 
-                        float matchingDegree = 0;
-                        float sumMatchingDegree = 0;
+                        double matchingDegree = 0;
+                        double sumMatchingDegree = 0;
                         int countMatchingDegreeRows = 0;
                         int wrongWords = 0;
                         int undetectedWords = 0;
                         int detectedWords = 0;
-                        float totalMatchingDegree = 0;
+                        double totalMatchingDegree = 0;
 
                         tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult);
-                        List<string[]> tableOfWordsResultWithMatchingDegree =
+                        List<TessTextDef> tableOfWordsResultWithMatchingDegree =
                             TextProcessing.getTableWithMatchingDegree(tableOfWordsResult,
                                                             correctWords, out wrongWords,
                                                             out countMatchingDegreeRows, out sumMatchingDegree);
@@ -151,7 +191,12 @@ namespace MapsVisionsAPI.Controllers
                         });
                     }
                 
-            }catch (Exception ex)
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(new { Success = false, message = "You must add imagePath and correctWords in headers of your request", error = ex.Message });
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
             }
@@ -174,16 +219,16 @@ namespace MapsVisionsAPI.Controllers
                     {
                         string[] correctWords = allWords[0].Split(",");
 
-                        float matchingDegree = 0;
-                        float sumMatchingDegree = 0;
+                        double matchingDegree = 0;
+                        double sumMatchingDegree = 0;
                         int countMatchingDegreeRows = 0;
                         int wrongWords = 0;
                         int undetectedWords = 0;
                         int detectedWords = 0;
-                        float totalMatchingDegree = 0;
+                        double totalMatchingDegree = 0;
 
                         tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult);
-                        List<string[]> tableOfWordsResultWithMatchingDegree =
+                        List<TessTextDef> tableOfWordsResultWithMatchingDegree =
                             TextProcessing.getTableWithMatchingDegree(tableOfWordsResult,
                                                             correctWords, out wrongWords,
                                                             out countMatchingDegreeRows, out sumMatchingDegree);
@@ -222,8 +267,8 @@ namespace MapsVisionsAPI.Controllers
                         model.no_undetected_words = undetectedWords;
                         model.no_wrong_words = wrongWords;
                         model.confidence =confidence;
-                        if (matchingDegree != matchingDegree) model.matching_degree = 0; else model.matching_degree = matchingDegree;
-                        model.total_matching_degree = totalMatchingDegree;
+                        if (matchingDegree != matchingDegree) model.matching_degree = 0; else model.matching_degree = Convert.ToSingle(matchingDegree);
+                        model.total_matching_degree =Convert.ToSingle( totalMatchingDegree);
 
                         repository.Insert(model);
                         repository.Save();
@@ -239,7 +284,7 @@ namespace MapsVisionsAPI.Controllers
             }
             return Ok(new { message = "All captured maps stored into the database" });
         }
-        private void tableOfDetectedWords(string imagePath, out float confidence, out List<string[]> table)
+        private void tableOfDetectedWords(string imagePath, out float confidence, out List<TessTextDef> table)
         {
                 string allText ="";
                 Tess.TesseractReader(imagePath, out confidence,out _, out allText);

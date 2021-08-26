@@ -15,6 +15,7 @@ namespace MapsVisionsAPI.Middleware
             try
             {
                 var tessDataFolder = Path.Combine(Directory.GetCurrentDirectory(), "tessdata");
+                Console.WriteLine("tessDataFolder=" + tessDataFolder);
                 var engine = new TesseractEngine(tessDataFolder, "eng", EngineMode.Default);
                 Bitmap mapImg = new Bitmap(imagePath);
                 var pix = Tesseract.Pix.LoadFromFile(imagePath);

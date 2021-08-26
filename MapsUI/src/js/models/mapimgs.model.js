@@ -125,7 +125,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     }
                 });
             }
-
+            //get the name of the location
             getAddressOfLatLng(lat, lng, notify) {
                 let api_url = this.pythonEndpoint + "geocoding?" + "lon=" + lng + "&lat=" + lat;
                 this.initializeModelCollection(api_url);

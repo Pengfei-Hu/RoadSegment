@@ -7,7 +7,7 @@
 define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 'models/textRecog.model',
     'ojs/ojarraydataprovider',
     "ojs/ojflattenedtreedataproviderview", "ojs/ojarraytreedataprovider", "ojs/ojknockouttemplateutils",
-    "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander",
+    "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander", "ojs/ojmessages",
     "ojs/ojfilepicker",  "ojs/ojformlayout", 'ojs/ojavatar','ojs/ojinputtext', 'ojs/ojdialog',
     'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton"],
     function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, ArrayDataProvider, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
@@ -29,6 +29,20 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.endzoomLevel = ko.observable(17);
         self.address = ko.observable("");
 
+        self.showImagesPath = ko.observable(false);
+        self.showExtractedTextUnderMaps = ko.observable(false);
+        self.showExtractedTextDetails = ko.observable(false);
+
+        self.bingOCRResult = ko.observable("");
+        self.googleOCRResult = ko.observable("");
+        self.osmOCRResult = ko.observable("");
+
+        self.bingDetailsOCRResult = ko.observable("");
+        self.googleDetailsOCRResult = ko.observable("");
+        self.osmDetailsOCRResult = ko.observable("");
+
+        self.messages = ko.observableArray([]);;
+        self.messagesDataprovider = new ArrayDataProvider(self.messages);
 
         //Get All Data from the array to the table interface
         /*self.dataProvider = new ArrayDataProvider(self.allLocationWholePhotos, {
@@ -119,9 +133,12 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             if (map_provider == "all") {
                 
             }else  if (self.allLocationWholePhotos()[row][map_provider] == null) {
-                alert("No Image To Extract the text");
+                
+                self.messages().push({ summary: 'No Image To Extract the text', autoTimeout: 1000 });
+                self.messages.valueHasMutated();
             } else {
                 var imgPath = self.allLocationWholePhotos()[row][map_provider]["imgPath"];
+                imgPath=imgPath.substring(imgPath.indexOf("map")) ;
                 TextRecogModel.readTextList(imgPath, (success, data) => {
                     self.msgTitle("Extracted Successfully");
                     var result = "confidence:" + data.confidence + "\t wordsList:" + data.wordsList;
@@ -133,7 +150,11 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             
         }
 
+
+
+
         self.backToMain = () => {
+
             self.showTable(true);
         }
         //Dialogs
@@ -145,13 +166,25 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             var selectMenuItem = event.detail.selectedValue;
             var rowData = context.item.data
             console.log(rowData);
+            self.startzoomLevel(rowData["zoom_level"]);
+            self.lat(rowData["lat"]);
+            self.lng(rowData["lng"]);
             if (selectMenuItem == "ExtractAllText") {
-
+                self.showExtractedTextUnderMaps(true);
+                self.showImagesPath(false);
+                self.showExtractedTextDetails(false);
+                self.display();
+                self.showTable(false);
             } else if (selectMenuItem == "Visualize") {
-                self.startzoomLevel(rowData["zoom_level"]);
-                self.lat(rowData["lat"]);
-                self.lng(rowData["lng"]);
-
+                self.showExtractedTextUnderMaps(false);
+                self.showImagesPath(false);
+                self.showExtractedTextDetails(false);
+                self.display();
+                self.showTable(false);
+            } else if (selectMenuItem == "ExtractDetails") {
+                self.showExtractedTextDetails(true);
+                self.showExtractedTextUnderMaps(false);
+                self.showImagesPath(false);
                 self.display();
                 self.showTable(false);
             }
@@ -167,44 +200,99 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             }*/
         };
 
+        self.bingOCRDetails = ko.observableArray([]);
+        bingDetailsOCRResultDataprovider = new ArrayDataProvider(self.bingOCRDetails, {
+                keyAttributes: "text",
+                implicitSort: [{ attribute: "confidence", direction: "ascending" }],
+        });
 
-  
-        /*
-         * The old work. that dr-ali stopped
-        self.fileContent = ko.observable("");
-        self.fileNames = ko.observable();
-        self.imagePath = ko.observable("https://localhost:44370/Resources/Images/Map1.jpg");
-        self.selectFiles = (event) => {
-            self.fileNames(Array.prototype.map.call(event.detail.files, (file) => {
-                return file.name;
-            }));
-            var files = event.detail.files;
+        self.googleOCRDetails = ko.observableArray([]);
+        googleDetailsOCRResultDataprovider = new ArrayDataProvider(self.googleOCRDetails, {
+            keyAttributes: "text",
+            implicitSort: [{ attribute: "confidence", direction: "ascending" }],
+        });
+        self.osmOCRDetails = ko.observableArray([]);
+        osmDetailsOCRResultDataprovider = new ArrayDataProvider(self.osmOCRDetails, {
+            keyAttributes: "text",
+            implicitSort: [{ attribute: "confidence", direction: "ascending" }],
+        });
 
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                console.log("files.length:" + files.length);
-                self.fileContent(file);
-
-                var reader = new FileReader();
-                reader.addEventListener("loadend", function () {
-                    self.fileContent(reader.result);
+        self.readOCRResult = (newPath) => {
+            return new Promise((resolve, reject) => {
+                var imagePath = newPath.substring(newPath.indexOf("map"));
+                TextRecogModel.readTextList(imagePath, (success, data) => {
+                    if (success)
+                        resolve("confidence:" + data.confidence + "\n wordsList:" + data.wordsList);
+                    else
+                        reject("Sorry, i can't extract the text from this image");
                 });
-                // reader.readAsText(file);
-            }
-            if (files.length < 1)
-                self.fileContent("");
-          //console.log(self.fileContent());
-        }
+            });
+        };
+        self.readOCRResultDetails = (newPath) => {
+            return new Promise((resolve, reject) => {
+                var imagePath = newPath.substring(newPath.indexOf("map"));
+                TextRecogModel.readDetailsText(imagePath, (success, data) => {
+                    if (success) {
+                        resolve(data);
+                    }
+                    else
+                        reject("Sorry, i can't extract the text from this image");
+                });
+            });
+        };
 
-        self.uploadMapImage = () => {
-            MapImgModel.addMapImg(self.fileContent(), (success, msg) => {
-                alert(msg);
-                location.reload();
-            });//end upload MapImg
-        }
-        */
+        self.bingImagePath.subscribe(function (newPath) {
+            
+            self.readOCRResult(newPath)
+                .then(result => {
+                    self.bingOCRResult(result);
+                }).catch(err => {
+                    self.bingOCRResult(err);
+                });
 
+            self.readOCRResultDetails(newPath)
+                .then(result => {
+                    self.bingDetailsOCRResult(result);
+                    self.bingOCRDetails(result.wordsList);
+                    self.bingOCRDetails.valueHasMutated();
+                }).catch(err => {
+                    self.bingDetailsOCRResult(err);
+                });
+            
+        });
+        self.googleImagePath.subscribe(function (newPath) {
+            self.readOCRResult(newPath)
+                .then(result => {
+                    self.googleOCRResult(result);
+                }).catch(err => {
+                    self.googleOCRResult(err);
+                });
 
+            self.readOCRResultDetails(newPath)
+                .then(result => {
+                    self.googleDetailsOCRResult(result);
+                    self.googleOCRDetails(result.wordsList);
+                    self.googleOCRDetails.valueHasMutated();
+                }).catch(err => {
+                    self.googleDetailsOCRResult(err);
+                });
+        });
+        self.osmImagePath.subscribe(function (newPath) {
+            self.readOCRResult(newPath)
+                .then(result => {
+                    self.osmOCRResult(result);
+                }).catch(err => {
+                    self.osmOCRResult(err);
+                });
+            self.readOCRResultDetails(newPath)
+                .then(result => {
+                    self.osmDetailsOCRResult(result);
+                    self.osmOCRDetails(result.wordsList);
+                    self.osmOCRDetails.valueHasMutated();
+                }).catch(err => {
+                    self.osmDetailsOCRResult(err);
+                });
+        });
 
         self.upperLeft = () => {
             self.partlist(self.partlist() + "0");
@@ -277,7 +365,9 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 self.partlist("");
                 self.data_multi(self.data_multi() - 1);
             } else if (self.partlist().length == 0) {
-                alert("It is the first level we have");
+                //alert("It is the first level we have");
+                self.messages().push({ summary: 'It is the first level we have', autoTimeout: 1000 });
+                self.messages.valueHasMutated();
             }
             
             if (self.partlist() != "") {
@@ -315,12 +405,16 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                         self.partlist(self.lastCorrectPartlist().substring(0, self.lastCorrectPartlist().length ));
                         console.log("partlist=" + self.partlist());
                         console.log("lastCorrectPartlist=" + self.lastCorrectPartlist());
-                        alert("We don't have another level yet.")
+                        //alert("We don't have another level yet.")
+                        self.messages().push({summary: "We don't have another level yet", autoTimeout: 1000 });
+                        self.messages.valueHasMutated();
                     }
 
                 },
                 error: function (err) {
-                    alert("This is the depth level we have (send_info)")
+                   // alert("This is the depth level we have (send_info)")
+                    self.messages().push({ summary: "This is the depth level we have (send_info)", autoTimeout: 1000 });
+                    self.messages.valueHasMutated();
                     console.log(err);
                 }
             })
@@ -346,7 +440,9 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     self.osmImagePath(self.server() + data.osm);
                 },
                 error: function (err) {
-                    alert("This is the depth level we have (go)")
+                    //alert("This is the depth level we have (go)")
+                    self.messages().push({ summary: "This is the depth level we have (go)", autoTimeout: 1000 });
+                    self.messages.valueHasMutated();
                     console.log(err);
                 }
             })
