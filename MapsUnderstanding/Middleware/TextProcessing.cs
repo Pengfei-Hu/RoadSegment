@@ -21,8 +21,8 @@ namespace MapsVisionsAPI.Middleware
             tessText.word_num = Int32.Parse(rowData[5]);
             tessText.left = Int32.Parse(rowData[6]);
             tessText.top = Int32.Parse(rowData[7]);
-            tessText.height = Int32.Parse(rowData[8]);
-            tessText.width = Int32.Parse(rowData[9]);
+            tessText.width = Int32.Parse(rowData[8]);
+            tessText.height = Int32.Parse(rowData[9]);
             tessText.confidence = Int32.Parse(rowData[10]);
             tessText.text = rowData[11].ToString();
              return tessText;
@@ -46,9 +46,9 @@ namespace MapsVisionsAPI.Middleware
         {
             return allText.Split("\n").Where(ele => ele.Trim() != "").ToArray();
         }
-        public static Dictionary<string, string> getTableOfUndetectedWords(string[] CorrectWords, List<TessTextDef> tableOfWordsResult)
+        public static List<string> getTableOfUndetectedWords(string[] CorrectWords, List<TessTextDef> tableOfWordsResult)
         {
-            Dictionary<string, string> undetectedTable = new Dictionary<string, string>();
+            List<string> undetectedTable = new List<string>();
             for (int x = 0; x < CorrectWords.Length; x++)
             {
                 bool exists = false;
@@ -66,7 +66,7 @@ namespace MapsVisionsAPI.Middleware
                 }
                 if (!exists)
                 {
-                    undetectedTable.Add(CorrectWords[x], "0");
+                    undetectedTable.Add(CorrectWords[x]);
                 }
 
             }

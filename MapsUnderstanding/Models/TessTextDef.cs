@@ -16,8 +16,8 @@ namespace MapsUnderstanding.Models
         public int word_num { set; get; }
         public int left { set; get; }
         public int top { set; get; }
-        public int height { set; get; }
         public int width { set; get; }
+        public int height { set; get; }
         public double confidence { set; get; }
         public string text { set; get; }
         public string CorrectWord { set; get; }

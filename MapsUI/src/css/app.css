@@ -32,3 +32,19 @@
     text-align: center;
     align-content: center;
 }
+
+.data-table-three-columns {
+    -webkit-column-width: 33px; /* Chrome, Safari, Opera */
+    -moz-column-width: 33px; /* Firefox */
+    column-width: 33px;
+}
+
+.selected-title {
+    font-size: xx-large;
+    font-weight: bold;
+    color: brown;
+}
+.technical-notes {
+    text-align: left;
+    font-size: medium;
+}

@@ -170,7 +170,7 @@ namespace MapsVisionsAPI.Controllers
                                                             correctWords, out wrongWords,
                                                             out countMatchingDegreeRows, out sumMatchingDegree);
 
-                        Dictionary<string, string> undetectedTable =
+                        List<string> undetectedTable =
                              TextProcessing.getTableOfUndetectedWords(correctWords, tableOfWordsResultWithMatchingDegree);
 
                         undetectedWords = undetectedTable.Count;
@@ -186,8 +186,8 @@ namespace MapsVisionsAPI.Controllers
                             undetectedWords = undetectedWords.ToString(),
                             noWrongWords = wrongWords.ToString(),
                             confidence = confidence,
-                            matchingDegree = matchingDegree.ToString(),
-                            totalMatchingDegree = totalMatchingDegree.ToString()
+                            matchingDegree = matchingDegree.ToString("0.##"),
+                            totalMatchingDegree = totalMatchingDegree.ToString("0.##")
                         });
                     }
                 
@@ -233,7 +233,7 @@ namespace MapsVisionsAPI.Controllers
                                                             correctWords, out wrongWords,
                                                             out countMatchingDegreeRows, out sumMatchingDegree);
 
-                        Dictionary<string, string> undetectedTable =
+                        List<string> undetectedTable =
                              TextProcessing.getTableOfUndetectedWords(correctWords, tableOfWordsResultWithMatchingDegree);
 
                         undetectedWords = undetectedTable.Count;
@@ -250,7 +250,7 @@ namespace MapsVisionsAPI.Controllers
                             undetectedWords = undetectedWords.ToString(),
                             noWrongWords = wrongWords.ToString(),
                             confidence = confidence,
-                            matchingDegree = matchingDegree.ToString(),
+                            matchingDegree = (matchingDegree.ToString()== "NaN")?"0": matchingDegree.ToString(),
                             totalMatchingDegree = totalMatchingDegree.ToString()
                         });
 

@@ -38,7 +38,9 @@ namespace MapsVisionsAPI
                 options.AddPolicy(name: AllowMapsUIOrigins,
                                   builder =>
                                   {
-                                      builder.WithOrigins("http://localhost:8000")
+                                      builder.WithOrigins("http://localhost:8000",
+                                          "http://localhost:82", 
+                                          "http://uwtset1.tacoma.uw.edu:82")
                                         .AllowAnyHeader()
                                         .AllowAnyMethod(); ;
                                   });

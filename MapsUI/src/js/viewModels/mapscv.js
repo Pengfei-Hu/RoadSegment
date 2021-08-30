@@ -7,9 +7,9 @@
 define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 'models/textRecog.model',
     'ojs/ojarraydataprovider',
     "ojs/ojflattenedtreedataproviderview", "ojs/ojarraytreedataprovider", "ojs/ojknockouttemplateutils",
-    "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander", "ojs/ojmessages",
+    "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander", "ojs/ojmessages", "ojs/ojcheckboxset", "ojs/ojlabelvalue",
     "ojs/ojfilepicker",  "ojs/ojformlayout", 'ojs/ojavatar','ojs/ojinputtext', 'ojs/ojdialog',
-    'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton"],
+    'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton", "ojs/ojcollapsible"],
     function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, ArrayDataProvider, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
     function MapsCVViewModel() {
         
@@ -23,6 +23,11 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.bingImagePath = ko.observable("https://blogs.bing.com/BingBlogs/files/dc/dce88d2a-2bf9-4c65-9cca-1c425d571e75.png");
         self.googleImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Google_Maps_Logo_2020.svg/1137px-Google_Maps_Logo_2020.svg.png");
         self.osmImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg");
+        self.bingEffImagePath = ko.observable();
+        self.googleEffImagePath = ko.observable();
+        self.osmEffImagePath = ko.observable();
+
+
         self.lat = ko.observable(80.6469622);
         self.lng = ko.observable(7.8612675);
         self.startzoomLevel = ko.observable(15);
@@ -32,10 +37,16 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.showImagesPath = ko.observable(false);
         self.showExtractedTextUnderMaps = ko.observable(false);
         self.showExtractedTextDetails = ko.observable(false);
+        self.showMeasureAccuracy = ko.observable(false);
+        self.showMeasureAccuracyResult = ko.observable(false);
+        self.showMeasureAccuracyAfterEffects = ko.observable(false);
+        self.selectedOptions = ko.observableArray([]);
 
         self.bingOCRResult = ko.observable("");
         self.googleOCRResult = ko.observable("");
         self.osmOCRResult = ko.observable("");
+
+
 
         self.bingDetailsOCRResult = ko.observable("");
         self.googleDetailsOCRResult = ko.observable("");
@@ -165,40 +176,155 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         self.actionMenuListener = (event, context) => {
             var selectMenuItem = event.detail.selectedValue;
             var rowData = context.item.data
-            console.log(rowData);
+            //console.log(rowData);
             self.startzoomLevel(rowData["zoom_level"]);
             self.lat(rowData["lat"]);
             self.lng(rowData["lng"]);
             if (selectMenuItem == "ExtractAllText") {
+                self.showMeasureAccuracyAfterEffects(false);
+                self.showMeasureAccuracy(false);
                 self.showExtractedTextUnderMaps(true);
                 self.showImagesPath(false);
                 self.showExtractedTextDetails(false);
                 self.display();
                 self.showTable(false);
             } else if (selectMenuItem == "Visualize") {
+                self.showMeasureAccuracyAfterEffects(false);
+                self.showMeasureAccuracy(false);
                 self.showExtractedTextUnderMaps(false);
                 self.showImagesPath(false);
                 self.showExtractedTextDetails(false);
                 self.display();
                 self.showTable(false);
             } else if (selectMenuItem == "ExtractDetails") {
+                self.showMeasureAccuracyAfterEffects(false);
+                self.showMeasureAccuracy(false);
+                self.showMeasureAccuracyResult(false);
+
                 self.showExtractedTextDetails(true);
                 self.showExtractedTextUnderMaps(false);
                 self.showImagesPath(false);
                 self.display();
                 self.showTable(false);
             }
-
-           /* const rowIndex = this.empArray.indexOf(context.item.data);
-            if (event.detail.selectedValue === "delete") {
-                this.empArray.splice(rowIndex, 1);
+            else if (selectMenuItem == "MeasureAccuracy") {
+                self.showMeasureAccuracyAfterEffects(false);
+                self.showMeasureAccuracy(true);
+                self.showExtractedTextDetails(false);
+                self.showExtractedTextUnderMaps(false);
+                self.showImagesPath(false);
+                self.display();
+                self.showTable(false);
+            } else if (selectMenuItem == "MeasureAccuracyAfterEffects") {
+                self.showMeasureAccuracyAfterEffects(true);
+                self.showMeasureAccuracy(true);
+                self.showExtractedTextDetails(false);
+                self.showExtractedTextUnderMaps(false);
+                self.showImagesPath(false);
+                self.display();
+                self.showTable(false);
             }
-            else if (event.detail.selectedValue === "approve") {
-                const rowData = context.item.data;
-                rowData.Status = "Approved";
-                this.empArray.splice(rowIndex, 1, rowData);
-            }*/
+
         };
+
+        //Fuzzy Measurments
+
+        //Bing Measurments Attributes
+        self.bingManualText = ko.observable("");
+        self.bingAvgMDegree = ko.observable("");
+        self.bingUndetectedWords = ko.observable("");
+        self.bingWrongWords = ko.observable("");
+        self.bingTotalMDegree = ko.observable("");
+        self.bingUndetectedWordsArr = ko.observable("");
+        self.bingNoDetectedWords = ko.observable("");
+
+        self.bingFDetails = ko.observableArray([]);
+        self.bingFDetailsDataprovider = new ArrayDataProvider(self.bingFDetails, {
+            keyAttributes: "text",
+            implicitSort: [{ attribute: "matchingDegree", direction: "ascending" }],
+        });
+
+        //Google Measurments Attributes
+        self.googleManualText = ko.observable("");
+        self.googleAvgMDegree = ko.observable("");
+        self.googleUndetectedWords = ko.observable("");
+        self.googleWrongWords = ko.observable("");
+        self.googleTotalMDegree = ko.observable("");
+        self.googleUndetectedWordsArr = ko.observable("");
+        self.googleNoDetectedWords = ko.observable("");
+
+        self.googleFDetails = ko.observableArray([]);
+        self.googleFDetailsDataprovider = new ArrayDataProvider(self.googleFDetails, {
+            keyAttributes: "text",
+            implicitSort: [{ attribute: "matchingDegree", direction: "ascending" }],
+        });
+
+        //OSM Measurments Attributes
+        self.osmManualText = ko.observable("");
+        self.osmAvgMDegree = ko.observable("");
+        self.osmUndetectedWords = ko.observable("");
+        self.osmWrongWords = ko.observable("");
+        self.osmTotalMDegree = ko.observable("");
+        self.osmUndetectedWordsArr = ko.observable("");
+        self.osmNoDetectedWords = ko.observable("");
+
+        self.osmFDetails = ko.observableArray([]);
+        self.osmFDetailsDataprovider = new ArrayDataProvider(self.osmFDetails, {
+            keyAttributes: "text",
+            implicitSort: [{ attribute: "matchingDegree", direction: "ascending" }],
+        });
+
+        self.getFAccuracyBing = () => {
+            TextRecogModel.getFAccuracy(self.bingManualText(), self.bingImagePath().substring(self.bingImagePath().indexOf("map")),
+                (success, data) => {
+                self.bingNoDetectedWords(data.noDetectedWords);
+                self.bingAvgMDegree(data.matchingDegree);
+                self.bingUndetectedWords(data.undetectedWords);
+                self.bingWrongWords(data.noWrongWords);
+                self.bingTotalMDegree(data.totalMatchingDegree);
+                self.bingUndetectedWordsArr(data.undetectedWordsTable);
+                self.bingFDetails(data.detectedWordsTable);
+                self.bingFDetails.valueHasMutated();
+            });
+        }
+        self.getFAccuracyGoogle = () => {
+            TextRecogModel.getFAccuracy(self.googleManualText(), self.googleImagePath().substring(self.googleImagePath().indexOf("map")),
+                (success, data) => {
+                    self.googleNoDetectedWords(data.noDetectedWords);
+                    self.googleAvgMDegree(data.matchingDegree);
+                    self.googleUndetectedWords(data.undetectedWords);
+                    self.googleWrongWords(data.noWrongWords);
+                    self.googleTotalMDegree(data.totalMatchingDegree);
+                    self.googleUndetectedWordsArr(data.undetectedWordsTable);
+                    self.googleFDetails(data.detectedWordsTable);
+                    self.googleFDetails.valueHasMutated();
+                });
+        }
+        self.getFAccuracyOSM = () => {
+            TextRecogModel.getFAccuracy(self.osmManualText(), self.osmImagePath().substring(self.osmImagePath().indexOf("map")),
+                (success, data) => {
+                    self.osmNoDetectedWords(data.noDetectedWords);
+                    self.osmAvgMDegree(data.matchingDegree);
+                    self.osmUndetectedWords(data.undetectedWords);
+                    self.osmWrongWords(data.noWrongWords);
+                    self.osmTotalMDegree(data.totalMatchingDegree);
+                    self.osmUndetectedWordsArr(data.undetectedWordsTable);
+                    self.osmFDetails(data.detectedWordsTable);
+                    self.osmFDetails.valueHasMutated();
+                });
+        }
+        
+        self.FAccuracy = () => {
+            self.showMeasureAccuracyResult(true);
+            self.getFAccuracyBing();
+            self.getFAccuracyGoogle();
+            self.getFAccuracyOSM();
+        }
+
+        self.ApplyEffects = () => {
+
+        }
+
 
         self.bingOCRDetails = ko.observableArray([]);
         bingDetailsOCRResultDataprovider = new ArrayDataProvider(self.bingOCRDetails, {
@@ -242,7 +368,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
         };
 
         self.bingImagePath.subscribe(function (newPath) {
-            
+            self.bingEffImagePath(newPath);
             self.readOCRResult(newPath)
                 .then(result => {
                     self.bingOCRResult(result);
@@ -261,6 +387,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             
         });
         self.googleImagePath.subscribe(function (newPath) {
+            self.googleEffImagePath(newPath);
             self.readOCRResult(newPath)
                 .then(result => {
                     self.googleOCRResult(result);
@@ -278,6 +405,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 });
         });
         self.osmImagePath.subscribe(function (newPath) {
+            self.osmEffImagePath(newPath);
             self.readOCRResult(newPath)
                 .then(result => {
                     self.osmOCRResult(result);
@@ -423,7 +551,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             var data = "lon=" + self.lng() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.data_multi().toString();
             //           "lon=" + data.field.lon + "&lat= " + data.field.lat + "&tileZoom= " + data.field.tileZoom + "&endzoomLevel=" + data_multi,
             //lon=7.8612675&lat=80.6469622&startz=12&endz=0
-            console.log(data);
+            //console.log(data);
             $.ajax({
                 url: 'http://127.0.0.1:5000/multi/go',
                 datatype: 'json',
@@ -431,10 +559,10 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 crossDomain: true,
                 data: data,
                 success: function (data) {
-                    console.log(data);
-                    console.log("success send_mu");
-                    console.log("http://127.0.0.1:5000/multi/go get:")
-                    console.log(data);
+                    //console.log(data);
+                    //console.log("success send_mu");
+                    //console.log("http://127.0.0.1:5000/multi/go get:")
+                    //console.log(data);
                     self.bingImagePath(self.server() + data.bing);
                     self.googleImagePath(self.server() + data.google);
                     self.osmImagePath(self.server() + data.osm);
