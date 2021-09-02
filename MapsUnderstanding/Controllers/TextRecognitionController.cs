@@ -2,18 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Tesseract;
-using System.Drawing;
-using System.Data;
 using MapsVisionsAPI.Middleware;
 using System.Diagnostics;
 using MapsVisionsAPI.Data.Entities;
 using MapsVisionsAPI.Data;
-using Microsoft.Extensions.Configuration;
-using System.Net;
 using MapsUnderstanding.Models;
+using MapsUnderstanding.Middleware;
 
 namespace MapsVisionsAPI.Controllers
 {
@@ -23,12 +17,7 @@ namespace MapsVisionsAPI.Controllers
     {
        // protected readonly string mapsFolder = "C:\\Users\\Adel\\source\\repos\\WebDataScience\\MapsVisionGit\\MapsCapturing\\";
         TesseractReading Tess = new TesseractReading();
-        public string mapsPath()
-        {
-            string ApiDir = Directory.GetCurrentDirectory();
-            string mapsDir = ApiDir.Substring(0,ApiDir.LastIndexOf("\\") );
-            return mapsDir + "\\MapsCapturing";
-        }
+
         [HttpGet("TextList")]
         public IActionResult GetTextList()
         {
@@ -36,7 +25,7 @@ namespace MapsVisionsAPI.Controllers
             {
                 Request.Headers.TryGetValue("imagePath", out var imageName);
                 imageName = imageName.ToString().Replace("/", "\\");
-                var imagePath = Path.Combine(mapsPath(), imageName);
+                var imagePath = Path.Combine(Util.mapsPath(), imageName);
                 float confidence = 0.0f;
                 string allText = "";
                 string[] wordsList;
@@ -62,7 +51,7 @@ namespace MapsVisionsAPI.Controllers
             {
                 Request.Headers.TryGetValue("imagePath", out var imageName);
                 imageName = imageName.ToString().Replace("/", "\\");
-                var imagePath = Path.Combine(mapsPath(), imageName);
+                var imagePath = Path.Combine(Util.mapsPath(), imageName);
                 float confidence = 0.0f;
                 string detailedText = "";
                 List<TessTextDef> wordsList=new List<TessTextDef>();
@@ -81,38 +70,6 @@ namespace MapsVisionsAPI.Controllers
             }
         }
 
-
-        [HttpPost("applyFilters1")]
-        public IActionResult applyFilters1()
-        {
-            try
-            {
-                Request.Headers.TryGetValue("imagePath", out var imageName);
-                imageName = imageName.ToString().Replace("/", "\\");
-                var imagePath = Path.Combine(mapsPath(), imageName);
-                ImageFilters.applyBestEffects1(imagePath);
-                return Ok(new { message = "filters applied over the images successfully", imagePath=imagePath });
-            }catch(Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
-        [HttpPost("applyFilters2")]
-        public IActionResult applyFilters2()
-        {
-            try
-            {
-                Request.Headers.TryGetValue("imagePath", out var imageName);
-                imageName = imageName.ToString().Replace("/", "\\");
-                var imagePath = Path.Combine(mapsPath(), imageName);
-                ImageFilters.removeBKEffects(imagePath);
-                return Ok(new { message = "filters group(2) applied over the images successfully", imagePath = imagePath });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
 
         private IGenericRepository<MapImageRecogResults> repository = null;
 
@@ -148,7 +105,7 @@ namespace MapsVisionsAPI.Controllers
                     Request.Headers.TryGetValue("correctWords", out var allWords);
                     Request.Headers.TryGetValue("imagePath", out var imageName);
                     imageName = imageName.ToString().Replace("/", "\\");
-                    var imagePath = Path.Combine(mapsPath(), imageName);
+                    var imagePath = Path.Combine(Util.mapsPath(), imageName);
 
                 if (allWords.Count == 0)
                         return BadRequest(new { error = "you must send the correctWords in headers. That contains all correct words in the image" });

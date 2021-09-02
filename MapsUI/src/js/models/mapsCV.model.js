@@ -1,34 +1,35 @@
 define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
     function ($, ko, sett) {
-        class MapsImgs {
+        class mapsCV {
             constructor() {
-                //this.mapsImgsEndpoint = JSON.parse(settings).apiserver;
+                //this.mapsCVEndpoint = JSON.parse(settings).apiserver;
                 //Testing Server(localhost)
-                this.mapsImgsEndpoint = "http://localhost:85/TextRecognition/";
+                this.mapsCVEndpoint = "http://localhost:85/cv/";
                 //Tacoma Server(Development)
-                //this.mapsImgsEndpoint = "http://uwtset1.tacoma.uw.edu:85/TextRecognition/";
+                //this.mapsCVEndpoint = "http://uwtset1.tacoma.uw.edu:85/cv/";
                 
             }
             initializeModelCollection(endpoint) {
-                this.MapsImgsModelDef = oj.Model.extend({
+                this.mapsCVModelDef = oj.Model.extend({
                     url: endpoint,
                     idAttribute: "filename"
                 });
-                this.MapsImgsCollDef = oj.Collection.extend({
+                this.mapsCVCollDef = oj.Collection.extend({
                     url: endpoint,
                     comparator: "filename",
-                    model: new this.MapsImgsModelDef
+                    model: new this.mapsCVModelDef
                 });
-                this.mapsImgs = new this.MapsImgsCollDef;
+                this.mapsCV = new this.mapsCVCollDef;
 
             }
-            getImageDetails(api_url, imagePath, notify) {
+            setImageEffects(api_url, imagePath, effects, notify) {
                 this.initializeModelCollection(api_url);
-                let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
-                mapsImgsRow.fetch({
+                let mapsCVRow = new this.mapsCVModelDef({}, this.mapsCV);
+                mapsCVRow.save(null, {
+                    type:'POST',
                     headers: {
-                        // 'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
                         'imagePath': imagePath,
+                        'effects': effects,
                         'Content-Type': 'application/json'
                     },
                     success: (coll, data) => {
@@ -41,22 +42,30 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     },
                 });//end fetch
             }
-            readTextList(imagePath, notify) {
-                let api_url = this.mapsImgsEndpoint + "TextList";
-                this.getImageDetails(api_url, imagePath, notify);
+            setGrayEffect(imagePath, notify) {
+                let api_url = this.mapsCVEndpoint + "applyGrayFilter";
+                this.setImageEffects(api_url, imagePath,"gray", notify);
             }
+            setGrayEffectAllImgs(imagePath,effects, notify) {
+                let api_url = this.mapsCVEndpoint + "applyEffectsToAllImgs";
+                this.setImageEffects(api_url, imagePath, effects, notify);
+            }
+
             readDetailsText(imagePath, notify) {
-                let api_url = this.mapsImgsEndpoint + "readDetailsText";
+                let api_url = this.mapsCVEndpoint + "readDetailsText";
                 this.getImageDetails(api_url, imagePath, notify);
             }
 
             //get FAccuracy
             getFAccuracy(correctWords, imagePath, notify) {
-                let api_url = this.mapsImgsEndpoint + "DetailsWithFAccuracy";
-                this.initializeModelCollection(api_url);
-                let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
+                console.log("correctWords:" + correctWords);
+                console.log("imagePath:" + imagePath);
 
-                mapsImgsRow.fetch({
+                let api_url = this.mapsCVEndpoint + "DetailsWithFAccuracy";
+                this.initializeModelCollection(api_url);
+                let mapsCVRow = new this.mapsCVModelDef({}, this.mapsCV);
+
+                mapsCVRow.fetch({
                     headers: {
                         // 'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
                         'Content-Type': 'application/json',
@@ -64,10 +73,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                         'imagePath': imagePath
                     },
                     success: function (coll, data) {
-                        console.log("------------------------------")
-                        console.log("correctWords:" + correctWords);
-                        console.log("imagePath:" + imagePath);
-                        console.log("--------------RESULT----------")
+                        console.log("all data");
                         console.log(data);
                         notify(true, data);
                     },
@@ -78,5 +84,5 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
             }
 
         }//end of class
-        return new MapsImgs();
+        return new mapsCV();
     });

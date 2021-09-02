@@ -17,12 +17,13 @@ namespace MapsVisionsAPI.Middleware
                 var tessDataFolder = Path.Combine(Directory.GetCurrentDirectory(), "tessdata");
                 Console.WriteLine("tessDataFolder=" + tessDataFolder);
                 var engine = new TesseractEngine(tessDataFolder, "eng", EngineMode.Default);
-                Bitmap mapImg = new Bitmap(imagePath);
-                var pix = Tesseract.Pix.LoadFromFile(imagePath);
-                var page = engine.Process(pix);
-                text = page.GetText();
-                csvText = page.GetTsvText(0);
-                confidence = page.GetMeanConfidence();
+                using (Bitmap mapImg = new Bitmap(imagePath)) { 
+                    var pix = Tesseract.Pix.LoadFromFile(imagePath);
+                    var page = engine.Process(pix);
+                    text = page.GetText();
+                    csvText = page.GetTsvText(0);
+                    confidence = page.GetMeanConfidence();
+                }
             }catch(Exception ex)
             {
                 text = "";

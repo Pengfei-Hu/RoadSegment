@@ -393,12 +393,12 @@
                                 <tr style="vertical-align:top; horizontal-align:left;">
                                     <td colspan="3">
                                         <oj-label-value label-edge="start" label-width="30%">
-                                            <oj-label slot="label" id="checkboxsetlabel"  style="font-size:1.3rem">
+                                            <oj-label slot="label" id="checkboxsetlabel" style="font-size:1.3rem">
                                                 Select Effects/Filters:
                                             </oj-label>
                                             <oj-checkboxset slot="value" id="checkboxSetId" labelled-by="checkboxsetlabel"
-                                                            value='[[selectedOptions]]' class="oj-choice-direction-row">
-                                                <oj-option id="blackwhiteopt" value="blackwhite">Black&White</oj-option>
+                                                            value='{{selectedOptions}}' class="oj-choice-direction-row">
+                                                <oj-option id="resizeopt" value="resize">Resize</oj-option>
                                                 <oj-option id="grayopt" value="gray">Gray</oj-option>
                                                 <oj-option id="dilateopt" value="dilate">Dilate</oj-option>
                                                 <oj-option id="erosionopt" value="erosion">Erosion</oj-option>
@@ -407,17 +407,28 @@
                                                 <oj-option id="otheropt" value="other">Other</oj-option>
                                             </oj-checkboxset>
                                         </oj-label-value>
+
+
                                         <oj-button id="ApplyEffectButton"
                                                    on-oj-action="[[ApplyEffects]]">
                                             Apply Effects
                                             <span slot="endIcon" class="oj-ux-ico-effect"></span>
 
-                                        </oj-button> &nbsp; &nbsp; 
+                                        </oj-button> &nbsp; &nbsp;
                                         <br />
-
+                                        <oj-bind-text value="[[selectedOptions]]"></oj-bind-text>
                                     </td>
 
                                 </tr>
+
+
+
+
+                            </oj-bind-if>
+
+
+
+                            <oj-bind-if test="[[showMeasureAccuracyResult()]]">
 
                                 <tr>
                                     <td>
@@ -431,21 +442,18 @@
                                     </td>
                                 </tr>
 
-
-                            </oj-bind-if>
-
                                 <tr style="vertical-align:top">
                                     <td>
-                                        <oj-bind-text value="Precise manual results:"></oj-bind-text>
+                                        <oj-bind-text value="Precise manual results(Bing):"></oj-bind-text>
                                         <oj-text-area label-hint="Separate each word with coma." value="{{bingManualText}}" rows="3"></oj-text-area>
                                     </td>
                                     <td>
-                                        <oj-bind-text value="Precise manual results:"></oj-bind-text>
+                                        <oj-bind-text value="Precise manual results(Google):"></oj-bind-text>
                                         <oj-text-area label-hint="Separate each word with coma." value="{{googleManualText}}" rows="3"></oj-text-area>
 
                                     </td>
                                     <td>
-                                        <oj-bind-text value="Precise manual results:"></oj-bind-text>
+                                        <oj-bind-text value="Precise manual results:(OSM)"></oj-bind-text>
                                         <oj-text-area label-hint="Separate each word with coma." value="{{osmManualText}}" rows="3"></oj-text-area>
 
                                     </td>
@@ -462,7 +470,7 @@
 
                                     </td>
                                 </tr>
-                                <oj-bind-if test="[[showMeasureAccuracyResult()]]">
+                                <oj-bind-if test="[[showAccuracyResults()]]">
                                     <tr style="vertical-align:top">
                                         <td>
                                             <b>Results Details:</b> <br />
@@ -608,6 +616,153 @@
                                         </td>
                                     </tr>
                                 </oj-bind-if>
+                                <oj-bind-if test="[[showAccuracyFilteredResults()]]">
+                                    <tr style="vertical-align:top">
+                                        <td>
+                                            <b>Results Details:</b> <br />
+                                            <oj-bind-text value="No. of detected words:"></oj-bind-text>
+                                            <oj-bind-text value="[[fbingNoDetectedWords]]"></oj-bind-text> <br />
+                                            <oj-bind-text value="No. of undetected words:"></oj-bind-text>
+                                            <oj-bind-text value="[[fbingUndetectedWords]]"></oj-bind-text> <br />
+                                            <oj-bind-text value="No. of words extracted incorrectly:"></oj-bind-text>
+                                            <oj-bind-text value="[[fbingWrongWords]]"></oj-bind-text> <br />
+
+                                            <oj-bind-text value="Average Matching degree:"></oj-bind-text>
+                                            <oj-bind-text value="[[fbingAvgMDegree]]"></oj-bind-text> <br />
+
+                                            <oj-bind-text value="Total Matching Degree:"></oj-bind-text>
+                                            <oj-bind-text value="[[fbingTotalMDegree]]"></oj-bind-text> <br />
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Undetected Words </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[fbingUndetectedWordsArr]]"></oj-bind-text>
+                                                    </div>
+                                                </oj-collapsible>
+                                            </div> <br />
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Fuzzy measure results </p>
+                                                    <div>
+                                                        <oj-table id='tableBingFDetails' aria-label='Fuzzy Details'
+                                                                  data='[[fbingFDetailsDataprovider]]'
+                                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                                  scroll-policy='loadMoreOnScroll'
+                                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                                  columns='[{"headerText": "Extracted Text",
+                                                                 "field": "text",
+                                                                 "resizable": "enabled"},
+                                                                {"headerText": "Manual Text",
+                                                                 "field": "correctWord",
+                                                                 "resizable": "enabled"},
+                                                                {"headerText": "Matching Degree",
+                                                                 "field": "matchingDegree",
+                                                                 "resizable": "enabled"}]'
+                                                                  class='demo-table-container oj-bg-body'>
+                                                        </oj-table>
+
+                                                    </div>
+                                            </div>
+
+                                        </td>
+                                        <td>
+                                            <b>Results Details:</b> <br />
+                                            <oj-bind-text value="No. of detected words:"></oj-bind-text>
+                                            <oj-bind-text value="[[fgoogleNoDetectedWords]]"></oj-bind-text> <br />
+                                            <oj-bind-text value="No. of undetected words:"></oj-bind-text>
+                                            <oj-bind-text value="[[fgoogleUndetectedWords]]"></oj-bind-text> <br />
+                                            <oj-bind-text value="No. of words extracted incorrectly:"></oj-bind-text>
+                                            <oj-bind-text value="[[fgoogleWrongWords]]"></oj-bind-text> <br />
+
+                                            <oj-bind-text value="Average Matching degree:"></oj-bind-text>
+                                            <oj-bind-text value="[[fgoogleAvgMDegree]]"></oj-bind-text> <br />
+
+                                            <oj-bind-text value="Total Matching Degree:"></oj-bind-text>
+                                            <oj-bind-text value="[[fgoogleTotalMDegree]]"></oj-bind-text> <br />
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Undetected Words </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[fgoogleUndetectedWordsArr]]"></oj-bind-text>
+                                                    </div>
+                                                </oj-collapsible>
+                                            </div> <br />
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Fuzzy measure results </p>
+                                                    <div>
+                                                        <oj-table id='tableGoogleFDetails' aria-label='Fuzzy Details'
+                                                                  data='[[fgoogleFDetailsDataprovider]]'
+                                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                                  scroll-policy='loadMoreOnScroll'
+                                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                                  columns='[{"headerText": "Extracted Text",
+                                                                 "field": "text",
+                                                                 "resizable": "enabled"},
+                                                                {"headerText": "Manual Text",
+                                                                 "field": "correctWord",
+                                                                 "resizable": "enabled"},
+                                                                {"headerText": "Matching Degree",
+                                                                 "field": "matchingDegree",
+                                                                 "resizable": "enabled"}]'
+                                                                  class='demo-table-container oj-bg-body'>
+                                                        </oj-table>
+
+                                                    </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <b>Results Details:</b> <br />
+                                            <oj-bind-text value="No. of detected words:"></oj-bind-text>
+                                            <oj-bind-text value="[[fosmNoDetectedWords]]"></oj-bind-text> <br />
+                                            <oj-bind-text value="No. of undetected words:"></oj-bind-text>
+                                            <oj-bind-text value="[[fosmUndetectedWords]]"></oj-bind-text> <br />
+                                            <oj-bind-text value="No. of words extracted incorrectly:"></oj-bind-text>
+                                            <oj-bind-text value="[[fosmWrongWords]]"></oj-bind-text> <br />
+
+                                            <oj-bind-text value="Average Matching degree:"></oj-bind-text>
+                                            <oj-bind-text value="[[fosmAvgMDegree]]"></oj-bind-text> <br />
+
+                                            <oj-bind-text value="Total Matching Degree:"></oj-bind-text>
+                                            <oj-bind-text value="[[fosmTotalMDegree]]"></oj-bind-text> <br />
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Undetected Words </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[fosmUndetectedWordsArr]]"></oj-bind-text>
+                                                    </div>
+                                                </oj-collapsible>
+                                            </div> <br />
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Fuzzy measure results </p>
+                                                    <div>
+                                                        <oj-table id='tableOSMFDetails' aria-label='Fuzzy Details'
+                                                                  data='[[fosmFDetailsDataprovider]]'
+                                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                                  scroll-policy='loadMoreOnScroll'
+                                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                                  columns='[{"headerText": "Extracted Text",
+                                                                 "field": "text",
+                                                                 "resizable": "enabled"},
+                                                                {"headerText": "Manual Text",
+                                                                 "field": "correctWord",
+                                                                 "resizable": "enabled"},
+                                                                {"headerText": "Matching Degree",
+                                                                 "field": "matchingDegree",
+                                                                 "resizable": "enabled"}]'
+                                                                  class='demo-table-container oj-bg-body'>
+                                                        </oj-table>
+
+                                                    </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </oj-bind-if>
+                            </oj-bind-if>
                             </oj-bind-if>
 </table>
 

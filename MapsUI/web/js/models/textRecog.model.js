@@ -3,7 +3,11 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
         class MapsImgs {
             constructor() {
                 //this.mapsImgsEndpoint = JSON.parse(settings).apiserver;
-                this.mapsImgsEndpoint = "https://localhost:44370/TextRecognition/";
+                //Testing Server(localhost)
+                this.mapsImgsEndpoint = "http://localhost:85/TextRecognition/";
+                //Tacoma Server(Development)
+                //this.mapsImgsEndpoint = "http://uwtset1.tacoma.uw.edu:85/TextRecognition/";
+                
             }
             initializeModelCollection(endpoint) {
                 this.MapsImgsModelDef = oj.Model.extend({
@@ -48,9 +52,6 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
 
             //get FAccuracy
             getFAccuracy(correctWords, imagePath, notify) {
-                console.log("correctWords:" + correctWords);
-                console.log("imagePath:" + imagePath);
-
                 let api_url = this.mapsImgsEndpoint + "DetailsWithFAccuracy";
                 this.initializeModelCollection(api_url);
                 let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
@@ -63,7 +64,10 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                         'imagePath': imagePath
                     },
                     success: function (coll, data) {
-                        console.log("all data");
+                        console.log("------------------------------")
+                        console.log("correctWords:" + correctWords);
+                        console.log("imagePath:" + imagePath);
+                        console.log("--------------RESULT----------")
                         console.log(data);
                         notify(true, data);
                     },

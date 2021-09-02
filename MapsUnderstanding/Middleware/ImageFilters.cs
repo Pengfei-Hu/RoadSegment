@@ -16,23 +16,100 @@ namespace MapsVisionsAPI.Middleware
             Mat Grayscale = Cv2.ImRead(imagePath, ImreadModes.Grayscale);
             return saveMatImage(Grayscale, "Grayscale1", imagePath);
         }
+
+        private static string getfilteredImgPath(string sourcePath)
+        {
+            return Path.Combine(sourcePath.Substring(0, sourcePath.LastIndexOf("\\") + 1),
+                      "filtered-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
+        }
+        protected static bool IsFileLocked(FileInfo file)
+        {
+            try
+            {
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+
+            //file is not locked
+            return false;
+        }
         private static bool saveMatImage(Mat img, string name, string sourcePath)
         {
             var imagePath = Path.Combine(sourcePath.Substring(0,sourcePath.LastIndexOf("\\")+1),
                    name +"-"+ sourcePath.Substring(sourcePath.LastIndexOf("\\")+1));
-            Bitmap bitmap = BitmapConverter.ToBitmap(img);
-            bitmap.Save(imagePath);
+            //if (! IsFileLocked(new FileInfo(imagePath))){
+                using (
+                Bitmap bitmap = BitmapConverter.ToBitmap(img))
+                {
+                    bitmap.Save(imagePath);
+                }
+                    
+            //}
             return true;
         }
-
-        public static bool applyBestEffects2(string imagePath)
+        public static bool removeEffectedImg(string imagePath)
         {
-            Mat image = Cv2.ImRead(imagePath, ImreadModes.Unchanged);
-           // Mat bestlabeled;
-            //Cv2.Kmeans(image,20,bestlabeled,)
-
-            // return saveMatImage(Grayscale, "Grayscale1", imagePath);
+            if (File.Exists(getfilteredImgPath(imagePath)))
+                File.Delete(getfilteredImgPath(imagePath));
             return true;
+        }
+        public static bool applyGrayFilter(string imagePath)
+        {
+            Mat image = readFilteredImg(imagePath);
+            Mat grayImg = new Mat();
+            Cv2.CvtColor(image, grayImg, ColorConversionCodes.BGR2GRAY);
+            return saveMatImage(grayImg, "filtered", imagePath);
+        }
+        private static Mat readFilteredImg(string imagePath)
+        {
+            Mat image;
+            if (!File.Exists(getfilteredImgPath(imagePath)))
+                image = Cv2.ImRead(imagePath, ImreadModes.Unchanged);
+            else
+                image = Cv2.ImRead(getfilteredImgPath(imagePath), ImreadModes.Unchanged);
+            return image;
+        }
+        public static bool applyDilateFilter(string imagePath)
+        {
+            Mat image= readFilteredImg(imagePath);
+            Mat dilateImg = new Mat();
+            Cv2.Dilate(image, dilateImg, null, null, 1);
+            return saveMatImage(dilateImg, "filtered", imagePath);
+        }
+
+        public static bool applyResizeFilter(string imagePath)
+        {
+            Mat image = readFilteredImg(imagePath);
+            Mat rescaledImage = new Mat();
+            var scale_percent = 400; // percent of original size
+            var width = (int) image.Width * scale_percent / 100;
+            var height = (int)image.Height * scale_percent / 100;
+            Cv2.Resize(image, rescaledImage, new OpenCvSharp.Size(width, height), 2, 2, InterpolationFlags.Area);
+            return saveMatImage(rescaledImage, "filtered", imagePath);
+        }
+        public static bool applyErosionFilter(string imagePath)
+        {
+            Mat image = readFilteredImg(imagePath);
+            Mat erodeImg = new Mat();
+            Cv2.Erode(image, erodeImg, null, null, 1);
+            return saveMatImage(erodeImg, "filtered", imagePath);
+        }
+        public static bool applyThresholdFilter(string imagePath)
+        {
+            Mat image = readFilteredImg(imagePath);
+            Mat threshImg = new Mat();
+            Cv2.AdaptiveThreshold(image, threshImg, 255, AdaptiveThresholdTypes.MeanC, ThresholdTypes.Binary, 17, 13);
+            return saveMatImage(threshImg, "filtered", imagePath);
         }
 
         public static bool applyBestEffects1(string imagePath)

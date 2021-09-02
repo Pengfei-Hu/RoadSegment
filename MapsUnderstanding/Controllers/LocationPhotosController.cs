@@ -13,8 +13,7 @@ namespace MapsVisionsAPI.Controllers
     [Route("[controller]")]
     public class LocationPhotosController : Controller
     {
-        private string mainSolutionFolder = "C:\\Users\\Adel\\source\\repos\\WebDataScience\\MapsVisionGit";
-        private string pythonServer = "http://localhost:5000/";
+        private string pythonServer = "http://localhost:84/";
         private IGenericRepository<Location_Photos> repository = null;
         private readonly MapsVisionsDbContext _DbContext;
 

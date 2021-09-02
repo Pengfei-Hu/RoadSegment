@@ -70,6 +70,7 @@
     <Content Include="src\js\models\mapimgs.model.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="src\js\models\mapsCV.model.js" />
     <Content Include="src\js\models\textRecog.model.js">
       <SubType>Code</SubType>
     </Content>

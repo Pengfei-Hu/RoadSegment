@@ -3,8 +3,14 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
         class MapsImgs {
             constructor() {
                 //this.mapsImgsEndpoint = JSON.parse(settings).apiserver;
-                this.mapsImgsEndpoint = "https://localhost:44370/";
-                this.pythonEndpoint = "http://localhost:5000/";
+                //Testing Server(localhost)
+                this.mapsImgsEndpoint = "http://localhost:85/";
+                this.pythonEndpoint = "http://localhost:84/";
+                //Tacoma Server(Development)
+                
+                //this.mapsImgsEndpoint = "http://uwtset1.tacoma.uw.edu:85/";
+                //this.pythonEndpoint = "http://uwtset1.tacoma.uw.edu:84/";
+                
             }
             initializeModelCollection(endpoint) {
                 this.MapsImgsModelDef = oj.Model.extend({
