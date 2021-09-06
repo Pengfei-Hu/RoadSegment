@@ -15,7 +15,7 @@ class TileSystem:
 	MaxLatitude = 85.05112878
 	MinLongitude = -180
 	MaxLongitude = 180
-
+	Res = 768
 	# def __init__(self):
 	# 	pass
 
@@ -23,7 +23,7 @@ class TileSystem:
 		return min(max(n, minValue), maxValue)
 
 	def MapSize(self, levelOfDetail):
-		return 256 << levelOfDetail
+		return self.Res << levelOfDetail
 
 	def GroundResolution(self, latitude, levelOfDetail):
 		latitude = self.Clip(latitude, self.MinLatitude, self.MaxLatitude)
@@ -57,13 +57,14 @@ class TileSystem:
 		return latitude, longitude
 
 	def PixelXYToTileXY(self, pixelX, pixelY):
-		return int(pixelX/256), int(pixelY/256)
+		return int(pixelX/self.Res), int(pixelY/self.Res)
 
 	def PixelXYToTilePixelXY(self, pixelX, pixelY):
-		return pixelX%256, pixelY%256
+		#return pixelX%256, pixelY%256
+		return pixelX%self.Res, pixelY%self.Res
 
 	def TileXYToPixelXY(self, tileX, tileY):
-		return int(tileX*256), int(tileY*256)
+		return int(tileX*self.Res), int(tileY*self.Res)
 
 	def TileXYToQuadKey(self, tileX, tileY, levelOfDetail):
 		quadKey = ''

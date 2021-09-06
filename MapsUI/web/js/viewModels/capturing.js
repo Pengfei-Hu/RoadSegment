@@ -11,10 +11,10 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',  "ojs/ojprogress-bar",
     function CapturingViewModel() {
         var self = this;
         
-        self.lat = ko.observable(80.6469622);
-        self.lon = ko.observable(7.8612675);
-        self.startzoomLevel = ko.observable(15);
-        self.endzoomLevel = ko.observable(2);
+        self.lat = ko.observable(6.9184);
+        self.lon = ko.observable(79.9909);
+        self.startzoomLevel = ko.observable(9);
+        self.endzoomLevel = ko.observable(10);
 
         this.downloadImages = () => {
             var progress = document.getElementById("progressBarWrapper");
@@ -24,7 +24,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',  "ojs/ojprogress-bar",
 */
             var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.endzoomLevel();
             $.ajax({
-                    url: 'http://127.0.0.1:5000/multi/all',
+                    url: 'http://localhost:84/multi/all',
                     datatype: 'json',
                     type: 'get',
                    crossDomain: true,

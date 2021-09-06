@@ -205,6 +205,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             }
             else if (selectMenuItem == "MeasureAccuracy") {
                 self.showMeasureAccuracy(true);
+                self.showMeasureAccuracyResult(true);
                 self.display();
             } else if (selectMenuItem == "MeasureAccuracyAfterEffects") {
                 self.showMeasureAccuracyAfterEffects(true);

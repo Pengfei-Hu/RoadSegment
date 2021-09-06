@@ -97,6 +97,57 @@ namespace MapsVisionsAPI.Middleware
             Cv2.Resize(image, rescaledImage, new OpenCvSharp.Size(width, height), 2, 2, InterpolationFlags.Area);
             return saveMatImage(rescaledImage, "filtered", imagePath);
         }
+
+        public static bool applyContoursFilter(string imagePath)
+        {
+            try
+            {
+                TesseractReading tess = new TesseractReading();
+                Mat image = readFilteredImg(imagePath);
+
+                Mat img_gray = new Mat();
+                Mat thresh = new Mat();
+                OpenCvSharp.Point[][] contours;
+                // OpenCvSharp.Point[][] acceptedContours;
+                float confidence;
+                string allText;
+                string csvText;
+                Cv2.CvtColor(image, img_gray, ColorConversionCodes.BGR2GRAY);
+                Cv2.Threshold(img_gray, thresh, 200, 255, ThresholdTypes.BinaryInv);
+                var lastImagePath = "";
+                if (!File.Exists(getfilteredImgPath(imagePath)))
+                    lastImagePath = imagePath;
+                else
+                    lastImagePath = getfilteredImgPath(imagePath);
+
+                tess.TesseractReader(lastImagePath, out confidence, out allText, out csvText);
+
+
+                //Mat[] contours;
+                HierarchyIndex[] hierarchy;
+                Cv2.FindContours(thresh, out contours, out hierarchy, RetrievalModes.Tree, ContourApproximationModes.ApproxSimple);
+                Mat image_txt = image.EmptyClone(); // New White Image
+                image_txt = image_txt.SetTo(Scalar.White);
+
+                List<OpenCvSharp.Rect> rects = getRectangles(ref image_txt, new StringReader(csvText), "");
+
+                for (int i = 1; i < contours.Length; i++)
+                {
+                    if (Cv2.ContourArea(contours[i]) > 4 && Cv2.ContourArea(contours[i]) < 100)
+                    {
+                        Console.WriteLine("ContourArea=" + Cv2.ContourArea(contours[i]));
+                        Cv2.DrawContours(image_txt, contours, i, Scalar.Black);
+                    }
+                }
+                saveMatImage(image_txt, "filtered", imagePath);
+                return true;
+            }catch(Exception ex)
+            {
+                Console.Write(ex);
+                return false;
+            }
+        }
+
         public static bool applyErosionFilter(string imagePath)
         {
             Mat image = readFilteredImg(imagePath);
@@ -106,10 +157,19 @@ namespace MapsVisionsAPI.Middleware
         }
         public static bool applyThresholdFilter(string imagePath)
         {
-            Mat image = readFilteredImg(imagePath);
-            Mat threshImg = new Mat();
-            Cv2.AdaptiveThreshold(image, threshImg, 255, AdaptiveThresholdTypes.MeanC, ThresholdTypes.Binary, 17, 13);
-            return saveMatImage(threshImg, "filtered", imagePath);
+            try
+            {
+                Mat image = readFilteredImg(imagePath);
+                Mat threshImg = new Mat();
+                Mat grayImg = new Mat();
+                Cv2.CvtColor(image, grayImg, ColorConversionCodes.BGR2GRAY);
+                Cv2.AdaptiveThreshold(grayImg, threshImg, 255, AdaptiveThresholdTypes.MeanC, ThresholdTypes.Binary, 17, 13);
+                return saveMatImage(threshImg, "filtered", imagePath);
+            }catch(Exception ex)
+            {
+                Console.Write(ex);
+                return false;
+            }
         }
 
         public static bool applyBestEffects1(string imagePath)
@@ -254,7 +314,8 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                             Int32.Parse(cells[9].Trim()));
                     rects.Add(rect);
                     //   Cv2.Rectangle(img_txt, rect, Scalar.Purple);
-                    File.AppendAllText(filePath, line + "\n");
+                    if(filePath!="")
+                        File.AppendAllText(filePath, line + "\n");
                     /*Cv2.ImShow("Image Text", img_gray);
                     Cv2.WaitKey(0);
                     Cv2.DestroyAllWindows();*/

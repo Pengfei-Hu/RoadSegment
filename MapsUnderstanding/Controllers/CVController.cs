@@ -76,8 +76,17 @@ namespace MapsUnderstanding.Controllers
                             }
                             else if (filterName.Trim() == "thresh")
                             {
-                                ImageFilters.applyThresholdFilter(imagePath);
-                                log += "Thresh filter applied; \n";
+                                if(ImageFilters.applyThresholdFilter(imagePath))
+                                    log += "Thresh filter applied; \n";
+                                else
+                                    log += "Thresh filter not applied; \n";
+                            }
+                            else if (filterName.Trim() == "contours")
+                            {
+                                if (ImageFilters.applyContoursFilter(imagePath))
+                                    log += "Text Contours filter applied; \n";
+                                else
+                                    log += "Text Contours not applied; \n";
                             }
                         }
                     }catch(Exception ex)

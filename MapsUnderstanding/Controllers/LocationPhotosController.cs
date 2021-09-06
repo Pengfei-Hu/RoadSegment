@@ -1,10 +1,16 @@
-﻿using MapsVisionsAPI.Data;
+﻿using MapsUnderstanding.Middleware;
+using MapsUnderstanding.Models;
+using MapsVisionsAPI.Data;
 using MapsVisionsAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace MapsVisionsAPI.Controllers
@@ -36,6 +42,44 @@ namespace MapsVisionsAPI.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+        static void SaveImage(LatLng latLng)
+        {
+            string url = "https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x=1325&y=3143&z=13&scale=3";
+            WebClient client = new WebClient();
+            client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; " +
+                                  "Windows NT 5.2; .NET CLR 1.0.3705;)");
+            Stream stream = client.OpenRead(url);
+            Bitmap bitmap = new Bitmap(stream);
+
+            if (bitmap != null)
+            {
+                bitmap.Save("D:\\MapImg1.png",  ImageFormat.Png);
+            }
+
+            stream.Flush();
+            stream.Close();
+            client.Dispose();
+        }
+        [HttpGet("DownloadGooglePic")]
+        public IActionResult DownloadGooglePic()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("latitude", out var latitude);
+                Request.Headers.TryGetValue("longitude", out var longitude);
+                LatLng latLng = new LatLng(Double.Parse( latitude.ToString()), 
+                            Double.Parse(longitude.ToString()));
+                var url = "https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x=1325&y=3143&z=13&scale=3";
+                SaveImage(latLng);
+                return Ok(new { downloaded =true });
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return BadRequest(new { error = ex.Message, downloaded = false });
+            }
+        }
+
         [HttpGet("AllLocationWholePhotos")]
         public IActionResult AllLocationWholePhotos()
         {
