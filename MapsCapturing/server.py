@@ -39,6 +39,61 @@ def get_geocoding(lat, lon):
     
     return json.dumps(result)
 
+def download_google_tiles(url):
+    #url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x=1485&s=&y=985&z=11'
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
+    tiles_urls = "["
+    capture_id = get_Insert_id()
+    for x in range(1,5):
+        current_url = url
+        current_url = current_url+"&scale="+str(x)
+        print(current_url)
+        pic_name = 'map/google/{}-{}.png'.format(capture_id,str( x*256) )
+        response = requests.get(current_url, stream=True, headers=headers)
+        with open(pic_name, 'wb') as out_file:
+            out_file.write(response.content)
+        data= {"url":pic_name,"resolution":x*256}
+        tiles_urls= tiles_urls +json.dumps(data)+","
+    tiles_urls = tiles_urls[0:len(tiles_urls)-1]
+    tiles_urls = tiles_urls +"]"
+    return tiles_urls
+
+#the code of OSM & Bing now the same with google. becuase we don't have any resolutions yet from osm, bing.
+# but when we have another resolution from bing and osm we may change all this code to another
+
+def download_osm_tiles(url):
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
+    tiles_urls = "["
+    capture_id = get_Insert_id()
+    for x in range(1,2):            # One Iteration Until now becuase we don't have more resolutions
+        current_url = url
+        current_url = current_url   # We will add something here to get more resolutions
+        pic_name = 'map/osm/{}-{}.png'.format(capture_id,str( x*256) )
+        response = requests.get(current_url, stream=True, headers=headers)
+        with open(pic_name, 'wb') as out_file:
+            out_file.write(response.content)
+        data= {"url":pic_name,"resolution":x*256}
+        tiles_urls= tiles_urls +json.dumps(data)+","
+    tiles_urls = tiles_urls[0:len(tiles_urls)-1]
+    tiles_urls = tiles_urls +"]"
+    return tiles_urls
+
+def download_bing_tiles(url):
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
+    tiles_urls = "["
+    capture_id = get_Insert_id()
+    for x in range(1,2):            # One Iteration Until now becuase we don't have more resolutions
+        current_url = url
+        current_url = current_url   # We will add something here to get more resolutions
+        pic_name = 'map/bing/{}-{}.png'.format(capture_id,str( x*256) )
+        response = requests.get(current_url, stream=True, headers=headers)
+        with open(pic_name, 'wb') as out_file:
+            out_file.write(response.content)
+        data= {"url":pic_name,"resolution":x*256}
+        tiles_urls= tiles_urls +json.dumps(data)+","
+    tiles_urls = tiles_urls[0:len(tiles_urls)-1]
+    tiles_urls = tiles_urls +"]"
+    return tiles_urls
 
 def download_tile(lat, lon, tileZoom, source):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
@@ -46,21 +101,25 @@ def download_tile(lat, lon, tileZoom, source):
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
     if source == 'bing':
         url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r' + qkStr + '.png?g=604&imageWidth=512'
+        return download_bing_tiles(url)
     elif source == 'google':
-        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=4'.format(tx,ty,tileZoom)
+        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom)
+        return download_google_tiles(url)
     else:
-        url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
-    response = requests.get(url, stream=True)
-    assert response.status_code == 200, "connect error"
-    print('DOWNLOAD {} SUCCESS'.format(source))
-#   capture_id = get_uuid()
-    capture_id = get_Insert_id()
-    pic_name = 'map/{}/{}.png'.format(source,capture_id )
+        url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
+        return download_osm_tiles(url)
+
+    #response = requests.get(url, stream=True)
+    #assert response.status_code == 200, "connect error"
+    #print('DOWNLOAD {} SUCCESS'.format(source))
+#   #capture_id = get_uuid()
+    #capture_id = get_Insert_id()
+    #pic_name = 'map/{}/{}.png'.format(source,capture_id )
     
-    with open(pic_name, 'wb') as out_file:
-        out_file.write(response.content)
-        print(response.content)
-    return pic_name
+    #with open(pic_name, 'wb') as out_file:
+    #    out_file.write(response.content)
+    #    print(response.content)
+    #return pic_name
 
 def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
@@ -84,23 +143,26 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
             part_list = new_qkStr[-multi:]
             transfer_loc_part[loc] = part_list
             if source == 'google':
-                url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=4'.format(tx,ty,tileZoom + multi)
+                url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom + multi)
+                pic_name = download_google_tiles(url)
             elif source == 'bing':
                 new_qkStr = t.TileXYToQuadKey(tx, ty, tileZoom + multi)
                 url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=512'.format(new_qkStr)
+                pic_name = download_bing_tiles(url)
             elif source == 'osm':
-                url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,tx,ty)
+                url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,tx,ty)
+                pic_name = download_osm_tiles(url)
             else:
                 return "error"
-            response = requests.get(url, stream=True)
-            assert response.status_code == 200, "connect error"
-            print('DOWNLOAD {} SUCCESS'.format(loc))
-            capture_id = get_Insert_id()
-            pic_name = 'map/{}/{}.png'.format(source, capture_id)
-            print('pic_name: {} \n'.format(pic_name))
+            #response = requests.get(url, stream=True)
+            #assert response.status_code == 200, "connect error"
+            #print('DOWNLOAD {} SUCCESS'.format(loc))
+            #capture_id = get_Insert_id()
+            #pic_name = 'map/{}/{}.png'.format(source, capture_id)
+            #print('pic_name: {} \n'.format(pic_name))
             # Save Images
-            with open(pic_name, 'wb') as out_file:
-                out_file.write(response.content)
+            #with open(pic_name, 'wb') as out_file:
+            #    out_file.write(response.content)
             
             loc += 1
 
