@@ -53,7 +53,17 @@ namespace MapsUnderstanding.Controllers
                     {
                         foreach (var filterName in filtersName)
                         {
-                            if (filterName.Trim() == "gray")
+                            if (filterName.Trim() == "resize")
+                            {
+                                ImageFilters.applyResizeFilter(imagePath);
+                                log += "Resize filter applied; \n";
+                            }
+                            else if (filterName.Trim() == "enhanceDetail")
+                            {
+                                ImageFilters.applyEnhanceDetailFilter(imagePath);
+                                log += "enhanceDetail filter applied; \n";
+                            }
+                            else if (filterName.Trim() == "gray")
                             {
                                 ImageFilters.applyGrayFilter(imagePath);
                                 log += "gray filter applied; \n";
@@ -63,11 +73,6 @@ namespace MapsUnderstanding.Controllers
                             {
                                 ImageFilters.applyDilateFilter(imagePath);
                                 log += "dilate filter applied;\n ";
-                            }
-                            else if (filterName.Trim() == "resize")
-                            {
-                                ImageFilters.applyResizeFilter(imagePath);
-                                log += "Resize filter applied; \n";
                             }
                             else if (filterName.Trim() == "erosion")
                             {
@@ -87,6 +92,20 @@ namespace MapsUnderstanding.Controllers
                                     log += "Text Contours filter applied; \n";
                                 else
                                     log += "Text Contours not applied; \n";
+                            }
+                            else if (filterName.Trim() == "bitwiseText")
+                            {
+                                if (ImageFilters.applyBitwiseText(imagePath))
+                                    log += "bitwiseText filter applied; \n";
+                                else
+                                    log += "bitwiseText not applied; \n";
+                            }
+                            else if (filterName.Trim() == "KMeans")
+                            {
+                                if (ImageFilters.applyKMeansFilter(imagePath))
+                                    log += "KMeans filter applied; \n";
+                                else
+                                    log += "KMeans not applied; \n";
                             }
                         }
                     }catch(Exception ex)

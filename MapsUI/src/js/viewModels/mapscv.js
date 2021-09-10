@@ -181,7 +181,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.showMeasureAccuracyAfterEffects(false);
             self.showMeasureAccuracy(false);
             self.showExtractedTextUnderMaps(true);
-            self.showImagesPath(false);
+            self.showImagesPath(true);
             self.showExtractedTextDetails(false);
             self.showTable(false);
             self.showAccuracyFilteredResults(false);

@@ -8,6 +8,7 @@ using MapsVisionsAPI.Data.Entities;
 using MapsVisionsAPI.Data;
 using MapsUnderstanding.Models;
 using MapsUnderstanding.Middleware;
+using System.Linq;
 
 namespace MapsVisionsAPI.Controllers
 {
@@ -113,10 +114,17 @@ namespace MapsVisionsAPI.Controllers
                     {
                         string[] correctWords = allWords[0].Split(",");
 
-                        double matchingDegree = 0;
+                    if(correctWords[0]=="")
+                        correctWords = correctWords.Where((source, index) => index != 0).ToArray();
+                    Console.WriteLine("allWords[0]=" + allWords[0]);
+                    Console.WriteLine("correctWords.length=" + correctWords.Length);
+                    Console.WriteLine("correctWords[0]=" + correctWords[0]);
+
+                    double matchingDegree = 0;
                         double sumMatchingDegree = 0;
                         int countMatchingDegreeRows = 0;
                         int wrongWords = 0;
+                        string bagOfWrongWords = "";
                         int undetectedWords = 0;
                         int detectedWords = 0;
                         double totalMatchingDegree = 0;
@@ -124,7 +132,7 @@ namespace MapsVisionsAPI.Controllers
                         tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult);
                         List<TessTextDef> tableOfWordsResultWithMatchingDegree =
                             TextProcessing.getTableWithMatchingDegree(tableOfWordsResult,
-                                                            correctWords, out wrongWords,
+                                                            correctWords, out wrongWords, out bagOfWrongWords,
                                                             out countMatchingDegreeRows, out sumMatchingDegree);
 
                         List<string> undetectedTable =
@@ -142,8 +150,9 @@ namespace MapsVisionsAPI.Controllers
                             UndetectedWordsTable = undetectedTable,
                             undetectedWords = undetectedWords.ToString(),
                             noWrongWords = wrongWords.ToString(),
+                            bagOfWrongWords = bagOfWrongWords,
                             confidence = confidence,
-                            matchingDegree = matchingDegree.ToString("0.##"),
+                            matchingDegree = (matchingDegree.ToString() == "NaN") ? "0" : matchingDegree.ToString("0.##"),
                             totalMatchingDegree = totalMatchingDegree.ToString("0.##")
                         });
                     }
@@ -180,6 +189,7 @@ namespace MapsVisionsAPI.Controllers
                         double sumMatchingDegree = 0;
                         int countMatchingDegreeRows = 0;
                         int wrongWords = 0;
+                        string bagOfWrongWords = "";
                         int undetectedWords = 0;
                         int detectedWords = 0;
                         double totalMatchingDegree = 0;
@@ -187,7 +197,7 @@ namespace MapsVisionsAPI.Controllers
                         tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult);
                         List<TessTextDef> tableOfWordsResultWithMatchingDegree =
                             TextProcessing.getTableWithMatchingDegree(tableOfWordsResult,
-                                                            correctWords, out wrongWords,
+                                                            correctWords, out wrongWords, out bagOfWrongWords,
                                                             out countMatchingDegreeRows, out sumMatchingDegree);
 
                         List<string> undetectedTable =
@@ -206,6 +216,7 @@ namespace MapsVisionsAPI.Controllers
                             UndetectedWordsTable = undetectedTable,
                             undetectedWords = undetectedWords.ToString(),
                             noWrongWords = wrongWords.ToString(),
+                            bagOfWrongWords = bagOfWrongWords.ToString(),
                             confidence = confidence,
                             matchingDegree = (matchingDegree.ToString()== "NaN")?"0": matchingDegree.ToString(),
                             totalMatchingDegree = totalMatchingDegree.ToString()

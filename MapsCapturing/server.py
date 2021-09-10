@@ -45,11 +45,11 @@ def download_tile(lat, lon, tileZoom, source):
     tx, ty = t.PixelXYToTileXY(px, py)
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
     if source == 'bing':
-        url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r' + qkStr + '.png?g=604&scale=3&imageWidth=512'
+        url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r' + qkStr + '.png?g=604&imageWidth=512'
     elif source == 'google':
-        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=3'.format(tx,ty,tileZoom)
+        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=4'.format(tx,ty,tileZoom)
     else:
-        url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png?scale=3'.format(tileZoom,tx,ty)
+        url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
     print('DOWNLOAD {} SUCCESS'.format(source))
@@ -84,12 +84,12 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
             part_list = new_qkStr[-multi:]
             transfer_loc_part[loc] = part_list
             if source == 'google':
-                url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=3'.format(tx,ty,tileZoom + multi)
+                url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=4'.format(tx,ty,tileZoom + multi)
             elif source == 'bing':
                 new_qkStr = t.TileXYToQuadKey(tx, ty, tileZoom + multi)
-                url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&scale=3&imageWidth=512'.format(new_qkStr)
+                url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=512'.format(new_qkStr)
             elif source == 'osm':
-                url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png?scale=3'.format(tileZoom + multi,tx,ty)
+                url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,tx,ty)
             else:
                 return "error"
             response = requests.get(url, stream=True)
@@ -129,11 +129,11 @@ def multi_pic_part(lat, lon, tileZoom, multi, source, part_list):
     new_qkr = qkStr + part_list
     new_tx, new_ty = t.QuadKeyToTileXY(new_qkr)
     if source == 'google':
-        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=3'.format(new_tx,new_ty,tileZoom + multi)
+        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=4'.format(new_tx,new_ty,tileZoom + multi)
     elif source == 'bing':
-        url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&scale=3&imageWidth=512'.format(new_qkr)
+        url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=1024'.format(new_qkr)
     elif source == 'osm':
-        url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png?scale=3'.format(tileZoom + multi,new_tx,new_ty)
+        url = 'https://a.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,new_tx,new_ty)
     else:
         return "error"
     response = requests.get(url, stream=True)

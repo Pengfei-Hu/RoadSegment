@@ -48,11 +48,12 @@ namespace MapsVisionsAPI.Middleware
             var imagePath = Path.Combine(sourcePath.Substring(0,sourcePath.LastIndexOf("\\")+1),
                    name +"-"+ sourcePath.Substring(sourcePath.LastIndexOf("\\")+1));
             //if (! IsFileLocked(new FileInfo(imagePath))){
-                using (
-                Bitmap bitmap = BitmapConverter.ToBitmap(img))
+            img.SaveImage(imagePath);
+            img.Dispose();
+                /*using (Bitmap bitmap = BitmapConverter.ToBitmap(img))
                 {
                     bitmap.Save(imagePath);
-                }
+                }*/
                     
             //}
             return true;
@@ -60,8 +61,11 @@ namespace MapsVisionsAPI.Middleware
         public static bool removeEffectedImg(string imagePath)
         {
             if (File.Exists(getfilteredImgPath(imagePath)))
+            {
                 File.Delete(getfilteredImgPath(imagePath));
-            return true;
+
+            }
+            return saveMatImage(readFilteredImg(imagePath), "filtered", imagePath);
         }
         public static bool applyGrayFilter(string imagePath)
         {
@@ -86,6 +90,91 @@ namespace MapsVisionsAPI.Middleware
             Cv2.Dilate(image, dilateImg, null, null, 1);
             return saveMatImage(dilateImg, "filtered", imagePath);
         }
+        public static Dictionary<string, int> Kmeans(Mat input, ref Mat output, int k)
+        {
+            Dictionary<string, int> colorsCounter = new Dictionary<string, int>();
+            using (Mat points = new Mat())
+            {
+                using (Mat labels = new Mat())
+                {
+                    using (Mat centers = new Mat())
+                    {
+                        int width = input.Cols;
+                        int height = input.Rows;
+
+                        points.Create(width * height, 1, MatType.CV_32FC3);
+                        centers.Create(k, 1, points.Type());
+                        output.Create(height, width, input.Type());
+
+                        // Input Image Data
+                        int i = 0;
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++, i++)
+                            {
+                                Vec3f vec3f = new Vec3f
+                                {
+                                    Item0 = input.At<Vec3b>(y, x).Item0,
+                                    Item1 = input.At<Vec3b>(y, x).Item1,
+                                    Item2 = input.At<Vec3b>(y, x).Item2
+                                };
+                                points.Set<Vec3f>(i, vec3f);
+                            }
+                        }
+
+                        // Criteria:
+                        // – Stop the algorithm iteration if specified accuracy, epsilon, is reached.
+                        // – Stop the algorithm after the specified number of iterations, MaxIter.
+                        var criteria = new TermCriteria(type: CriteriaTypes.Eps | CriteriaTypes.MaxIter, maxCount: 10, epsilon: 1.0);
+
+                        // Finds centers of clusters and groups input samples around the clusters.
+                        Cv2.Kmeans(data: points, k: k, bestLabels: labels, criteria: criteria, attempts: 3, flags: KMeansFlags.PpCenters, centers: centers);
+
+                        // Output Image Data
+                        i = 0;
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++, i++)
+                            {
+                                int index = labels.Get<int>(i);
+
+                                Vec3b vec3b = new Vec3b();
+
+                                int firstComponent = Convert.ToInt32(Math.Round(centers.At<Vec3f>(index).Item0));
+                                firstComponent = firstComponent > 255 ? 255 : firstComponent < 0 ? 0 : firstComponent;
+                                vec3b.Item0 = Convert.ToByte(firstComponent);
+
+                                int secondComponent = Convert.ToInt32(Math.Round(centers.At<Vec3f>(index).Item1));
+                                secondComponent = secondComponent > 255 ? 255 : secondComponent < 0 ? 0 : secondComponent;
+                                vec3b.Item1 = Convert.ToByte(secondComponent);
+
+                                int thirdComponent = Convert.ToInt32(Math.Round(centers.At<Vec3f>(index).Item2));
+                                thirdComponent = thirdComponent > 255 ? 255 : thirdComponent < 0 ? 0 : thirdComponent;
+                                vec3b.Item2 = Convert.ToByte(thirdComponent);
+
+                                output.Set<Vec3b>(y, x, vec3b);
+                                int currentCounter = 0;
+                                string key = vec3b.Item0.ToString() + "," + vec3b.Item1.ToString()
+                                        + "," + vec3b.Item2.ToString();
+                                if (colorsCounter.TryGetValue(key, out currentCounter))
+                                    colorsCounter[key] = ++currentCounter;
+                                else
+                                    colorsCounter.Add(key, 1);
+                            }
+                        }
+
+                    }
+                }
+            }
+            return colorsCounter;
+        }
+        public static bool applyKMeansFilter(string imagePath)
+        {
+            Mat image = readFilteredImg(imagePath);
+            Mat kmeansImg = new Mat();
+            var colorsCounter = Kmeans(image, ref kmeansImg, 3);
+            return saveMatImage(kmeansImg, "filtered", imagePath);
+        }
 
         public static bool applyResizeFilter(string imagePath)
         {
@@ -97,7 +186,28 @@ namespace MapsVisionsAPI.Middleware
             Cv2.Resize(image, rescaledImage, new OpenCvSharp.Size(width, height), 2, 2, InterpolationFlags.Area);
             return saveMatImage(rescaledImage, "filtered", imagePath);
         }
+        public static bool applyEnhanceDetailFilter(string imagePath)
+        {
+            Mat image = readFilteredImg(imagePath);
+            Mat enhanceImage = new Mat();
+            Cv2.DetailEnhance(image, enhanceImage, 10, 0.15f);
+            return saveMatImage(enhanceImage, "filtered", imagePath);
+        }
+        public static bool applyBitwiseText(string imagePath)
+        {
+            Mat imageImg = readFilteredImg(imagePath);
+            Mat grayImg = new Mat();
+            Mat threshImg = new Mat();
+            Cv2.CvtColor(imageImg, grayImg, ColorConversionCodes.BGR2GRAY);
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(1, 1));
+            Cv2.Dilate(grayImg, grayImg, kernel);                         //dilate to remove text and tables
+            Cv2.Threshold(grayImg, threshImg, 118, 255, ThresholdTypes.Binary);     //change white background to black
 
+            Cv2.Threshold(grayImg, grayImg, 100, 255, ThresholdTypes.BinaryInv);   //invert binary image for easier processing
+            Mat final = grayImg;
+            Cv2.BitwiseNot(grayImg, threshImg, final);
+            return saveMatImage(threshImg, "filtered", imagePath);
+        }
         public static bool applyContoursFilter(string imagePath)
         {
             try

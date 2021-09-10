@@ -73,10 +73,11 @@ namespace MapsVisionsAPI.Middleware
             return undetectedTable;
         }
         public static List<TessTextDef> getTableWithMatchingDegree(List<TessTextDef> tableOfWordsResult, string[] correctWords, 
-                                out int wrongWords, out int countMatchingDegreeRows, out double sumMatchingDegree)
+                                out int wrongWords, out string bagOfWrongWords, out int countMatchingDegreeRows, out double sumMatchingDegree)
         {
             List<TessTextDef> tableOfWordsResultWithMatchingDegree = new List<TessTextDef>();
             wrongWords = 0;
+            bagOfWrongWords = "";
             countMatchingDegreeRows = 0;
             sumMatchingDegree = 0;
             int lineno = 0;
@@ -95,7 +96,10 @@ namespace MapsVisionsAPI.Middleware
                     rowData.MatchingDegree =Double.Parse( res[0, 1]); //Matching Degree
 
                     if (rowData.MatchingDegree.ToString() == "0")
+                    {
                         wrongWords += 1;
+                        bagOfWrongWords += rowData.text.Trim() + ",";
+                    }
                     else
                     {
                         countMatchingDegreeRows += 1;
@@ -106,8 +110,10 @@ namespace MapsVisionsAPI.Middleware
                     lineno += 1;
 
                 }
-
             }
+            if (wrongWords > 0)
+                bagOfWrongWords = bagOfWrongWords.Substring(0, bagOfWrongWords.Length - 1);
+
             return tableOfWordsResultWithMatchingDegree;
         }
     }
