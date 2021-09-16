@@ -6,8 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MapsVisionsAPI.Models
+namespace MapsUnderstanding.Models
 {
+    class CaptureUrl
+    {
+        public string url { get; set; }
+        public int resolution { get; set; }
+    }
     public class Location_Photos
     {
         [Key]
@@ -21,5 +26,6 @@ namespace MapsVisionsAPI.Models
         public string quarter { get; set; }
         public int? main_capture_id { get; set; }
         public string city_code { get; set; }
+        public string ground_truth { get; set; }
     }
 }

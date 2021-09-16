@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,7 +9,9 @@ namespace MapsUnderstanding.Models
 {
     public class TessTextDef
     {
-        //public int no { set; get; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int no { set; get; }
         public int level { set; get; }
         public int page_num { set; get; }
         public int block_num { set; get; }

@@ -14,5 +14,11 @@ namespace MapsUnderstanding.Middleware
             string mapsDir = ApiDir.Substring(0, ApiDir.LastIndexOf("\\"));
             return mapsDir + "\\MapsCapturing";
         }
+        public static string mapsPathProvider(string firstLetterOfProvider)
+        {
+            string ApiDir = Directory.GetCurrentDirectory();
+            string mapsDir = ApiDir.Substring(0, ApiDir.LastIndexOf("\\"));
+            return mapsDir + "\\MapsCapturing\\map\\"+ ((firstLetterOfProvider.ToLower()=="g")?"google":(firstLetterOfProvider.ToLower()=="b")?"bing":(firstLetterOfProvider.ToLower()=="o")?"osm":"")+"\\";
+        }
     }
 }

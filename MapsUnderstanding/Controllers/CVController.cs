@@ -1,4 +1,5 @@
-﻿using MapsUnderstanding.Middleware;
+﻿using MapsUnderstanding.Handlers;
+using MapsUnderstanding.Middleware;
 using MapsVisionsAPI.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,6 +14,7 @@ namespace MapsUnderstanding.Controllers
     [Route("[controller]")]
     public class CVController : Controller
     {
+        CVHandler cv = new CVHandler();
 
         [HttpPost("applyGrayFilter")]
         public IActionResult applyGrayFilter()
@@ -39,80 +41,7 @@ namespace MapsUnderstanding.Controllers
             {
                 Request.Headers.TryGetValue("imagePath", out var imagesName);
                 Request.Headers.TryGetValue("effects", out var filters);
-                string[] imgs = imagesName.ToString().Split(",");
-                Console.WriteLine(filters.ToString());
-                string[] filtersName = filters.ToString().Split(",");
-                
-                string log = "";
-                foreach (var img in imgs) {
-                    var imageName = img.ToString().Replace("/", "\\");
-                    var imagePath = Path.Combine(Util.mapsPath(), imageName);
-                    ImageFilters.removeEffectedImg(imagePath);
-                    log += "Image Name:" + imageName + " ; \n";
-                    try
-                    {
-                        foreach (var filterName in filtersName)
-                        {
-                            if (filterName.Trim() == "resize")
-                            {
-                                ImageFilters.applyResizeFilter(imagePath);
-                                log += "Resize filter applied; \n";
-                            }
-                            else if (filterName.Trim() == "enhanceDetail")
-                            {
-                                ImageFilters.applyEnhanceDetailFilter(imagePath);
-                                log += "enhanceDetail filter applied; \n";
-                            }
-                            else if (filterName.Trim() == "gray")
-                            {
-                                ImageFilters.applyGrayFilter(imagePath);
-                                log += "gray filter applied; \n";
-
-                            }
-                            else if (filterName.Trim() == "dilate")
-                            {
-                                ImageFilters.applyDilateFilter(imagePath);
-                                log += "dilate filter applied;\n ";
-                            }
-                            else if (filterName.Trim() == "erosion")
-                            {
-                                ImageFilters.applyErosionFilter(imagePath);
-                                log += "Erosion filter applied; \n";
-                            }
-                            else if (filterName.Trim() == "thresh")
-                            {
-                                if(ImageFilters.applyThresholdFilter(imagePath))
-                                    log += "Thresh filter applied; \n";
-                                else
-                                    log += "Thresh filter not applied; \n";
-                            }
-                            else if (filterName.Trim() == "contours")
-                            {
-                                if (ImageFilters.applyContoursFilter(imagePath))
-                                    log += "Text Contours filter applied; \n";
-                                else
-                                    log += "Text Contours not applied; \n";
-                            }
-                            else if (filterName.Trim() == "bitwiseText")
-                            {
-                                if (ImageFilters.applyBitwiseText(imagePath))
-                                    log += "bitwiseText filter applied; \n";
-                                else
-                                    log += "bitwiseText not applied; \n";
-                            }
-                            else if (filterName.Trim() == "KMeans")
-                            {
-                                if (ImageFilters.applyKMeansFilter(imagePath))
-                                    log += "KMeans filter applied; \n";
-                                else
-                                    log += "KMeans not applied; \n";
-                            }
-                        }
-                    }catch(Exception ex)
-                    {
-                        log+="Exception:"+ ex.Message+" ; \n";
-                    }
-                }
+                string log = cv.applyEffectsToImgs(imagesName.ToString(), filters.ToString());
                 return Ok(new { message = "filters applied over the images successfully", log = log });
             }
             catch (Exception ex)

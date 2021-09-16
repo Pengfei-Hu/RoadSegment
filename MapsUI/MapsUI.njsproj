@@ -67,10 +67,12 @@
     <Content Include="src\js\accUtils.js" />
     <Content Include="src\js\appController.js" />
     <Content Include="src\js\main.js" />
+    <Content Include="src\js\models\stats.model.js" />
     <Content Include="src\js\models\mapimgs.model.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="src\js\models\mapsCV.model.js" />
+    <Content Include="src\js\models\utils.model.js" />
     <Content Include="src\js\models\textRecog.model.js">
       <SubType>Code</SubType>
     </Content>
@@ -78,11 +80,11 @@
     <Content Include="src\js\settings.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="src\js\viewModels\visual.js" />
+    <Content Include="src\js\viewModels\utils.js" />
     <Content Include="src\js\viewModels\capturing.js" />
     <Content Include="src\js\viewModels\dashboard.js" />
     <Content Include="src\js\viewModels\mapscv.js" />
-    <Content Include="src\js\views\visual.html" />
+    <Content Include="src\js\views\utils.html" />
     <Content Include="src\js\views\capturing.html" />
     <Content Include="src\js\views\dashboard.html" />
     <Content Include="src\js\views\mapscv.html" />

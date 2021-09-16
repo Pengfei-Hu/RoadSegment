@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # __author__ = 'Yao Jia Wei'
-
+import json
 from PIL.Image import NONE
 from numpy.lib.function_base import append
 import pymssql
@@ -142,6 +142,9 @@ class MSSQL:
         self.conn.close()
         print("Records SELECT successfully")
         return capture_id
+
+
+
     def get_Next_id(self):
         c = self.GetConnect()
         
@@ -155,4 +158,91 @@ class MSSQL:
         self.conn.close()
         print("Records SELECT successfully")
         return Next_id
-        
+  
+
+    def getSeriesGroupRowArrayObjects(self, result):
+        list =[]
+        for row in result:
+            list.append( {'series': row[0],'group': row[1],'value':row[2]})
+        return list
+    def getSeriesGroupXYZArrayObjects(self, result):
+        list =[]
+        for row in result:
+            list.append( {'series': row[0],'group': row[1],'x':row[2],'y':row[3],'z':row[4]})
+        return list
+    def getSeriesGroupValueXYZArrayObjects(self, result):
+        list =[]
+        for row in result:
+            list.append( {'series': row[0],'group': row[1],'value': row[2],'x':row[3],'y':row[4],'z':row[5]})
+        return list
+
+    def get_places_number_words(self):
+        queryWordsMapProviderPerPlaces = """ SELECT CAST(lat as nvarchar)+','+CAST(lng as nvarchar)   as series,
+		            CASE   map_provider WHEN 'G' THEN 'Google' WHEN 'O' THEN 'OSM'  WHEN 'B' THEN 'Bing' end as 'group', 
+		            SUM(LEN(ground_truth) - LEN(REPLACE(ground_truth, ',', ''))+1) as 'value'
+                    from [location_photos]
+                    group by map_provider,CAST(lat as nvarchar)+','+CAST(lng as nvarchar)  """
+        queryWordsMapProvider = """ SELECT	CAST(count(DISTINCT(CAST(lat as nvarchar)+'-'+CAST(lng as nvarchar) )) as varchar)+' places' as series, 
+		            CASE   map_provider WHEN 'G' THEN 'Google' WHEN 'O' THEN 'OSM'  WHEN 'B' THEN 'Bing' end as 'group', 
+		            SUM(LEN(ground_truth) - LEN(REPLACE(ground_truth, ',', ''))+1) as 'value'
+                    from [location_photos]
+                    group by map_provider """
+        queryFiltersMapProvider  ="""SELECT	[effects] as series, 
+		            CASE SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1) WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end as 'group',
+		            ROUND(AVG(matching_degree*100),2) as 'value'
+                    from [mapImageRecogResults]
+                    where [resolution]=256
+                    group by SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1), [effects]"""
+        queryFiltersDetectedWrongUndetected = """SELECT	[effects] as series, 
+		            CASE SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1) WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end as 'group',
+		            SUM([no_undetected_words]) as 'X',
+		            SUM([no_wrong_words]) as 'Y',
+		            SUM([no_detected_words]) as 'Z'
+                    from [mapImageRecogResults]
+                    where [resolution]=256
+                    group by SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1), [effects]"""
+        queryResolutionEffectsAccuracy = """SELECT	[effects] as series, 
+		                            [resolution]  as 'group',
+		                            ROUND(AVG(matching_degree*100),2) as 'value'
+                                    from [mapImageRecogResults]
+                                    where  CHARINDEX('google', picture_url) > 1
+                                    group by [resolution] , [effects]"""
+        queryImpactOfResolutionOnAccuracy= """SELECT	[resolution] as series, 
+		                                     'Google' as 'group',
+		                                    ROUND(AVG(matching_degree*100),2) as 'value',
+		                                    SUM([no_undetected_words]) as 'x',
+		                                    SUM([no_wrong_words]) as 'y',
+		                                    SUM([no_detected_words]) as 'z'
+                                            from [mapImageRecogResults]
+                                            where  CHARINDEX('google', picture_url) > 1
+                                            group by [resolution] """
+        try:
+            cursor = self.GetConnect()
+
+            cursor.execute(queryWordsMapProviderPerPlaces)
+            wordsMapProviderPerPlacesResult = self.getSeriesGroupRowArrayObjects(cursor.fetchall())
+
+            cursor.execute(queryWordsMapProvider)
+            wordsMapProviderResult = self.getSeriesGroupRowArrayObjects(cursor.fetchall())
+
+            cursor.execute(queryFiltersMapProvider)
+            filtersMapProviderResult = self.getSeriesGroupRowArrayObjects(cursor.fetchall())
+
+            cursor.execute(queryFiltersDetectedWrongUndetected)
+            filtersDetectedWrongUndetectedResult = self.getSeriesGroupXYZArrayObjects(cursor.fetchall())
+
+            cursor.execute(queryResolutionEffectsAccuracy)
+            resolutionEffectsAccuracyResult = self.getSeriesGroupRowArrayObjects(cursor.fetchall())
+
+            cursor.execute(queryImpactOfResolutionOnAccuracy)
+            impactOfResolutionOnAccuracyResult = self.getSeriesGroupValueXYZArrayObjects(cursor.fetchall())
+
+            self.conn.close()
+        except Exception as e:
+            print(e)
+        return {'wordsMapProviderPerPlacesResult': wordsMapProviderPerPlacesResult,
+                'wordsMapProviderResult': wordsMapProviderResult,
+                'filtersMapProviderResult':filtersMapProviderResult,
+                'filtersDetectedWrongUndetectedResult':filtersDetectedWrongUndetectedResult,
+                'resolutionEffectsAccuracyResult':resolutionEffectsAccuracyResult,
+                'impactOfResolutionOnAccuracyResult':impactOfResolutionOnAccuracyResult}

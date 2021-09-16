@@ -16,7 +16,7 @@ app = Flask(__name__, static_folder="map")
 CORS(app, supports_credentials=True)
 t = TileSystem()
 
-HOST = 'uwtset1.tacoma.uw.edu'
+HOST = 'localhost'
 USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
@@ -345,9 +345,9 @@ def geocoding():
     return result
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
+@app.route('/providerWords')
+def providerWords():
+    return json.dumps(location_photos.get_places_number_words())
 
 
 if __name__ == '__main__':

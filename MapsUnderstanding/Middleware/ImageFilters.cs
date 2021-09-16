@@ -17,7 +17,7 @@ namespace MapsVisionsAPI.Middleware
             return saveMatImage(Grayscale, "Grayscale1", imagePath);
         }
 
-        private static string getfilteredImgPath(string sourcePath)
+        public static string getfilteredImgPath(string sourcePath)
         {
             return Path.Combine(sourcePath.Substring(0, sourcePath.LastIndexOf("\\") + 1),
                       "filtered-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));

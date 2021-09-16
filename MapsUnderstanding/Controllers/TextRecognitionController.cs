@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using MapsVisionsAPI.Middleware;
 using System.Diagnostics;
-using MapsVisionsAPI.Data.Entities;
-using MapsVisionsAPI.Data;
+using MapsUnderstanding.Data;
 using MapsUnderstanding.Models;
 using MapsUnderstanding.Middleware;
 using System.Linq;
+using MapsUnderstanding.Handlers;
 
-namespace MapsVisionsAPI.Controllers
+namespace MapsUnderstanding.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -107,54 +107,14 @@ namespace MapsVisionsAPI.Controllers
                     Request.Headers.TryGetValue("imagePath", out var imageName);
                     imageName = imageName.ToString().Replace("/", "\\");
                     var imagePath = Path.Combine(Util.mapsPath(), imageName);
-
-                if (allWords.Count == 0)
+                    TextRecogHandler textRecog = new TextRecogHandler();
+                    if (allWords.Count == 0)
                         return BadRequest(new { error = "you must send the correctWords in headers. That contains all correct words in the image" });
                     else
                     {
-                        string[] correctWords = allWords[0].Split(",");
-
-                    if(correctWords[0]=="")
-                        correctWords = correctWords.Where((source, index) => index != 0).ToArray();
-                    Console.WriteLine("allWords[0]=" + allWords[0]);
-                    Console.WriteLine("correctWords.length=" + correctWords.Length);
-                    Console.WriteLine("correctWords[0]=" + correctWords[0]);
-
-                    double matchingDegree = 0;
-                        double sumMatchingDegree = 0;
-                        int countMatchingDegreeRows = 0;
-                        int wrongWords = 0;
-                        string bagOfWrongWords = "";
-                        int undetectedWords = 0;
-                        int detectedWords = 0;
-                        double totalMatchingDegree = 0;
-
-                        tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult);
-                        List<TessTextDef> tableOfWordsResultWithMatchingDegree =
-                            TextProcessing.getTableWithMatchingDegree(tableOfWordsResult,
-                                                            correctWords, out wrongWords, out bagOfWrongWords,
-                                                            out countMatchingDegreeRows, out sumMatchingDegree);
-
-                        List<string> undetectedTable =
-                             TextProcessing.getTableOfUndetectedWords(correctWords, tableOfWordsResultWithMatchingDegree);
-
-                        undetectedWords = undetectedTable.Count;
-                        detectedWords = tableOfWordsResultWithMatchingDegree.Count;
-                        matchingDegree = sumMatchingDegree / countMatchingDegreeRows;
-                        totalMatchingDegree = sumMatchingDegree / (countMatchingDegreeRows + wrongWords + undetectedWords);
-
-                        return Ok(new
-                        {
-                            DetectedWordsTable = tableOfWordsResultWithMatchingDegree,
-                            noDetectedWords = detectedWords,
-                            UndetectedWordsTable = undetectedTable,
-                            undetectedWords = undetectedWords.ToString(),
-                            noWrongWords = wrongWords.ToString(),
-                            bagOfWrongWords = bagOfWrongWords,
-                            confidence = confidence,
-                            matchingDegree = (matchingDegree.ToString() == "NaN") ? "0" : matchingDegree.ToString("0.##"),
-                            totalMatchingDegree = totalMatchingDegree.ToString("0.##")
-                        });
+                    return Ok(new{
+                       results = textRecog.getTextRecogDetails(allWords[0], imagePath, 0, "",256)
+                    });
                     }
                 
             }
@@ -193,8 +153,8 @@ namespace MapsVisionsAPI.Controllers
                         int undetectedWords = 0;
                         int detectedWords = 0;
                         double totalMatchingDegree = 0;
-
-                        tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult);
+                        TextRecogHandler textRecog = new TextRecogHandler();
+                        textRecog.tableOfDetectedWords(imagePath, out var confidence, out var tableOfWordsResult, out var allDetectedWords);
                         List<TessTextDef> tableOfWordsResultWithMatchingDegree =
                             TextProcessing.getTableWithMatchingDegree(tableOfWordsResult,
                                                             correctWords, out wrongWords, out bagOfWrongWords,
@@ -222,7 +182,8 @@ namespace MapsVisionsAPI.Controllers
                             totalMatchingDegree = totalMatchingDegree.ToString()
                         });
 
-
+                        /*
+                         *Save into database
                         MapImageRecogResults model = new MapImageRecogResults();
                         model.capture_url ="Resources\\Images\\"+ img;
                         model.lat = 7.7545892f;
@@ -239,7 +200,7 @@ namespace MapsVisionsAPI.Controllers
                         model.total_matching_degree =Convert.ToSingle( totalMatchingDegree);
 
                         repository.Insert(model);
-                        repository.Save();
+                        repository.Save();*/
 
                         
                     }
@@ -252,12 +213,6 @@ namespace MapsVisionsAPI.Controllers
             }
             return Ok(new { message = "All captured maps stored into the database" });
         }
-        private void tableOfDetectedWords(string imagePath, out float confidence, out List<TessTextDef> table)
-        {
-                string allText ="";
-                Tess.TesseractReader(imagePath, out confidence,out _, out allText);
-                var tableOfWordsResult =TextProcessing.CastCSVToDataTable(new StringReader(allText));
-                table = tableOfWordsResult;
-        }
+
     }
 }

@@ -4,20 +4,49 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['accUtils'],
- function(accUtils) {
-    function DashboardViewModel() {
-      // Below are a set of the ViewModel methods invoked by the oj-module component.
-      // Please reference the oj-module jsDoc for additional information.
+define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/stats.model',
+    'accUtils', "ojs/ojoffcanvas", "ojs/ojknockout", "ojs/ojchart", "ojs/ojtoolbar",
+    "ojs/ojmenu", "ojs/ojbutton", "ojs/ojoption"],
+    function (oj, ko, $, ArrayDataProvider, statsModel, accUtils) {
+        function DashboardViewModel() {
+            let self = this;
+            self.googlSelectedMenuItem = ko.observable("(None selected yet)");
+            self.googleMenuItemAction = (event) => {
+                self.googlSelectedMenuItem(event.detail.selectedValue);
+            };
 
-      /**
-       * Optional ViewModel method invoked after the View is inserted into the
-       * document DOM.  The application can put logic that requires the DOM being
-       * attached here.
-       * This method might be called multiple times - after the View is created
-       * and inserted into the DOM and after the View is reconnected
-       * after being disconnected.
-       */
+            self.stackValue = ko.observable("off");
+            self.orientationValue = ko.observable("vertical");
+
+
+            self.dataPerPlaces = ko.observableArray([]);
+            self.dataProviderPerPlace = new ArrayDataProvider(self.dataPerPlaces, {});
+
+            self.dataAll = ko.observableArray([]);
+            self.dataProviderAll = new ArrayDataProvider(self.dataAll, {});
+
+            self.dataFiltersMapProvider= ko.observableArray([]);
+            self.filtersMapProviderData = new ArrayDataProvider(self.dataFiltersMapProvider, {});
+
+            self.datafiltersDWU = ko.observableArray([]);
+            self.filtersDetectedWrongUndetectedDataProvider = new ArrayDataProvider(self.datafiltersDWU, {});
+
+            self.dataResolutionAccuracy = ko.observableArray([]);
+            self.resolutionAccuracyDataProvider = new ArrayDataProvider(self.dataResolutionAccuracy, {});
+
+            self.dataImpactOfResolutionOnAccuracy = ko.observableArray([]);
+            self.dataImpactOfResolutionOnAccuracyDataProvider = new ArrayDataProvider(self.dataImpactOfResolutionOnAccuracy, {});
+
+            statsModel.getProvidersPlacesWords((success, result) => {
+                self.dataPerPlaces(result.wordsMapProviderPerPlacesResult);
+                self.dataAll(result.wordsMapProviderResult);
+                self.dataFiltersMapProvider(result.filtersMapProviderResult);
+                self.datafiltersDWU(result.filtersDetectedWrongUndetectedResult);
+                self.dataResolutionAccuracy(result.resolutionEffectsAccuracyResult);
+                self.dataImpactOfResolutionOnAccuracy(result.impactOfResolutionOnAccuracyResult);
+            });
+
+
       this.connected = () => {
         accUtils.announce('Dashboard page loaded.', 'assertive');
         document.title = "Dashboard";
@@ -40,11 +69,7 @@ define(['accUtils'],
       };
     }
 
-    /*
-     * Returns an instance of the ViewModel providing one instance of the ViewModel. If needed,
-     * return a constructor for the ViewModel so that the ViewModel is constructed
-     * each time the view is displayed.
-     */
+
     return DashboardViewModel;
   }
 );

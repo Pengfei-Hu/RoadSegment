@@ -73,7 +73,8 @@ namespace MapsVisionsAPI.Middleware
             return undetectedTable;
         }
         public static List<TessTextDef> getTableWithMatchingDegree(List<TessTextDef> tableOfWordsResult, string[] correctWords, 
-                                out int wrongWords, out string bagOfWrongWords, out int countMatchingDegreeRows, out double sumMatchingDegree)
+                                out int wrongWords, out string bagOfWrongWords, out int countMatchingDegreeRows, 
+                                out double sumMatchingDegree)
         {
             List<TessTextDef> tableOfWordsResultWithMatchingDegree = new List<TessTextDef>();
             wrongWords = 0;

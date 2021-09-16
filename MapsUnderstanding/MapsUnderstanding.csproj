@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Entities\" />
     <Folder Include="Resources\Images\" />
   </ItemGroup>
 

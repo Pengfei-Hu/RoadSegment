@@ -97,6 +97,7 @@
     <Folder Include="map\google\" />
     <Folder Include="map\google\combine\" />
     <Folder Include="map\google\combine\single\" />
+    <Folder Include="map\log\" />
     <Folder Include="map\osm\" />
     <Folder Include="map\osm\combine\" />
     <Folder Include="map\osm\combine\single\" />

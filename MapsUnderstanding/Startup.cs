@@ -1,4 +1,4 @@
-using MapsVisionsAPI.Data;
+using MapsUnderstanding.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -54,7 +54,11 @@ namespace MapsVisionsAPI
             });
             services.AddDbContext<MapsVisionsDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("MapsVisionsDbConnection"));
+            options.UseSqlServer(Configuration.GetConnectionString("MapsVisionsDbConnection"),
+                sqlServerOptionsAction: sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure();
+                });
             });
 
             //services.AddDatabaseDeveloperPageExceptionFilter();

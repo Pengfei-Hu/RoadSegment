@@ -1,0 +1,33 @@
+
+<div class="oj-hybrid-padding">
+
+
+    <div class="oj-panel oj-bg-info-30">
+        <h4 class="oj-header-border">
+            <oj-bind-text>
+                Utilities
+            </oj-bind-text>
+        </h4>
+        <div class="oj-flex">
+
+            <oj-form-layout class="inCenter" max-columns="1" direction="row">
+                <oj-bind-text>
+                      <br />  
+                </oj-bind-text>
+                <oj-button id='button1' on-oj-action='[[loadGroundTruth]]' class="oj-button-lg">
+                    Load all new ground truths into MapsVision database
+                    <span slot="endIcon" class="oj-ux-ico-upload"></span>
+                </oj-button>
+
+
+            </oj-form-layout>
+            <div id="progressBarWrapper" style="visibility:hidden;" class="fullScreen">
+                <oj-progress-bar id="progressBar" value="-1">
+                </oj-progress-bar>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>

@@ -1,12 +1,11 @@
-﻿using MapsVisionsAPI.Data.Entities;
-using MapsVisionsAPI.Models;
+﻿using MapsUnderstanding.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MapsVisionsAPI.Data
+namespace MapsUnderstanding.Data
 {
     public class MapsVisionsDbContext : DbContext
     {

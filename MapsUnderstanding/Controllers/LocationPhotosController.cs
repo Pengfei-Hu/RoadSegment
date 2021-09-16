@@ -1,8 +1,10 @@
-﻿using MapsUnderstanding.Middleware;
+﻿using MapsUnderstanding.Handlers;
+using MapsUnderstanding.Middleware;
 using MapsUnderstanding.Models;
-using MapsVisionsAPI.Data;
-using MapsVisionsAPI.Models;
+using MapsUnderstanding.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +15,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace MapsVisionsAPI.Controllers
+namespace MapsUnderstanding.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -28,13 +30,22 @@ namespace MapsVisionsAPI.Controllers
             _DbContext = mapsVisionsDbContext;
             this.repository = new GRepository<Location_Photos>(_DbContext);
         }
+        public IEnumerable<Location_Photos> getAllLocationPhotosData()
+        {
+            return repository.GetAll();
+        }
+        [HttpGet("testController")]
+        public IActionResult testController()
+        {
+            return Ok(new { controller = "run successfully" });
+        }
 
         [HttpGet("AllLocationPhotos")]
         public IActionResult AllLocationPhotos()
         {
             try
             {
-                var model = repository.GetAll();
+                var model = getAllLocationPhotosData();
                 return Ok(new { data = model });
             }
             catch (Exception ex)
@@ -80,12 +91,13 @@ namespace MapsVisionsAPI.Controllers
             }
         }
 
+
         [HttpGet("AllLocationWholePhotos")]
         public IActionResult AllLocationWholePhotos()
         {
             try
             {
-                var alldata = repository.GetAll();
+                var alldata = getAllLocationPhotosData();
                 var model = from s in alldata
                                       where s.quarter.Trim()=="whole"
                                       select new { s.lat, s.lng, s.zoom_level ,
@@ -96,7 +108,7 @@ namespace MapsVisionsAPI.Controllers
                                                     g.quarter.Trim()== s.quarter.Trim() &&
                                                     g.zoom_level== s.zoom_level &&
                                                     g.map_provider.Trim() == "G"
-                                                    select new { ImgPath = pythonServer + g.capture_url }).FirstOrDefault(),
+                                                    select new { ImgPath = pythonServer + g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault(),
                                           Bing = (from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
@@ -104,7 +116,7 @@ namespace MapsVisionsAPI.Controllers
                                                     g.quarter.Trim() == s.quarter.Trim() &&
                                                     g.zoom_level == s.zoom_level &&
                                                     g.map_provider.Trim() == "B"
-                                                    select new { ImgPath = pythonServer + g.capture_url }).FirstOrDefault(),
+                                                    select new { ImgPath = pythonServer + g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault(),
                                           OSM = (from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
@@ -112,7 +124,7 @@ namespace MapsVisionsAPI.Controllers
                                                     g.quarter.Trim() == s.quarter.Trim() &&
                                                     g.zoom_level == s.zoom_level &&
                                                     g.map_provider.Trim() == "O"
-                                                    select new { ImgPath = pythonServer + g.capture_url }).FirstOrDefault()
+                                                    select new { ImgPath = pythonServer + g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault()
                                       };
                            
                 return Ok(new { data = model.Distinct() });
@@ -123,5 +135,43 @@ namespace MapsVisionsAPI.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+        [HttpPut("UpdateLocationsWithoutGroundTruth")]
+        public IActionResult UpdateLocationsWithoutGroundTruth()
+        {
+            try
+            {
+                Request.Headers.TryGetValue("all", out var all);
+                var alldata = getAllLocationPhotosData();
+                var model = alldata;
+                if(all != StringValues.Empty)
+                    model = from table in alldata
+                                where table.ground_truth == null
+                                select table;
+                int noLocations = 0;
+                foreach (var location in model)
+                {
+                    string filePath = Util.mapsPathProvider(location.map_provider.Trim()) + location.lat + "-" + location.lng + "-" + location.zoom_level + "-" + location.quarter.Trim() + ".txt";
+                    
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        location.ground_truth = System.IO.File.ReadAllText(filePath);
+                        noLocations += 1;
+                        repository.Update(location);
+                    }
+                }
+                repository.Save();
+                Console.WriteLine("Database updated: no of files"+ noLocations);
+                return Ok(new { data = getAllLocationPhotosData(), noOfLocationUpdated= noLocations });
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+
+
     }
 }

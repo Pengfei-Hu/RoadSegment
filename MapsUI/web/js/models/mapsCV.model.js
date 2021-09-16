@@ -40,7 +40,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                         console.log("Error");
                         console.log(options);
                     },
-                });//end fetch
+                });//end
             }
             setGrayEffect(imagePath, notify) {
                 let api_url = this.mapsCVEndpoint + "applyGrayFilter";

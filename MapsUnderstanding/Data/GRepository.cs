@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MapsVisionsAPI.Data
+namespace MapsUnderstanding.Data
 {
     public class GRepository<T> : IGenericRepository<T> where T : class
     {
@@ -36,6 +36,7 @@ namespace MapsVisionsAPI.Data
             }
             public void Update(T obj)
             {
+                //table.Update(obj);
                 table.Attach(obj);
                 _DbContext.Entry(obj).State = EntityState.Modified;
             }
