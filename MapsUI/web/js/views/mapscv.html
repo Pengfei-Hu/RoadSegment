@@ -8,10 +8,10 @@
         </h4>
         <div class="oj-flex">
             <map name="quadrantmap">
-                <area shape="rect" coords="0,0,200,200" alt="upperLeft" href="#" onclick="upperLeft();">
-                <area shape="rect" coords="200,0,400,200" alt="upperRight" href="#" onclick="upperRight();">
-                <area shape="rect" coords="0,200,200,400" alt="bottomLeft" href="#" onclick="bottomLeft();">
-                <area shape="rect" coords="200,200,400,400" alt="bottomRight" href="#" onclick="bottomRight();">
+                <area shape="rect"  id="upperLeftArea" coords="0,0,200,200" alt="upperLeft" href="#" >
+                <area shape="rect"  id="upperRightArea" coords="200,0,400,200" alt="upperRight" href="#" >
+                <area shape="rect" id="bottomLeftArea"  coords="0,200,200,400" alt="bottomLeft" href="#" >
+                <area shape="rect" id="bottomRightArea" coords="200,200,400,400" alt="bottomRight" href="#" >
             </map>
             <oj-messages messages="[[messagesDataprovider]]"
                          position='{"my":{"vertical" :"top", "horizontal": "middle"},
@@ -60,13 +60,13 @@
                         </oj-menu>
 
                         <template slot="bingImageTemplate" data-oj-as="cell">
-                            <img :src="[[cell.data]]" width="200" />
+                            <img :src="[[cell.data[0].url]]" width="200" />
                         </template>
                         <template slot="googleImageTemplate" data-oj-as="cell">
-                            <img :src="[[cell.data]]" width="200" />
+                            <img :src="[[cell.data[0].url]]" width="200" />
                         </template>
                         <template slot="osmImageTemplate" data-oj-as="cell">
-                            <img :src="[[cell.data]]" width="200" />
+                            <img :src="[[cell.data[0].url]]" width="200" />
                         </template>
 
 
@@ -85,18 +85,18 @@
                                 </td>
                                 <td>
                                     <oj-bind-if test="[[row.item.data.bing!=null]]">
-                                        <img :src="[[row.item.data.bing.imgPath]]" width="200" />
+                                        <img :src="[[row.item.data.bing.imgPath[0].url]]" width="200" />
                                     </oj-bind-if>
 
                                 </td>
                                 <td>
                                     <oj-bind-if test="[[row.item.data.google!=null]]">
-                                        <img :src="[[row.item.data.google.imgPath]]" width="200" />
+                                        <img :src="[[row.item.data.google.imgPath[0].url]]" width="200" />
                                     </oj-bind-if>
                                 </td>
                                 <td>
                                     <oj-bind-if test="[[row.item.data.osm!=null]]">
-                                        <img :src="[[row.item.data.osm.imgPath]]" width="200" />
+                                        <img :src="[[row.item.data.osm.imgPath[0].url]]" width="200" />
                                     </oj-bind-if>
                                 </td>
                                 <td>
@@ -447,26 +447,35 @@
 
                                 <tr style="vertical-align:top">
                                     <td>
-                                        <oj-bind-text value="Precise manual results(Bing):"></oj-bind-text>
-                                        <oj-text-area label-hint="Separate each word with coma." value="{{bingManualText}}" rows="3"></oj-text-area>
+                                        <oj-bind-text value="Ground Truth(Bing): #"></oj-bind-text>
+                                        <oj-bind-text value="[[bingCaptureId]]"></oj-bind-text>
+                                        <oj-text-area label-hint="Separate each word with coma." value="{{bingManualText}}" rows="3" cols="25"></oj-text-area>
                                     </td>
                                     <td>
-                                        <oj-bind-text value="Precise manual results(Google):"></oj-bind-text>
-                                        <oj-text-area label-hint="Separate each word with coma." value="{{googleManualText}}" rows="3"></oj-text-area>
+                                        <oj-bind-text value="Ground Truth(Google): #"></oj-bind-text>
+                                        <oj-bind-text value="[[googleCaptureId]]"></oj-bind-text>
+                                        <oj-text-area label-hint="Separate each word with coma." value="{{googleManualText}}" rows="3"  cols="25"></oj-text-area>
 
                                     </td>
                                     <td>
-                                        <oj-bind-text value="Precise manual results:(OSM)"></oj-bind-text>
-                                        <oj-text-area label-hint="Separate each word with coma." value="{{osmManualText}}" rows="3"></oj-text-area>
+                                        <oj-bind-text value="Ground Truth(OSM): #"></oj-bind-text>
+                                        <oj-bind-text value="[[osmCaptureId]]"></oj-bind-text>
+                                        <oj-text-area label-hint="Separate each word with coma." value="{{osmManualText}}" rows="3" cols="25"></oj-text-area>
 
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="3">
+                                        <oj-button id="saveGroundTruthButton"
+                                                   on-oj-action="[[SaveGroundTruth]]">
+                                            Save changes of ground truth
+                                            <span slot="endIcon" class="oj-ux-ico-save"></span>
+
+                                        </oj-button>
                                         <oj-button id="fAcurayButton"
                                                    on-oj-action="[[FAccuracy]]">
                                             Compare and measure accuracy
-                                            <span slot="endIcon" class="oj-ux-ico-analysis"></span>
+                                            <span slot="endIcon" class="oj-ux-ico-compare"></span>
 
                                         </oj-button>
 
@@ -494,6 +503,12 @@
                                                     <p slot="header"> Undetected Words </p>
                                                     <div>
                                                         <oj-bind-text value="[[bingUndetectedWordsArr]]"></oj-bind-text>
+                                                    </div>
+                                                </oj-collapsible>
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Words extracted incorrectly: </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[bingWrongWordsArr]]"></oj-bind-text>
                                                     </div>
                                                 </oj-collapsible>
                                             </div> <br />
@@ -543,6 +558,12 @@
                                                     <div>
                                                         <oj-bind-text value="[[googleUndetectedWordsArr]]"></oj-bind-text>
                                                     </div>
+                                                </oj-collapsible> <br />
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Words extracted incorrectly: </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[googleWrongWordsArr]]"></oj-bind-text>
+                                                    </div>
                                                 </oj-collapsible>
                                             </div> <br />
                                             <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
@@ -589,6 +610,12 @@
                                                     <p slot="header"> Undetected Words </p>
                                                     <div>
                                                         <oj-bind-text value="[[osmUndetectedWordsArr]]"></oj-bind-text>
+                                                    </div>
+                                                </oj-collapsible> <br />
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Words extracted incorrectly: </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[osmWrongWordsArr]]"></oj-bind-text>
                                                     </div>
                                                 </oj-collapsible>
                                             </div> <br />
@@ -641,6 +668,12 @@
                                                     <div>
                                                         <oj-bind-text value="[[fbingUndetectedWordsArr]]"></oj-bind-text>
                                                     </div>
+                                                </oj-collapsible> <br />
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Words extracted incorrectly: </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[fbingWrongWordsArr]]"></oj-bind-text>
+                                                    </div>
                                                 </oj-collapsible>
                                             </div> <br />
                                             <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
@@ -689,6 +722,12 @@
                                                     <div>
                                                         <oj-bind-text value="[[fgoogleUndetectedWordsArr]]"></oj-bind-text>
                                                     </div>
+                                                </oj-collapsible> <br />
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Words extracted incorrectly: </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[fgoogleWrongWordsArr]]"></oj-bind-text>
+                                                    </div>
                                                 </oj-collapsible>
                                             </div> <br />
                                             <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
@@ -736,6 +775,12 @@
                                                     <div>
                                                         <oj-bind-text value="[[fosmUndetectedWordsArr]]"></oj-bind-text>
                                                     </div>
+                                                </oj-collapsible> <br />
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header"> Words extracted incorrectly: </p>
+                                                    <div>
+                                                        <oj-bind-text value="[[fosmWrongWordsArr]]"></oj-bind-text>
+                                                    </div>
                                                 </oj-collapsible>
                                             </div> <br />
                                             <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
@@ -773,5 +818,6 @@
 
     </oj-bind-if>
 
-</div>
+        </div>
+    </div>
 </div>

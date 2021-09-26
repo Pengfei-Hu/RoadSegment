@@ -57,8 +57,9 @@ namespace MapsUnderstanding.Controllers
                 string detailedText = "";
                 List<TessTextDef> wordsList=new List<TessTextDef>();
                 Tess.TesseractReader(imagePath, out confidence, out _, out detailedText);
-                wordsList = TextProcessing.CastCSVToDataTable(new StringReader(detailedText));
-                return Ok(new { Success = true, Confidence = confidence, wordsList = wordsList, imagePath= imagePath, detailedText= detailedText });
+                string textList = "";
+                wordsList = TextProcessing.CastCSVToDataTable(new StringReader(detailedText),out textList);
+                return Ok(new { Success = true, Confidence = confidence, wordsList = wordsList, textList =textList, imagePath= imagePath, detailedText= detailedText });
             }
             catch (ArgumentNullException ex)
             {
@@ -112,8 +113,10 @@ namespace MapsUnderstanding.Controllers
                         return BadRequest(new { error = "you must send the correctWords in headers. That contains all correct words in the image" });
                     else
                     {
+                    var results = textRecog.getTextRecogDetails(allWords[0], imagePath, 0, "", 256, out var detectedWordsTable, true);
                     return Ok(new{
-                       results = textRecog.getTextRecogDetails(allWords[0], imagePath, 0, "",256)
+                        results = results,
+                        detectedWordsTable = detectedWordsTable
                     });
                     }
                 

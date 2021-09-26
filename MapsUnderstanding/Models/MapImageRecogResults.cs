@@ -23,11 +23,17 @@ namespace MapsUnderstanding.Models
         public int no_detected_words { get; set; }
         public string undetected_words { get; set; }
         public int no_undetected_words { get; set; }
+        public string correct_words { get; set; }
+        public int no_correct_words { get; set; }
         public string wrong_words{ get; set; }
         public int no_wrong_words { get; set; }
         public string effects { get; set; }
         public Double confidence { get; set; }
         public Double matching_degree { get; set; }
         public Double total_matching_degree { get; set; }
+        public Double recall { get; set; }
+        public Double precision { get; set; }
+        public Double f1 { get; set; }
+
     }
 }

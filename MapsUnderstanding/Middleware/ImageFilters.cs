@@ -19,8 +19,11 @@ namespace MapsVisionsAPI.Middleware
 
         public static string getfilteredImgPath(string sourcePath)
         {
-            return Path.Combine(sourcePath.Substring(0, sourcePath.LastIndexOf("\\") + 1),
-                      "filtered-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
+            if (sourcePath.IndexOf("filtered-") == -1)
+                return Path.Combine(sourcePath.Substring(0, sourcePath.LastIndexOf("\\") + 1),
+                          "filtered-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
+            else
+                return sourcePath;
         }
         protected static bool IsFileLocked(FileInfo file)
         {
@@ -245,7 +248,7 @@ namespace MapsVisionsAPI.Middleware
                 {
                     if (Cv2.ContourArea(contours[i]) > 4 && Cv2.ContourArea(contours[i]) < 100)
                     {
-                        Console.WriteLine("ContourArea=" + Cv2.ContourArea(contours[i]));
+                       // Console.WriteLine("ContourArea=" + Cv2.ContourArea(contours[i]));
                         Cv2.DrawContours(image_txt, contours, i, Scalar.Black);
                     }
                 }
@@ -389,7 +392,7 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                 if (Cv2.ContourArea(contours[i]) > 4 && Cv2.ContourArea(contours[i]) < 85)
                 {
 
-                    Console.WriteLine("ContourArea=" + Cv2.ContourArea(contours[i]));
+                    //Console.WriteLine("ContourArea=" + Cv2.ContourArea(contours[i]));
                     // if (ContourIntoRect(contours[i], rects))
                     Cv2.DrawContours(image_txt, contours, i, Scalar.Black);
                     // else

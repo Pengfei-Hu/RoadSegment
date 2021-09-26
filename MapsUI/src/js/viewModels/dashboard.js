@@ -37,6 +37,13 @@ define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/s
             self.dataImpactOfResolutionOnAccuracy = ko.observableArray([]);
             self.dataImpactOfResolutionOnAccuracyDataProvider = new ArrayDataProvider(self.dataImpactOfResolutionOnAccuracy, {});
 
+            self.datafiltersMDRecallPreF1For256 = ko.observableArray([]);
+            self.datafiltersMDRecallPreF1For256DataProvider = new ArrayDataProvider(self.datafiltersMDRecallPreF1For256, {});
+
+            self.datafiltersMDRecallPreF1ForGoogle = ko.observableArray([]);
+            self.datafiltersMDRecallPreF1ForGoogleDataProvider = new ArrayDataProvider(self.datafiltersMDRecallPreF1ForGoogle, {});
+
+
             statsModel.getProvidersPlacesWords((success, result) => {
                 self.dataPerPlaces(result.wordsMapProviderPerPlacesResult);
                 self.dataAll(result.wordsMapProviderResult);
@@ -44,6 +51,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/s
                 self.datafiltersDWU(result.filtersDetectedWrongUndetectedResult);
                 self.dataResolutionAccuracy(result.resolutionEffectsAccuracyResult);
                 self.dataImpactOfResolutionOnAccuracy(result.impactOfResolutionOnAccuracyResult);
+                self.datafiltersMDRecallPreF1For256(result.filtersMDRecallPreF1For256);
+                self.datafiltersMDRecallPreF1ForGoogle(result.filtersMDRecallPreF1ForGoogle);
             });
 
 

@@ -108,7 +108,7 @@ namespace MapsUnderstanding.Controllers
                                                     g.quarter.Trim()== s.quarter.Trim() &&
                                                     g.zoom_level== s.zoom_level &&
                                                     g.map_provider.Trim() == "G"
-                                                    select new { ImgPath = pythonServer + g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault(),
+                                                    select new { ImgPath =  g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault(),
                                           Bing = (from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
@@ -116,7 +116,7 @@ namespace MapsUnderstanding.Controllers
                                                     g.quarter.Trim() == s.quarter.Trim() &&
                                                     g.zoom_level == s.zoom_level &&
                                                     g.map_provider.Trim() == "B"
-                                                    select new { ImgPath = pythonServer + g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault(),
+                                                    select new { ImgPath =  g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault(),
                                           OSM = (from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&
@@ -124,7 +124,7 @@ namespace MapsUnderstanding.Controllers
                                                     g.quarter.Trim() == s.quarter.Trim() &&
                                                     g.zoom_level == s.zoom_level &&
                                                     g.map_provider.Trim() == "O"
-                                                    select new { ImgPath = pythonServer + g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault()
+                                                    select new { ImgPath = g.capture_url, ground_truth = g.ground_truth }).FirstOrDefault()
                                       };
                            
                 return Ok(new { data = model.Distinct() });

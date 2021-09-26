@@ -88,11 +88,17 @@ class MSSQL:
         for data in data_list:
             source =data[3].strip()
             if source == 'B':
+                res['bing_captureId'] = data[0]
                 res['bing'] = data[5]
+                res['bing_groundTruth']= data[10]
             elif source == 'G':
+                res['google_captureId'] = data[0]
                 res['google'] = data[5]
+                res['google_groundTruth']= data[10]
             else:
+                res['osm_captureId'] = data[0]
                 res['osm'] = data[5]
+                res['osm_groundTruth']= data[10]
         self.conn.close()
         print("Records SELECT successfully")
         return res
@@ -216,6 +222,26 @@ class MSSQL:
                                             from [mapImageRecogResults]
                                             where  CHARINDEX('google', picture_url) > 1
                                             group by [resolution] """
+        queryFiltersMDRecallPreF1For256 = """SELECT	effects as series, 
+		                                    CASE SUBSTRING(picture_url, CHARINDEX('/map/', picture_url)+5,1) 
+			                                WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end as 'group',
+		                                    ROUND(AVG(matching_degree*100),2) as 'matchingDegree',
+		                                    ROUND(AVG(precision),2) as 'Precision',
+		                                    ROUND(AVG(recall),2) as 'Recall',
+		                                    ROUND(AVG(f1),2) as 'F1'
+                                            from [mapImageRecogResults]
+                                            where  [resolution]=256  AND CHARINDEX('itwiseText', effects)>0
+                                            group by effects ,CASE SUBSTRING(picture_url, CHARINDEX('/map/', picture_url)+5,1) 
+                                            WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end"""
+        queryFiltersMDRecallPreF1ForGoogle = """SELECT	[resolution] as series, 
+		                                        effects as 'group',
+		                                        ROUND(AVG(matching_degree*100),2) as 'matchingDegree',
+		                                        ROUND(AVG(precision),2) as 'Precision',
+		                                        ROUND(AVG(recall),2) as 'Recall',
+		                                        ROUND(AVG(f1),2) as 'F1'
+                                                from [mapImageRecogResults]
+                                                where  SUBSTRING(picture_url, CHARINDEX('/map/', picture_url)+5,1)='g' AND CHARINDEX('itwiseText', effects)>0
+                                                group by [resolution],effects"""
         try:
             cursor = self.GetConnect()
 
@@ -237,7 +263,13 @@ class MSSQL:
             cursor.execute(queryImpactOfResolutionOnAccuracy)
             impactOfResolutionOnAccuracyResult = self.getSeriesGroupValueXYZArrayObjects(cursor.fetchall())
 
+            cursor.execute(queryFiltersMDRecallPreF1For256)
+            filtersMDRecallPreF1For256 = self.getSeriesGroupValueXYZArrayObjects(cursor.fetchall())
+
+            cursor.execute(queryFiltersMDRecallPreF1ForGoogle)
+            filtersMDRecallPreF1ForGoogle = self.getSeriesGroupValueXYZArrayObjects(cursor.fetchall())
             self.conn.close()
+
         except Exception as e:
             print(e)
         return {'wordsMapProviderPerPlacesResult': wordsMapProviderPerPlacesResult,
@@ -245,4 +277,6 @@ class MSSQL:
                 'filtersMapProviderResult':filtersMapProviderResult,
                 'filtersDetectedWrongUndetectedResult':filtersDetectedWrongUndetectedResult,
                 'resolutionEffectsAccuracyResult':resolutionEffectsAccuracyResult,
-                'impactOfResolutionOnAccuracyResult':impactOfResolutionOnAccuracyResult}
+                'impactOfResolutionOnAccuracyResult':impactOfResolutionOnAccuracyResult,
+                'filtersMDRecallPreF1For256':filtersMDRecallPreF1For256,
+                'filtersMDRecallPreF1ForGoogle':filtersMDRecallPreF1ForGoogle}

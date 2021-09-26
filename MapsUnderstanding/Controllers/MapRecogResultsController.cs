@@ -40,7 +40,14 @@ namespace MapsUnderstanding.Controllers
                 CVHandler cv = new CVHandler();
                 LocationPhotosController locPhotos = new LocationPhotosController(_DbContext);
                 allMapImageRecogResults = getAllMapImageRecogResults();
-                string[] filtersGroups = { "WithoutEffects", "resize", "gray", "resize,gray", "KMeans", "BitwiseText", "EnhanceDetail", "enhanceDetail,resize", "enhanceDetail,contours", "enhanceDetail,bitwiseText", "enhanceDetail,resize,bitwiseText", "enhanceDetail,resize,KMeans", "resize,Kmeans", "resize,bitwiseText" };
+                /*string[] filtersGroups = {  "WithoutEffects", "resize", "gray", "resize,gray", "resize,gray,EnhanceDetail", 
+                                            "resize,gray,BitwiseText", "resize,gray,BitwiseText,EnhanceDetail", "KMeans", 
+                                            "BitwiseText", "EnhanceDetail", "enhanceDetail,resize", "enhanceDetail,contours", 
+                                            "enhanceDetail,bitwiseText", "bitwiseText,enhanceDetail", 
+                                            "resize,bitwiseText,enhanceDetail", "enhanceDetail,resize,bitwiseText", 
+                                            "enhanceDetail,resize,KMeans", "resize,Kmeans", "resize,bitwiseText" };*/
+
+                string[] filtersGroups = {  "resize,enhanceDetail,bitwiseText", "bitwiseText,resize,enhanceDetail"};
 
                 var locPhotosData = locPhotos.getAllLocationPhotosData();
                 List<CaptureUrl> allCaptures = new List<CaptureUrl>();
@@ -62,16 +69,18 @@ namespace MapsUnderstanding.Controllers
                         foreach (string filtersGroup in filtersGroups)
                         {
                             cv.applyEffectsToImgs(capture.url, filtersGroup);
-                            var results = textRecog.getTextRecogDetails(location.ground_truth, capture.url, location.capture_id, filtersGroup, capture.resolution);
+                            var results = textRecog.getTextRecogDetails(location.ground_truth, capture.url, location.capture_id, filtersGroup, capture.resolution, out _);
                             allResults.Add(results);
                             repository.Insert(results);
                                 try
                                 {
+                                    //Console.Write(JsonConvert.SerializeObject(results, Formatting.Indented));
                                     repository.Save();
                                     Console.WriteLine("Saved: "+(++correctCounter));
                                  }
                                 catch (Exception ex)
                                 {
+                                    Console.Write(ex);
                                     Console.WriteLine("******Error******:" + ex.Message);
                                     Console.WriteLine("Rejected: " + (++incorrectCounter));
                                     System.IO.File.AppendAllText(Util.mapsPath() + @"\map\log\errorsLog.txt", ex.Message + Environment.NewLine);

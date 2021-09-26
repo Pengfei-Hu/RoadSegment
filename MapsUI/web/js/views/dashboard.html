@@ -217,16 +217,17 @@
 
 
         <div style="width: 1px; min-width: 100%; ">
-            <div id="ImpactOfResOnAcc" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Impact of Resolution on Accuracy </h7>
+            <div id="MatchingDegreeforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                <h7>Matching Degree for Retrieved Data (256x256) </h7>
                 <div id='chart-container'>
                     <oj-chart id="pieChart"
-                              type="pie"
-                              data="[[dataImpactOfResolutionOnAccuracyDataProvider]]"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
                               animation-on-display="auto"
                               animation-on-data-change="auto"
                               style-defaults.three-d-effect="off"
-                              hover-behavior="dim">
+                              hover-behavior="dim"
+                              y-axis.title="Average of Matching degree">
 
                         <template slot='itemTemplate' data-oj-as='item'>
                             <oj-chart-item value='[[item.data.value]]'
@@ -237,16 +238,17 @@
                     </oj-chart>
                 </div>
             </div>
-            <div id="ImpactOfResOnUn" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Impact of Resolution on Unextracted words </h7>
+            <div id="ThePrecisionforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                <h7>The Precision for Retrieved Data (256x256) </h7>
                 <div id='chart-container'>
                     <oj-chart id="pieChart"
-                              type="pie"
-                              data="[[dataImpactOfResolutionOnAccuracyDataProvider]]"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
                               animation-on-display="auto"
                               animation-on-data-change="auto"
                               style-defaults.three-d-effect="off"
-                              hover-behavior="dim">
+                              hover-behavior="dim"
+                              y-axis.title="Precision">
 
                         <template slot='itemTemplate' data-oj-as='item'>
                             <oj-chart-item value='[[item.data.x]]'
@@ -257,16 +259,17 @@
                     </oj-chart>
                 </div>
             </div>
-            <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Impact of Resolution on words extracted and not found on the map  </h7>
+            <div id="TheRecallforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                <h7>The Recall for Retrieved Data   (256x256)</h7>
                 <div id='chart-container'>
                     <oj-chart id="pieChart"
-                              type="pie"
-                              data="[[dataImpactOfResolutionOnAccuracyDataProvider]]"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
                               animation-on-display="auto"
                               animation-on-data-change="auto"
                               style-defaults.three-d-effect="off"
-                              hover-behavior="dim">
+                              hover-behavior="dim"
+                              y-axis.title="Recall">
 
                         <template slot='itemTemplate' data-oj-as='item'>
                             <oj-chart-item value='[[item.data.y]]'
@@ -278,15 +281,104 @@
                 </div>
             </div>
             <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Impact of Resolution on correctly extracted words   </h7>
+                <h7>  The F1(harmonic mean) for Retrieved Data (256x256)</h7>
                 <div id='chart-container'>
                     <oj-chart id="pieChart"
-                              type="pie"
-                              data="[[dataImpactOfResolutionOnAccuracyDataProvider]]"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
                               animation-on-display="auto"
                               animation-on-data-change="auto"
                               style-defaults.three-d-effect="off"
                               hover-behavior="dim">
+
+                        <template slot='itemTemplate' data-oj-as='item'>
+                            <oj-chart-item value='[[item.data.z]]'
+                                           group-id='[[ [item.data.group] ]]'
+                                           series-id='[[item.data.series]]'>
+                            </oj-chart-item>
+                        </template>
+                    </oj-chart>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div style="width: 1px; min-width: 100%; ">
+            <div id="MatchingDegreeforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                <h7>Matching Degree for Google </h7>
+                <div id='chart-container'>
+                    <oj-chart id="pieChart"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                              animation-on-display="auto"
+                              animation-on-data-change="auto"
+                              style-defaults.three-d-effect="off"
+                              hover-behavior="dim"
+                              y-axis.title="Average of Matching degree">
+
+                        <template slot='itemTemplate' data-oj-as='item'>
+                            <oj-chart-item value='[[item.data.value]]'
+                                           group-id='[[ [item.data.group] ]]'
+                                           series-id='[[item.data.series]]'>
+                            </oj-chart-item>
+                        </template>
+                    </oj-chart>
+                </div>
+            </div>
+            <div id="ThePrecisionforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                <h7>The Precision for Google </h7>
+                <div id='chart-container'>
+                    <oj-chart id="pieChart"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                              animation-on-display="auto"
+                              animation-on-data-change="auto"
+                              style-defaults.three-d-effect="off"
+                              hover-behavior="dim"
+                              y-axis.title="Average of Precision">
+
+                        <template slot='itemTemplate' data-oj-as='item'>
+                            <oj-chart-item value='[[item.data.x]]'
+                                           group-id='[[ [item.data.group] ]]'
+                                           series-id='[[item.data.series]]'>
+                            </oj-chart-item>
+                        </template>
+                    </oj-chart>
+                </div>
+            </div>
+            <div id="TheRecallforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                <h7>The Recall for Google</h7>
+                <div id='chart-container'>
+                    <oj-chart id="pieChart"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                              animation-on-display="auto"
+                              animation-on-data-change="auto"
+                              style-defaults.three-d-effect="off"
+                              hover-behavior="dim"
+                              y-axis.title="Average of Recall">
+
+                        <template slot='itemTemplate' data-oj-as='item'>
+                            <oj-chart-item value='[[item.data.y]]'
+                                           group-id='[[ [item.data.group] ]]'
+                                           series-id='[[item.data.series]]'>
+                            </oj-chart-item>
+                        </template>
+                    </oj-chart>
+                </div>
+            </div>
+            <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
+                <h7>  The F1(harmonic mean) for Google</h7>
+                <div id='chart-container'>
+                    <oj-chart id="pieChart"
+                              type="bar"
+                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                              animation-on-display="auto"
+                              animation-on-data-change="auto"
+                              style-defaults.three-d-effect="off"
+                              hover-behavior="dim"
+                              y-axis.title="Average of F1">
 
                         <template slot='itemTemplate' data-oj-as='item'>
                             <oj-chart-item value='[[item.data.z]]'
