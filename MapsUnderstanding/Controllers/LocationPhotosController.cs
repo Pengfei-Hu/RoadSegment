@@ -170,6 +170,42 @@ namespace MapsUnderstanding.Controllers
             }
         }
 
+        public class GroundTruths
+        {
+            public int[] capture_ids { set; get; }
+            public string[] ground_truths { get; set; }
+        }
+
+        [HttpPut("UpdateLocationsWithNewGroundTruths")]
+        public IActionResult UpdateLocationsWithNewGroundTruths([FromBody] GroundTruths groundTruths)
+        {
+            try
+            {
+                var alldata = getAllLocationPhotosData();
+                var model = alldata;
+                    model = from table in alldata
+                            where  groundTruths.capture_ids.Contains(table.capture_id)
+                            select table;
+                int noLocations = 0;
+                foreach (var location in model)
+                {
+                    var index = Array.IndexOf(groundTruths.capture_ids, location.capture_id);
+                    location.ground_truth = groundTruths.ground_truths[index];
+                    Console.WriteLine("CaptureId=" + location.capture_id + ", new groundTruth=" + groundTruths.ground_truths[index]);
+                    noLocations += 1;
+                    repository.Update(location);
+
+                }
+                repository.Save();
+                Console.WriteLine("Database updated: no of files" + noLocations);
+                return Ok(new { data = getAllLocationPhotosData(), noOfLocationUpdated = noLocations });
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
 
 

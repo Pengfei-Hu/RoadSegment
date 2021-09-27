@@ -353,8 +353,99 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
             saveMatImage(result, "result", imagePath);
             return true;
         }
-        
-        public static string removeBKEffects(string imagePath)
+        public static bool applyBGTransparent(string imagePath)
+        {
+            try
+            {
+                Mat src = readFilteredImg(imagePath);
+                Mat dst = new Mat(), tmp = new Mat(), alpha = new Mat();
+
+                Cv2.CvtColor(src, tmp, ColorConversionCodes.BGR2GRAY);
+                Cv2.Threshold(tmp, alpha, 100, 255, ThresholdTypes.Binary);
+
+                Mat[] rgb;
+                Cv2.Split(src, out rgb);
+
+                Mat[] rgba = { rgb[0], rgb[1], rgb[2], alpha };
+                Cv2.Merge(rgba, dst);
+                return saveMatImage(dst, "filtered", imagePath);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return false;
+            }
+        }
+        public static Mat convertTransparentToWhite(Mat mat)
+        {
+            Mat dst = mat.EmptyClone();
+            dst = dst.SetTo(Scalar.White);
+            var mat3 = new Mat<Vec3b>(mat); // cv::Mat_<cv::Vec3b>
+            var indexer = mat3.GetIndexer();
+
+            for (int y = 0; y < mat.Height; y++)
+            {
+                for (int x = 0; x < mat.Width; x++)
+                {
+                    Vec3b color = indexer[y, x];
+                    //  if ( !(color.Item0 == 0 && color.Item0 == 0 && color.Item0 == 0))
+                    //     dst.Set<Vec3b>(x, y, color);
+
+                    // dst.Set(x, y, color);
+                    if (!(color.Item0 == 0 && color.Item0 == 0 && color.Item0 == 0))
+                    {
+                        //byte temp = color.Item0;
+                        //color.Item0 = color.Item2; // B <- R
+                        //color.Item2 = temp;        // R <- B
+                        indexer[y, x] = color;
+                    }
+                    else
+                    {
+                        color.Item0 = 255;
+                        color.Item1 = 255;
+                        color.Item2 = 255;
+                        indexer[y, x] = color;
+
+                    }
+                    /* Console.Write("color.Item0=" + color.Item0+"\t");
+                     Console.Write("color.Item1=" + color.Item1 + "\t");
+                     Console.Write("color.Item2=" + color.Item2);
+                     Console.WriteLine("");*/
+
+                }
+            }
+            return mat;
+        }
+        public static bool applyBGBitwise(string imagePath)
+        {
+            try
+            {
+                Mat imageL1 = readFilteredImg(imagePath);
+                Mat imageL1C = readFilteredImg(imagePath);
+                Cv2.CvtColor(imageL1C, imageL1C, ColorConversionCodes.BGR2BGRA);
+                Cv2.CvtColor(imageL1, imageL1, ColorConversionCodes.BGR2GRAY);
+                Cv2.CvtColor(imageL1, imageL1, ColorConversionCodes.BGR2BGRA);
+                Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(1, 1));
+                Cv2.Dilate(imageL1, imageL1, kernel, null, 1, BorderTypes.Default, Scalar.Black);                         //dilate to remove text and tables
+                Cv2.Threshold(imageL1, imageL1, 120, 255, ThresholdTypes.Binary);     //change white background to black
+
+                Cv2.Threshold(imageL1, imageL1, 118, 255, ThresholdTypes.BinaryInv);   //invert binary image for easier processing
+                Cv2.Dilate(imageL1, imageL1, null, null, 4);
+                Cv2.Erode(imageL1, imageL1, null, null, 1);
+                Mat final = imageL1C.EmptyClone(); // New White Image
+                final = final.SetTo(Scalar.White);
+
+                Cv2.BitwiseAnd(imageL1C, imageL1, final);
+                //Cv2.DetailEnhance(dst, dst, 10, 0.15f);
+                return saveMatImage(final, "filtered", imagePath);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return false;
+            }
+        }
+            public static string removeBKEffects(string imagePath)
         {
             Mat image;
             Mat img_gray = new Mat();

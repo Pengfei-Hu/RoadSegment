@@ -85,26 +85,25 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     
             };//end addMapsImg
 
-            updateClass(id, title, description, isUpdate, notify) {
-
-            }
-            deleteArticle(id, notify) {
-                let api_url = this.mapsImgsEndpoint + "/" + id
+            updateLocationsWithNewGroundTruths(bingCaptureId, bingGroundTruth, googleCaptureId, googleGroundTruth, osmCaptureId, osmGroundTruth, notify) {
+                // UpdateLocationsWithNewGroundTruths
+                let api_url = this.mapsImgsEndpoint + "LocationPhotos/UpdateLocationsWithNewGroundTruths";
                 this.initializeModelCollection(api_url);
                 let mapsImgsRow = new this.MapsImgsModelDef({
-                    "id": id
+                    "capture_ids": [bingCaptureId, googleCaptureId, osmCaptureId],
+                    "ground_truths": [bingGroundTruth, googleGroundTruth, osmGroundTruth]
                 }, this.mapsImgs);
-            mapsImgsRow.save(null, {
-                type: "DELETE",
-                success: function (model, response, options) {
-
-                    notify(true, "التصنيف الذى كان يحمل الرقم:" + id + " قد تم حذفه نهائيا");
-                },
-                error: function (model, xhr, options) {
-                    notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
-                }
-            });
+                mapsImgsRow.save(null, {
+                    type: "PUT",
+                    success: function (model, response, options) {
+                        notify(true, "GroundTruths Updated Successfully");
+                    },
+                    error: function (model, xhr, options) {
+                        notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
+                    }
+                });
             }
+
             getAllLocationWholePhotos(notify) {
                 let api_url = this.mapsImgsEndpoint + "LocationPhotos/AllLocationWholePhotos";
                 this.initializeModelCollection(api_url);

@@ -13,6 +13,7 @@ namespace MapsUnderstanding.Models
         public string url { get; set; }
         public int resolution { get; set; }
     }
+
     public class Location_Photos
     {
         [Key]

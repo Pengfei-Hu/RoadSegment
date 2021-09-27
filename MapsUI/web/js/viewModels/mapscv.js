@@ -670,7 +670,11 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 })
             }
             self.SaveGroundTruth = () => {
-                alert("Save ground truth")
+                MapImgModel.updateLocationsWithNewGroundTruths(self.bingCaptureId(), self.bingManualText(),
+                    self.googleCaptureId(), self.googleManualText(), self.osmCaptureId(), self.osmManualText(), (success, data) => {
+                        console.log(data);
+                        alert(data);;
+                    });
             }
 
             function send_mu(data) {

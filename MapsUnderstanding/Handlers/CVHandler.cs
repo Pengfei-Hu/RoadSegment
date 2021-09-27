@@ -31,7 +31,12 @@ namespace MapsUnderstanding.Handlers
                         {
                             ImageFilters.applyResizeFilter(imagePath);
                             log += "Resize filter applied; \n";
-                        }
+                        }else
+                        if (filterName.Trim().ToLower() == "bgbitwise")
+                        {
+                            ImageFilters.applyBGBitwise(imagePath);
+                            log += "BKBitwise filter applied; \n";
+                        }                        
                         else if (filterName.Trim().ToLower() == "enhancedetail")
                         {
                             ImageFilters.applyEnhanceDetailFilter(imagePath);
@@ -80,6 +85,12 @@ namespace MapsUnderstanding.Handlers
                                 log += "KMeans filter applied; \n";
                             else
                                 log += "KMeans not applied; \n";
+                        }else if (filterName.Trim().ToLower() == "bgtransparent")
+                        {
+                            if (ImageFilters.applyBGTransparent(imagePath))
+                                log += "BKTransparent filter applied; \n";
+                            else
+                                log += "BKTransparent not applied; \n";
                         }
                     }
                 }
