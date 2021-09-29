@@ -83,6 +83,30 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                 });
             }
 
+            //get Colors Counts
+            getColorsCounts(bingImg, googleImg, osmImg, notify) {
+                let api_url = this.mapsCVEndpoint + "getColorsCountsForAllImgs";
+                this.initializeModelCollection(api_url);
+                let mapsCVRow = new this.mapsCVModelDef({
+                    "imagesPaths": bingImg + "," + googleImg + "," + osmImg
+                }, this.mapsCV);
+
+                mapsCVRow.fetch({
+                    headers: {
+                        // 'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
+                        'Content-Type': 'application/json',
+                        "imagesPaths": bingImg + "," + googleImg + "," + osmImg
+                    },
+                    success: function (coll, data) {
+                        console.log("all data");
+                        console.log(data);
+                        notify(true, data);
+                    },
+                    error: function (model, xhr, options) {
+                        notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
+                    }
+                });
+            }
         }//end of class
         return new mapsCV();
     });

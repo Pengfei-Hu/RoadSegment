@@ -119,6 +119,9 @@
                                             <oj-option value="MeasureAccuracyAfterEffects">
                                                 <span class="oj-ux-ico-check" slot="startIcon"></span>Measure the accuracy after Effects
                                             </oj-option>
+                                            <oj-option value="TextProperties">
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Text Properties
+                                            </oj-option>
                                         </oj-menu>
                                     </oj-menu-button>
 
@@ -253,22 +256,22 @@
                                         <oj-collapsible expanded="false" data-oj-binding-provider="none">
                                             <p slot="header" class="selected-title"> Extract text details from maps </p>
                                             <span class="technical-notes">
-                                                <li>Extraction using Tesseract. Version 4.1.1 (with EngineMode.Default)</li> 
+                                            <li>Extraction using Tesseract. Version 4.1.1 (with EngineMode.Default)</li>
                                             </span>
                                         </oj-collapsible>
                                     </div>
                                 </td>
                             </tr>
                             <tr style="vertical-align:top">
-                            <td>
-                                <b>OCR Results Details:</b> <br />
-                                <oj-table id='tableBingDetails' aria-label='Details'
-                                          data='[[bingDetailsOCRResultDataprovider]]'
-                                          selection-mode='{"row": "single", "column": "multiple"}'
-                                          dnd='{"reorder": {"columns": "enabled"}}'
-                                          scroll-policy='loadMoreOnScroll'
-                                          scroll-policy-options='{"fetchSize": 10}'
-                                          columns='[{"headerText": "left",
+                                <td>
+                                    <b>OCR Results Details:</b> <br />
+                                    <oj-table id='tableBingDetails' aria-label='Details'
+                                              data='[[bingDetailsOCRResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "left",
                                                                      "field": "left",
                                                                      "headerClassName": "oj-sm-only-hide",
                                                                      "className": "oj-sm-only-hide",
@@ -294,18 +297,18 @@
                                                                      "headerClassName": "oj-md-down-hide",
                                                                      "className": "oj-md-down-hide",
                                                                      "resizable": "enabled"}]'
-                                          class='demo-table-container oj-bg-body'>
-                                </oj-table>
-                            </td>
-                            <td>
-                                <b>OCR Results Details:</b> <br />
-                                <oj-table id='tableGoogleDetails' aria-label='Details'
-                                          data='[[googleDetailsOCRResultDataprovider]]'
-                                          selection-mode='{"row": "single", "column": "multiple"}'
-                                          dnd='{"reorder": {"columns": "enabled"}}'
-                                          scroll-policy='loadMoreOnScroll'
-                                          scroll-policy-options='{"fetchSize": 10}'
-                                          columns='[{"headerText": "left",
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table>
+                                </td>
+                                <td>
+                                    <b>OCR Results Details:</b> <br />
+                                    <oj-table id='tableGoogleDetails' aria-label='Details'
+                                              data='[[googleDetailsOCRResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "left",
                                                                      "field": "left",
                                                                      "headerClassName": "oj-sm-only-hide",
                                                                      "className": "oj-sm-only-hide",
@@ -331,18 +334,18 @@
                                                                      "headerClassName": "oj-md-down-hide",
                                                                      "className": "oj-md-down-hide",
                                                                      "resizable": "enabled"}]'
-                                          class='demo-table-container oj-bg-body'>
-                                </oj-table>
-                            </td>
-                            <td>
-                                <b>OCR Results Details:</b> <br />
-                                <oj-table id='osmGoogleDetails' aria-label='Details'
-                                          data='[[osmDetailsOCRResultDataprovider]]'
-                                          selection-mode='{"row": "single", "column": "multiple"}'
-                                          dnd='{"reorder": {"columns": "enabled"}}'
-                                          scroll-policy='loadMoreOnScroll'
-                                          scroll-policy-options='{"fetchSize": 10}'
-                                          columns='[{"headerText": "left",
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table>
+                                </td>
+                                <td>
+                                    <b>OCR Results Details:</b> <br />
+                                    <oj-table id='osmGoogleDetails' aria-label='Details'
+                                              data='[[osmDetailsOCRResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "left",
                                                                      "field": "left",
                                                                      "headerClassName": "oj-sm-only-hide",
                                                                      "className": "oj-sm-only-hide",
@@ -368,26 +371,14 @@
                                                                      "headerClassName": "oj-md-down-hide",
                                                                      "className": "oj-md-down-hide",
                                                                      "resizable": "enabled"}]'
-                                          class='demo-table-container oj-bg-body'>
-                                </oj-table>
-                            </td>
-                        </tr>
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table>
+                                </td>
+                            </tr>
                         </oj-bind-if>
 
                         <oj-bind-if test="[[showMeasureAccuracy()]]">
-                            <tr>
-                                <td colspan="3">
-                                    <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
-                                        <oj-collapsible expanded="false" data-oj-binding-provider="none">
-                                            <p slot="header" class="selected-title"> Measure the accuracy of extraction </p>
-                                            <span class="technical-notes">
-                                            <li>Extraction using Tesseract. Version 4.1.1 (with EngineMode.Default)</li>
-                                            <li>The concept of fuzzy matching is to calculate similarity between any two given strings. And this is achieved by making use of the Levenshtein Distance between the two strings.</li>
-                                            </span>
-                                        </oj-collapsible>
-                                    </div>
-                                </td>
-                            </tr>
+
 
                             <oj-bind-if test="[[showMeasureAccuracyAfterEffects()]]">
                                 <tr style="vertical-align:top; horizontal-align:left;">
@@ -399,6 +390,8 @@
                                             <oj-checkboxset slot="value" id="checkboxSetId" labelled-by="checkboxsetlabel"
                                                             value='{{selectedOptions}}' class="oj-choice-direction-row">
                                                 <oj-option id="bgbitwiseopt" value="bgbitwise">BG Bitwise</oj-option>
+                                                <oj-option id="bgtransparentopt" value="bgtransparent">BG Transparent</oj-option>
+                                                <oj-option id="bgtrans2whiteopt" value="bgtrans2white">BG Trans2White</oj-option>
                                                 <oj-option id="enhanceopt" value="enhanceDetail">Enhance Detail</oj-option>
                                                 <oj-option id="resizeopt" value="resize">Resize</oj-option>
                                                 <oj-option id="grayopt" value="gray">Gray</oj-option>
@@ -408,7 +401,7 @@
                                                 <oj-option id="contoursopt" value="contours">Text Contours</oj-option>
                                                 <oj-option id="bitwiseTextopt" value="bitwiseText">Bitwise Text</oj-option>
                                                 <oj-option id="kmeansopt" value="KMeans">KMeans(3)</oj-option>
-                                                <oj-option id="bgtransparentopt" value="bgtransparent">BG Transparent</oj-option>
+
                                             </oj-checkboxset>
                                         </oj-label-value>
 
@@ -433,57 +426,77 @@
 
 
                             <oj-bind-if test="[[showMeasureAccuracyResult()]]">
+                                <oj-bind-if test="[[showMeasureAccuracyResultImgs()]]">
+                                    <tr>
+                                        <td>
+                                            <img width="400" usemap="#quadrantmap" :src="[[bingEffImagePath]]" />
+                                        </td>
+                                        <td>
+                                            <img width="400" usemap="#quadrantmap" :src="[[googleEffImagePath]]" />
+                                        </td>
+                                        <td>
+                                            <img width="400" usemap="#quadrantmap" :src="[[osmEffImagePath]]" />
+                                        </td>
+                                    </tr>
+                                </oj-bind-if>
+                                <oj-bind-if test="[[showMeasureAccuracyResultGroundTruth()]]">
 
-                                <tr>
-                                    <td>
-                                        <img width="400" usemap="#quadrantmap" :src="[[bingEffImagePath]]" />
-                                    </td>
-                                    <td>
-                                        <img width="400" usemap="#quadrantmap" :src="[[googleEffImagePath]]" />
-                                    </td>
-                                    <td>
-                                        <img width="400" usemap="#quadrantmap" :src="[[osmEffImagePath]]" />
-                                    </td>
-                                </tr>
+                                    <tr style="vertical-align:top">
+                                        <td>
+                                            <oj-bind-text value="Ground Truth(Bing): #"></oj-bind-text>
+                                            <oj-bind-text value="[[bingCaptureId]]"></oj-bind-text>
+                                            <oj-text-area label-hint="Separate each word with coma." value="{{bingManualText}}" rows="3" cols="25"></oj-text-area>
+                                        </td>
+                                        <td>
+                                            <oj-bind-text value="Ground Truth(Google): #"></oj-bind-text>
+                                            <oj-bind-text value="[[googleCaptureId]]"></oj-bind-text>
+                                            <oj-text-area label-hint="Separate each word with coma." value="{{googleManualText}}" rows="3" cols="25"></oj-text-area>
 
-                                <tr style="vertical-align:top">
-                                    <td>
-                                        <oj-bind-text value="Ground Truth(Bing): #"></oj-bind-text>
-                                        <oj-bind-text value="[[bingCaptureId]]"></oj-bind-text>
-                                        <oj-text-area label-hint="Separate each word with coma." value="{{bingManualText}}" rows="3" cols="25"></oj-text-area>
-                                    </td>
-                                    <td>
-                                        <oj-bind-text value="Ground Truth(Google): #"></oj-bind-text>
-                                        <oj-bind-text value="[[googleCaptureId]]"></oj-bind-text>
-                                        <oj-text-area label-hint="Separate each word with coma." value="{{googleManualText}}" rows="3"  cols="25"></oj-text-area>
+                                        </td>
+                                        <td>
+                                            <oj-bind-text value="Ground Truth(OSM): #"></oj-bind-text>
+                                            <oj-bind-text value="[[osmCaptureId]]"></oj-bind-text>
+                                            <oj-text-area label-hint="Separate each word with coma." value="{{osmManualText}}" rows="3" cols="25"></oj-text-area>
 
-                                    </td>
-                                    <td>
-                                        <oj-bind-text value="Ground Truth(OSM): #"></oj-bind-text>
-                                        <oj-bind-text value="[[osmCaptureId]]"></oj-bind-text>
-                                        <oj-text-area label-hint="Separate each word with coma." value="{{osmManualText}}" rows="3" cols="25"></oj-text-area>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3">
+                                            <oj-button id="saveGroundTruthButton"
+                                                       on-oj-action="[[SaveGroundTruth]]">
+                                                Save changes of ground truth
+                                                <span slot="endIcon" class="oj-ux-ico-save"></span>
 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3">
-                                        <oj-button id="saveGroundTruthButton"
-                                                   on-oj-action="[[SaveGroundTruth]]">
-                                            Save changes of ground truth
-                                            <span slot="endIcon" class="oj-ux-ico-save"></span>
+                                            </oj-button>
+                                            <oj-button id="fAcurayButton"
+                                                       on-oj-action="[[FAccuracy]]">
+                                                Compare and measure accuracy
+                                                <span slot="endIcon" class="oj-ux-ico-compare"></span>
 
-                                        </oj-button>
-                                        <oj-button id="fAcurayButton"
-                                                   on-oj-action="[[FAccuracy]]">
-                                            Compare and measure accuracy
-                                            <span slot="endIcon" class="oj-ux-ico-compare"></span>
-
-                                        </oj-button>
+                                            </oj-button>
 
 
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                </oj-bind-if>
+
                                 <oj-bind-if test="[[showAccuracyResults()]]">
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                                <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                                    <p slot="header" class="selected-title"> Measure the accuracy of extraction </p>
+                                                    <span class="technical-notes">
+                                                    <li>Extraction using Tesseract. Version 4.1.1 (with EngineMode.Default)</li>
+                                                    <li>The concept of fuzzy matching is to calculate similarity between any two given strings. And this is achieved by making use of the Levenshtein Distance between the two strings.</li>
+                                                    </span>
+                                                </oj-collapsible>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr style="vertical-align:top">
+                                        <th colspan="3">Results from the original image (without effects) </th>
+                                    </tr>
                                     <tr style="vertical-align:top">
                                         <td>
                                             <b>Results Details:</b> <br />
@@ -649,6 +662,9 @@
                                 </oj-bind-if>
                                 <oj-bind-if test="[[showAccuracyFilteredResults()]]">
                                     <tr style="vertical-align:top">
+                                        <th colspan="3">Results from images after effects  </th>
+                                    </tr>
+                                    <tr style="vertical-align:top">
                                         <td>
                                             <b>Results Details:</b> <br />
                                             <oj-bind-text value="No. of detected words:"></oj-bind-text>
@@ -812,7 +828,141 @@
                                     </tr>
                                 </oj-bind-if>
                             </oj-bind-if>
-                            </oj-bind-if>
+                        </oj-bind-if>
+
+                        <oj-bind-if test="[[showColorDetection()]]">
+                            <tr>
+                                <td colspan="3">
+                                    <oj-button on-oj-action="[[getColorsCounts]]">
+                                        <span slot='startIcon' class="oj-ux-ico-color"></span>
+                                        Colors count display
+                                    </oj-button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel">
+                                        <oj-collapsible expanded="false" data-oj-binding-provider="none">
+                                            <p slot="header" class="selected-title"> Colors Detection from maps </p>
+                                            <span class="technical-notes">
+                                            <li>Detection using OpenCvSharp. Version 4.5.3</li>
+                                            </span>
+                                        </oj-collapsible>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="vertical-align:top">
+                                <td>
+                                    <b>Colors Detection results from (Bing):</b> <br />
+                                    <oj-table id='tableBingColors' aria-label='Details'
+                                              data='[[bingColorsResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "Color",
+                                                                     "field": "color",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "count",
+                                                                     "field": "count",
+                                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table> <br />
+                                    <div id='chart-container'>
+                                        <oj-chart id="pieChartBingColors"
+                                                  type="pie"
+                                                  data="[[bingColorsResultDataprovider]]"
+                                                  animation-on-display="auto"
+                                                  animation-on-data-change="auto"
+                                                  hover-behavior="dim">
+
+                                            <template slot='itemTemplate' data-oj-as='item'>
+                                                <oj-chart-item value='[[item.data.count]]'
+                                                               group-id='[[ [item.data.undefined] ]]'
+                                                               series-id='[[item.data.color]]'>
+                                                </oj-chart-item>
+                                            </template>
+                                            <template slot='seriesTemplate' data-oj-as='series'>
+                                                <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                </oj-chart-series>
+                                            </template>
+                                        </oj-chart>
+                                    </div>
+                                </td>
+                                <td>
+                                    <b>Colors Detection results from (Google):</b> <br />
+                                    <oj-table id='tableGoogleColors' aria-label='Details'
+                                              data='[[googleColorsResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "Color",
+                                                                     "field": "color",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "count",
+                                                                     "field": "count",
+                                                                     "resizable": "enabled"}]' class='demo-table-container oj-bg-body'>
+                                    </oj-table><br />
+                                    <div id='chart-container'>
+                                        <oj-chart id="pieChartGoogleColors"
+                                                  type="pie"
+                                                  data="[[googleColorsResultDataprovider]]"
+                                                  animation-on-display="auto"
+                                                  animation-on-data-change="auto"
+                                                  hover-behavior="dim">
+
+                                            <template slot='itemTemplate' data-oj-as='item'>
+                                                <oj-chart-item value='[[item.data.count]]'
+                                                               group-id='[[ [item.data.undefined] ]]'
+                                                               series-id='[[item.data.color]]'>
+                                                </oj-chart-item>
+                                            </template>
+                                            <template slot='seriesTemplate' data-oj-as='series'>
+                                                <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                </oj-chart-series>
+                                            </template>
+                                        </oj-chart>
+                                    </div>
+                                </td>
+                                <td>
+                                    <b>Colors Detection results from (OSM):</b> <br />
+                                    <oj-table id='tableosmColors' aria-label='Details'
+                                              data='[[osmColorsResultDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "Color",
+                                                                     "field": "color",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "count",
+                                                                     "field": "count",
+                                                                     "resizable": "enabled"}]' class='demo-table-container oj-bg-body'>
+                                    </oj-table><br />
+                                    <div id='chart-container'>
+                                        <oj-chart id="pieChartOSMColors"
+                                                  type="pie"
+                                                  data="[[osmColorsResultDataprovider]]"
+                                                  animation-on-display="auto"
+                                                  animation-on-data-change="auto"
+                                                  hover-behavior="dim">
+
+                                            <template slot='itemTemplate' data-oj-as='item'>
+                                                <oj-chart-item value='[[item.data.count]]'
+                                                               group-id='[[ [item.data.undefined] ]]'
+                                                               series-id='[[item.data.color]]'>
+                                                </oj-chart-item>
+                                            </template>
+                                            <template slot='seriesTemplate' data-oj-as='series'>
+                                                <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                </oj-chart-series>
+                                            </template>
+                                        </oj-chart>
+                                    </div>
+                                </td>
+                            </tr>
+                        </oj-bind-if>
 </table>
 
 

@@ -8,7 +8,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
     'models/mapsCV.model', 'ojs/ojarraydataprovider',
     "ojs/ojflattenedtreedataproviderview", "ojs/ojarraytreedataprovider", "ojs/ojknockouttemplateutils",
     "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander", "ojs/ojmessages", "ojs/ojcheckboxset", "ojs/ojlabelvalue",
-    "ojs/ojfilepicker", "ojs/ojformlayout", 'ojs/ojavatar', 'ojs/ojinputtext', 'ojs/ojdialog',
+    "ojs/ojfilepicker", "ojs/ojformlayout", 'ojs/ojavatar', 'ojs/ojinputtext', 'ojs/ojdialog', "ojs/ojchart",
     'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton", "ojs/ojcollapsible"],
     function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, mapsCVModel, ArrayDataProvider, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
         function MapsCVViewModel() {
@@ -44,8 +44,12 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.showMeasureAccuracy = ko.observable(false);
             self.showMeasureAccuracyResult = ko.observable(false);
             self.showMeasureAccuracyAfterEffects = ko.observable(false);
+            self.showMeasureAccuracyResultImgs = ko.observable(false);
             self.showAccuracyResults = ko.observable(false);
             self.showAccuracyFilteredResults = ko.observable(false);
+            self.showTextProperties = ko.observable(false);
+            self.showMeasureAccuracyResultGroundTruth = ko.observable(false);
+            self.showColorDetection = ko.observable(false);
 
             self.selectedOptions = ko.observableArray([]);
 
@@ -207,11 +211,13 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 self.showAccuracyResults(false);
                 self.showMeasureAccuracyAfterEffects(false);
                 self.showMeasureAccuracy(false);
-                self.showExtractedTextUnderMaps(true);
-                self.showImagesPath(true);
+                self.showExtractedTextUnderMaps(false);
+                self.showImagesPath(false);
                 self.showExtractedTextDetails(false);
                 self.showTable(false);
+                self.showMeasureAccuracyResultImgs(false);
                 self.showAccuracyFilteredResults(false);
+                self.showMeasureAccuracyResultGroundTruth(false);
             }
             self.actionMenuListener = (event, context) => {
                 var selectMenuItem = event.detail.selectedValue;
@@ -233,17 +239,77 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 else if (selectMenuItem == "MeasureAccuracy") {
                     self.showMeasureAccuracy(true);
                     self.showMeasureAccuracyResult(true);
+                    self.showMeasureAccuracyResultImgs(false);
+                    self.showMeasureAccuracyAfterEffects(false);
+                    self.showMeasureAccuracyResultGroundTruth(true);
                     self.display();
                 } else if (selectMenuItem == "MeasureAccuracyAfterEffects") {
                     self.showMeasureAccuracyAfterEffects(true);
                     self.showMeasureAccuracy(true);
+                    self.showMeasureAccuracyResultImgs(true);
+                    self.showMeasureAccuracyResultGroundTruth(true);
                     //may need changes here
                     self.showAccuracyFilteredResults(true);
+                    self.display();
+                } else if (selectMenuItem == "TextProperties") {
+                    //Apply Two filters
+                    self.selectedOptions(['bgbitwise', 'bgtransparent','bgtrans2white']);
+                    self.ApplyEffects();
+                    self.showMeasureAccuracy(true);
+                    self.showMeasureAccuracyResult(true);
+                    self.showMeasureAccuracyResultImgs(true);
+                    self.showMeasureAccuracyResultGroundTruth(false);
+                    self.showColorDetection(true);
                     self.display();
                 }
 
             };
 
+
+
+            self.bingColors = ko.observableArray([]);
+            bingColorsResultDataprovider = new ArrayDataProvider(self.bingColors, {
+                keyAttributes: "text",
+                implicitSort: [{ attribute: "color", direction: "ascending" }],
+            });
+
+            self.googleColors = ko.observableArray([]);
+            googleColorsResultDataprovider = new ArrayDataProvider(self.googleColors, {
+                keyAttributes: "text",
+                implicitSort: [{ attribute: "color", direction: "ascending" }],
+            });
+            self.osmColors = ko.observableArray([]);
+            osmColorsResultDataprovider = new ArrayDataProvider(self.osmColors, {
+                keyAttributes: "text",
+                implicitSort: [{ attribute: "color", direction: "ascending" }],
+            });
+
+            self.componentToHex=(c)=> {
+                let hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+            self.rgbToHex = (color) => {
+                var rgb = color.split(",");
+                return "#" + self.componentToHex(rgb[0]) + self.componentToHex(rgb[1]) + self.componentToHex(rgb[2]);
+            }
+
+            self.getColorsCounts = () => {
+
+                var bingEffEndTo = (self.bingEffImagePath().indexOf("?") == -1) ? self.bingEffImagePath().length : self.bingEffImagePath().indexOf("?");
+                var googleEffEndTo = (self.googleEffImagePath().indexOf("?") == -1) ? self.googleEffImagePath().length : self.googleEffImagePath().indexOf("?");
+                var osmEffEndTo = (self.osmEffImagePath().indexOf("?") == -1) ? self.osmEffImagePath().length : self.osmEffImagePath().indexOf("?");
+                mapsCVModel.getColorsCounts(self.bingEffImagePath().substring(self.bingEffImagePath().indexOf("map"), bingEffEndTo),
+                    self.googleEffImagePath().substring(self.googleEffImagePath().indexOf("map"), googleEffEndTo),
+                    self.osmEffImagePath().substring(self.osmEffImagePath().indexOf("map"), osmEffEndTo), (success, data) => {
+                        if (success) {
+                            self.bingColors(data.bingColorsCounter);
+                            self.googleColors(data.googleColorsCounter);
+                            self.osmColors(data.osmColorsCounter);
+                        } else {
+                            console.log(data);
+                        }
+                    });
+            }
             //Fuzzy Measurments
 
             //Bing Measurments Attributes

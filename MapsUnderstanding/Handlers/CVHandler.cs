@@ -1,4 +1,5 @@
 ﻿using MapsUnderstanding.Middleware;
+using MapsUnderstanding.Models;
 using MapsVisionsAPI.Middleware;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,22 @@ namespace MapsUnderstanding.Handlers
 {
     public class CVHandler
     {
+        public List<ColorsCounts> colorsCounter(string imageName)
+        {
+            try
+            {
+                imageName = imageName.ToString().Replace("/", "\\");
+                var imagePath = Path.Combine(Util.mapsPath(), imageName);
+                Console.WriteLine("colorsCounter for image: " + imagePath);
+                return ImageFilters.getKMeansColors(imagePath);
+            }catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.Write(ex.StackTrace);
+                return null;
+            }
+        }
+
         public string applyEffectsToImgs(string imagesName, string filters)
         {
             string[] imgs = imagesName.ToString().Split(",");
@@ -36,7 +53,21 @@ namespace MapsUnderstanding.Handlers
                         {
                             ImageFilters.applyBGBitwise(imagePath);
                             log += "BKBitwise filter applied; \n";
-                        }                        
+                        }
+                        else if (filterName.Trim().ToLower() == "bgtransparent")
+                        {
+                            if (ImageFilters.applyBGTransparent(imagePath))
+                                log += "BKTransparent filter applied; \n";
+                            else
+                                log += "BKTransparent not applied; \n";
+                        }
+                        else if (filterName.Trim().ToLower() == "bgtrans2white")
+                        {
+                            if (ImageFilters.applyBGTrans2White(imagePath))
+                                log += "BGTrans2White filter applied; \n";
+                            else
+                                log += "BKTransparent not applied; \n";
+                        }
                         else if (filterName.Trim().ToLower() == "enhancedetail")
                         {
                             ImageFilters.applyEnhanceDetailFilter(imagePath);
@@ -85,12 +116,6 @@ namespace MapsUnderstanding.Handlers
                                 log += "KMeans filter applied; \n";
                             else
                                 log += "KMeans not applied; \n";
-                        }else if (filterName.Trim().ToLower() == "bgtransparent")
-                        {
-                            if (ImageFilters.applyBGTransparent(imagePath))
-                                log += "BKTransparent filter applied; \n";
-                            else
-                                log += "BKTransparent not applied; \n";
                         }
                     }
                 }

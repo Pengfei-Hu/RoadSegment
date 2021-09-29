@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MapsUnderstanding.Models;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 
@@ -24,6 +25,60 @@ namespace MapsVisionsAPI.Middleware
                           "filtered-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
             else
                 return sourcePath;
+        }
+
+        
+        internal static List<ColorsCounts> getColorsCounts(string imagePath)
+        {
+            Dictionary<string, int> colorsCounter = new Dictionary<string, int>();
+            List<ColorsCounts> colorsCounts=new List<ColorsCounts>();
+
+            Mat img = readFilteredImg(imagePath);
+            var matIndex = new Mat<Vec3b>(img); // cv::Mat_<cv::Vec3b>
+            var indexer = matIndex.GetIndexer();
+
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    Vec3b color = indexer[y, x];
+                    if (!(color.Item0 == 0 && color.Item0 == 0 && color.Item0 == 0))
+                    {
+                        //indexer[y, x] = color;
+                        int currentCounter = 0;
+                        string key = "rgb("+color.Item0.ToString() + "," + color.Item1.ToString()
+                                + "," + color.Item2.ToString()+")";
+                        if (colorsCounts.Exists(ele => ele.color == key))
+                        {
+                            var colorCount = colorsCounts.Find(ele => ele.color == key);
+                            colorsCounts.Remove(colorCount);
+                            colorCount.count = colorCount.count + 1;
+                            colorsCounts.Add(colorCount);
+                        }
+                        else
+                            colorsCounts.Add(new ColorsCounts { color = key, count = 1 });
+
+                        if (colorsCounter.TryGetValue(key, out currentCounter))
+                            colorsCounter[key] = ++currentCounter;
+                        else
+                            colorsCounter.Add(key, 1);
+                    }
+                }
+            }
+            
+            return colorsCounts;
+        }
+        public static List<ColorsCounts> getKMeansColors(string imagePath)
+        {
+            List<ColorsCounts> colorsCounts = new List<ColorsCounts>();
+            Mat image = readFilteredImg(imagePath);
+            Mat kmeansImg = new Mat();
+            var colorsCounter = Kmeans(image, ref kmeansImg, 6);
+            foreach(var colorCount in colorsCounter)
+                if(colorCount.Key!="255,255,255")
+                    colorsCounts.Add(new ColorsCounts { color = colorCount.Key, count = colorCount.Value });
+            saveMatImage(kmeansImg, "kmeans", imagePath);
+            return colorsCounts;
         }
         protected static bool IsFileLocked(FileInfo file)
         {
@@ -178,7 +233,6 @@ namespace MapsVisionsAPI.Middleware
             var colorsCounter = Kmeans(image, ref kmeansImg, 3);
             return saveMatImage(kmeansImg, "filtered", imagePath);
         }
-
         public static bool applyResizeFilter(string imagePath)
         {
             Mat image = readFilteredImg(imagePath);
@@ -361,8 +415,7 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                 Mat dst = new Mat(), tmp = new Mat(), alpha = new Mat();
 
                 Cv2.CvtColor(src, tmp, ColorConversionCodes.BGR2GRAY);
-                Cv2.Threshold(tmp, alpha, 100, 255, ThresholdTypes.Binary);
-
+                Cv2.Threshold(tmp, alpha, 50, 255, ThresholdTypes.Binary);
                 Mat[] rgb;
                 Cv2.Split(src, out rgb);
 
@@ -376,6 +429,21 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                 return false;
             }
         }
+        public static bool applyBGTrans2White(string imagePath)
+        {
+            try
+            {
+                Mat src = readFilteredImg(imagePath);
+                Mat dst = convertTransparentToWhite(src);
+                return saveMatImage(dst, "filtered", imagePath);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+                return false;
+            }
+        }
+
         public static Mat convertTransparentToWhite(Mat mat)
         {
             Mat dst = mat.EmptyClone();
@@ -426,6 +494,8 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                 Cv2.CvtColor(imageL1, imageL1, ColorConversionCodes.BGR2GRAY);
                 Cv2.CvtColor(imageL1, imageL1, ColorConversionCodes.BGR2BGRA);
                 Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(1, 1));
+                Mat morphed = new Mat();
+                Cv2.MorphologyEx(imageL1, morphed, MorphTypes.Close, kernel);
                 Cv2.Dilate(imageL1, imageL1, kernel, null, 1, BorderTypes.Default, Scalar.Black);                         //dilate to remove text and tables
                 Cv2.Threshold(imageL1, imageL1, 120, 255, ThresholdTypes.Binary);     //change white background to black
 
@@ -445,7 +515,8 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                 return false;
             }
         }
-            public static string removeBKEffects(string imagePath)
+            
+        public static string removeBKEffects(string imagePath)
         {
             Mat image;
             Mat img_gray = new Mat();

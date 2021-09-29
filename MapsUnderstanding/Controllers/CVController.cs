@@ -1,5 +1,6 @@
 ﻿using MapsUnderstanding.Handlers;
 using MapsUnderstanding.Middleware;
+using MapsUnderstanding.Models;
 using MapsVisionsAPI.Middleware;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -47,6 +48,42 @@ namespace MapsUnderstanding.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("getColorsCountsForAllImgs")]
+        public IActionResult getColorsCountsForAllImgs()
+        {
+            Console.WriteLine("getColorsCountsForAllImgs function");
+            try
+            {
+                Request.Headers.TryGetValue("imagesPaths", out var imagesPaths);
+                string[] imgs = imagesPaths.ToString().Split(",");
+                Console.WriteLine("Images Pathes:::: "+imagesPaths);
+                List<ColorsCounts> bingColorsCounter = new List<ColorsCounts>(), 
+                                        googleColorsCounter = new List<ColorsCounts>(), 
+                                        osmColorsCounter =new List<ColorsCounts>();
+                foreach (var img in imgs)
+                {
+                    var imageName = img.ToString().Replace("/", "\\");
+                    var imagePath = Path.Combine(Util.mapsPath(), imageName);
+                    if (imagePath.IndexOf("bing") != -1)
+                        bingColorsCounter = cv.colorsCounter(imagePath);
+                    else if (imagePath.IndexOf("google") != -1)
+                        googleColorsCounter = cv.colorsCounter(imagePath);
+                    else if (imagePath.IndexOf("osm") != -1)
+                        osmColorsCounter = cv.colorsCounter(imagePath);
+                }
+                return Ok(new { success=true, 
+                                bingColorsCounter= bingColorsCounter,
+                                googleColorsCounter= googleColorsCounter , 
+                                osmColorsCounter= osmColorsCounter});
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.Write(ex.StackTrace);
+                return BadRequest(new {success=false, error = ex.Message });
             }
         }
 
