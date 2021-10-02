@@ -32,24 +32,29 @@ namespace MapsUnderstanding.Controllers
         {
             return Ok(new { controller= "run successfully" });
         }
-            [HttpPost("SaveAllLocationsPicturesResults")]
+        [HttpPost("SaveAllLocationsPicturesResults")]
         public IActionResult SaveAllLocationsPicturesResults()
         {
+            Console.WriteLine("SaveAllLocationsPicturesResults function");
             try
             {
                 CVHandler cv = new CVHandler();
                 LocationPhotosController locPhotos = new LocationPhotosController(_DbContext);
                 allMapImageRecogResults = getAllMapImageRecogResults();
+                Console.WriteLine("Count"+ allMapImageRecogResults.Count());
                 /*string[] filtersGroups = {  "WithoutEffects", "resize", "gray", "resize,gray", "resize,gray,EnhanceDetail", 
                                             "resize,gray,BitwiseText", "resize,gray,BitwiseText,EnhanceDetail", "KMeans", 
                                             "BitwiseText", "EnhanceDetail", "enhanceDetail,resize", "enhanceDetail,contours", 
                                             "enhanceDetail,bitwiseText", "bitwiseText,enhanceDetail", 
                                             "resize,bitwiseText,enhanceDetail", "enhanceDetail,resize,bitwiseText", 
-                                            "enhanceDetail,resize,KMeans", "resize,Kmeans", "resize,bitwiseText" };*/
+                                            "enhanceDetail,resize,KMeans", "resize,Kmeans", "resize,bitwiseText",
+                                            "resize,enhanceDetail,bitwiseText", "bitwiseText,resize,enhanceDetail" };*/
 
-                string[] filtersGroups = {  "resize,enhanceDetail,bitwiseText", "bitwiseText,resize,enhanceDetail"};
+                string[] filtersGroups = {  "bgbitwise,bgtransparent,bgtrans2white,enhanceDetail,resize,bitwiseText",
+                                            "enhanceDetail,resize,bitwiseText,bgbitwise,bgtransparent,bgtrans2white"};
 
                 var locPhotosData = locPhotos.getAllLocationPhotosData();
+                Console.WriteLine("locPhotosData Count" + locPhotosData.Count());
                 List<CaptureUrl> allCaptures = new List<CaptureUrl>();
                 TextRecogHandler textRecog = new TextRecogHandler();
                 List<MapImageRecogResults> allResults = new List<MapImageRecogResults>();
@@ -58,6 +63,7 @@ namespace MapsUnderstanding.Controllers
 
                 foreach (var location in locPhotosData)
                 {
+
                 List<CaptureUrl> captures = JsonConvert.DeserializeObject<List<CaptureUrl>>(location.capture_url);
                 //allCaptures.AddRange(captures);
 
@@ -95,17 +101,21 @@ namespace MapsUnderstanding.Controllers
             }
             catch (Exception ex)
             {
-                Console.Write(ex);
+                Console.WriteLine(ex);
+                Console.WriteLine(ex.StackTrace);
                 return BadRequest(new { error = ex.Message });
             }
         }
 
         private bool IsCaptureProcessedBefore(IEnumerable<MapImageRecogResults> allMapImageRecogResults, CaptureUrl capture)
         {
+            /*
+             * we need to add the same filter in this condition
             if (allMapImageRecogResults.Count()>0)
                 foreach(var recogRes in allMapImageRecogResults)
                     if(recogRes.picture_url==capture.url && recogRes.resolution == capture.resolution)
                         return true;
+            */
             return false;
         }
     }

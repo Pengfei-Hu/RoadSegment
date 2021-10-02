@@ -1,0 +1,4 @@
+{
+  "apiserver": "http://localhost:44370/",
+  "anothervalue": "test"
+}

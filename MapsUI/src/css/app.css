@@ -48,3 +48,11 @@
     text-align: left;
     font-size: medium;
 }
+
+.hasTruth {
+    background-color: aqua;
+}
+.noTruth {
+    
+    background-color: khaki;
+}

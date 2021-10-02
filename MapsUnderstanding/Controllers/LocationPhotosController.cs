@@ -91,6 +91,26 @@ namespace MapsUnderstanding.Controllers
             }
         }
 
+        [HttpGet("getCountriesWeHave")]
+        public IActionResult getCountriesWeHave()
+        {
+            try
+            {
+                var alldata = getAllLocationPhotosData();
+                var model = from s in alldata
+                            where s.address != null
+                            select new { value = s.address.Substring(s.address.LastIndexOf(",") + 1).Trim(),
+                                    label = s.address.Substring(s.address.LastIndexOf(",") + 1).Trim()
+                            };
+
+                return Ok(new { data = model.Distinct() });
+            }
+            catch (Exception ex)
+            {
+                Debug.Write(ex);
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
         [HttpGet("AllLocationWholePhotos")]
         public IActionResult AllLocationWholePhotos()
@@ -100,7 +120,7 @@ namespace MapsUnderstanding.Controllers
                 var alldata = getAllLocationPhotosData();
                 var model = from s in alldata
                                       where s.quarter.Trim()=="whole"
-                                      select new { s.lat, s.lng, s.zoom_level ,
+                                      select new { s.lat, s.lng, s.capture_quadKey, s.address,
                                           Google=(  from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&

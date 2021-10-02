@@ -31,13 +31,13 @@ def get_Insert_id():
     id = location_photos.get_Next_id()
     return id
 
-def get_geocoding(lat, lon):
-    
-    gmaps=googlemaps.Client(key='AIzaSyAhRnxOf_ELnG-vuGw3l0Sc_8uyBtvRZS4')
-    reverse_geocode_result = gmaps.reverse_geocode((lat, lon))
-    result = reverse_geocode_result[4]["formatted_address"]
-    
-    return json.dumps(result)
+
+
+def updateLocationAddress(lat, lng):
+    address =location_photos.get_geocoding(lat, lng)
+    no= location_photos.updateAddressOfLatLng(lat, lon, address)
+    return json.dumps(no)
+
 
 def download_google_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id ):
     #url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x=1485&s=&y=985&z=11'
@@ -277,7 +277,9 @@ def multi_all():
     #    location_photos.inser_map_whole(lat, lon, 'O', tileZoom, osm_name, endZoomLevel)
  #   osm_original = 'map/{}/{}.png'.format('osm', osm_whole)
     location_photos.inser_map_original(lat, lon, 'O', tileZoom, osm_whole)
-
+    
+    
+    
     main_capture_id_bing = location_photos.get_main_capture_id(lat, lon, tileZoom, 'B')
     main_capture_id_google = location_photos.get_main_capture_id(lat, lon, tileZoom, 'G')
     main_capture_id_osm = location_photos.get_main_capture_id(lat, lon, tileZoom, 'O')
@@ -299,6 +301,9 @@ def multi_all():
         # location_photos.inser_map_all(lat, lon, 'O', tileZoom, osm_url,multi,dic, main_capture_id_osm)
         # srt3 = 'osm_{}'.format(osm_result)
         # result[str3] = osm_result
+
+    #update the address of this lat/lng for all provider
+    updateLocationAddress(lat, lon)
 
     # result = {'bing':bing_result,'google':google_result,'osm':osm_result}
     results = {'bing':bing_whole,'google':google_whole,'osm':osm_whole}
@@ -340,14 +345,18 @@ def geocoding():
     
 #    reverse_geocode_result = gmaps.reverse_geocode((lat, lon))
 #    result = reverse_geocode_result[4]["formatted_address"]
-    result = get_geocoding(lat, lon)
+    result = location_photos.get_geocoding(lat, lon)
     print(result)
     return result
 
 
-@app.route('/providerWords')
-def providerWords():
+@app.route('/providerWordsStats')
+def providerWordsStats():
     return json.dumps(location_photos.get_places_number_words())
+
+@app.route('/UpdateLocationsAddress')
+def updateLocationsAddress():
+    return json.dumps(location_photos.addAddressToAllLocationsWithoutAddress())
 
 
 if __name__ == '__main__':

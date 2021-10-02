@@ -24,7 +24,13 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils','models/utils.model',
 
         }//end loadGroundTruth
 
+        self.UpdateLocationsAddress = () => {
+            utilsModel.UpdateLocationsAddress((success, data) => {
+                alert("All Locations Now with address");
+                console.log(data);
+            })
 
+        }//end loadGroundTruth
       this.connected = () => {
         accUtils.announce('Utils page loaded.', 'assertive');
         document.title = "Utility";

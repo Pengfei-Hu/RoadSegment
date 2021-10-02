@@ -28,5 +28,7 @@ namespace MapsUnderstanding.Models
         public int? main_capture_id { get; set; }
         public string city_code { get; set; }
         public string ground_truth { get; set; }
+        public string capture_quadKey { get; set; }
+        public string address { get; set; }
     }
 }

@@ -45,7 +45,25 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     },
                 });//end fetch
             }
-
+            getCountriesWeHave(notify) {
+                let api_url = this.mapsImgsEndpoint +"LocationPhotos/getCountriesWeHave";
+                this.initializeModelCollection(api_url);
+                let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
+                mapsImgsRow.fetch({
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    success: (coll, data) => {
+                        console.log(data);
+                        notify(true, data);
+                    },
+                    error: (model, xhr, options) => {
+                        notify(false, 'Error:' + xhr.textStatus);
+                        console.log("Error");
+                        console.log(options);
+                    },
+                });//end fetch
+            }
             addMapImg(imageData, notify) {
                 let api_url = this.mapsImgsEndpoint +"upload/UploadMapImage"; 
                 

@@ -12,13 +12,19 @@
 
             <oj-form-layout class="inCenter" max-columns="1" direction="row">
                 <oj-bind-text>
-                      <br />  
+                    <br />
                 </oj-bind-text>
                 <oj-button id='button1' on-oj-action='[[loadGroundTruth]]' class="oj-button-lg">
                     Load all new ground truths into MapsVision database
                     <span slot="endIcon" class="oj-ux-ico-upload"></span>
                 </oj-button>
-
+                <oj-bind-text>
+                    <br />
+                </oj-bind-text>
+                <oj-button id='button2' on-oj-action='[[UpdateLocationsAddress]]' class="oj-button-lg">
+                    Update All locations without address with address
+                    <span slot="endIcon" class="oj-ux-ico-edit"></span>
+                </oj-button>
 
             </oj-form-layout>
             <div id="progressBarWrapper" style="visibility:hidden;" class="fullScreen">

@@ -26,7 +26,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
 
             }
             getProvidersPlacesWords(notify) {
-                let api_url = this.StatsEndpoint +"providerWords";
+                let api_url = this.StatsEndpoint +"providerWordsStats";
                 this.initializeModelCollection(api_url);
                 let StatsRow = new this.StatsModelDef({}, this.Stats);
                 StatsRow.fetch({

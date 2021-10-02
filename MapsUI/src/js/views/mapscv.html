@@ -6,12 +6,21 @@
                 Visualization
             </oj-bind-text>
         </h4>
+        <div id="selection">
+            <oj-select-single id="countrySelect"
+                              label-hint="Filter by Country"
+                              label-edge="inside"
+                              class="oj-form-control-max-width-md"
+                              data="[[countriesDP]]"
+                              value="{{countrySelectVal}}">
+            </oj-select-single>
+        </div>
         <div class="oj-flex">
             <map name="quadrantmap">
-                <area shape="rect"  id="upperLeftArea" coords="0,0,200,200" alt="upperLeft" href="#" >
-                <area shape="rect"  id="upperRightArea" coords="200,0,400,200" alt="upperRight" href="#" >
-                <area shape="rect" id="bottomLeftArea"  coords="0,200,200,400" alt="bottomLeft" href="#" >
-                <area shape="rect" id="bottomRightArea" coords="200,200,400,400" alt="bottomRight" href="#" >
+                <area shape="rect" id="upperLeftArea" coords="0,0,200,200" alt="upperLeft" href="#">
+                <area shape="rect" id="upperRightArea" coords="200,0,400,200" alt="upperRight" href="#">
+                <area shape="rect" id="bottomLeftArea" coords="0,200,200,400" alt="bottomLeft" href="#">
+                <area shape="rect" id="bottomRightArea" coords="200,200,400,400" alt="bottomRight" href="#">
             </map>
             <oj-messages messages="[[messagesDataprovider]]"
                          position='{"my":{"vertical" :"top", "horizontal": "middle"},
@@ -40,15 +49,16 @@
                               class='oj-bg-body demo-table-container'
                               layout='fixed'
                               columns='[
-                    {"headerText":"lng", "field":"lng"},
-                    {"headerText":"lat", "field":"lat"},
-                    {"headerText":"zoom", "field":"zoom_level"},
-                     {"headerText":"Bing Image", "field":"bing.imgPath",
-                     "sortable":"disabled","template":"bingImageTemplate"},
-                    {"headerText":"Google Image", "field":"google.imgPath",
-                     "sortable":"disabled","template":"googleImageTemplate"},
-                    {"headerText":"OSM Image", "field":"osm.imgPath",
-                     "sortable":"disabled","template":"osmImageTemplate"}, {
+                                {"headerText":"lng", "field":"lng"},
+                                {"headerText":"lat", "field":"lat"},
+                                {"headerText":"Address", "field":"address"},
+                                            {"headerText":"QuadKey", "field":"capture_quadKey"},
+                                    {"headerText":"Bing Image", "field":"bing.imgPath",
+                                    "sortable":"disabled","template":"bingImageTemplate"},
+                                {"headerText":"Google Image", "field":"google.imgPath",
+                                    "sortable":"disabled","template":"googleImageTemplate"},
+                                {"headerText":"OSM Image", "field":"osm.imgPath",
+                                    "sortable":"disabled","template":"osmImageTemplate"}, {
                                   "headerText": "Action",
                                   "headerStyle": "text-align: center;",
                                   "frozenEdge": "end",
@@ -71,7 +81,7 @@
 
 
                         <template slot="rowTemplate" data-oj-as='row'>
-                            <tr>
+                            <tr :class="[[( (row.item.data.google.ground_truth.length>0) || (row.item.data.osm.ground_truth.length>0) || (row.item.data.bing.ground_truth.length>0))?'hasTruth':'noTruth']]">
                                 <!-- ko if: row.item.metadata.treeDepth === 0 -->
                                 <td>
                                     <oj-row-expander context="[[row]]"></oj-row-expander>
@@ -81,7 +91,10 @@
                                     <span><oj-bind-text value="[[row.item.data.lat]]"></oj-bind-text></span>
                                 </td>
                                 <td>
-                                    <span><oj-bind-text value="[[row.item.data.zoom_level]]"></oj-bind-text></span>
+                                    <span><oj-bind-text value="[[row.item.data.address]]"></oj-bind-text></span>
+                                </td>
+                                <td>
+                                    <span><oj-bind-text value="[[row.item.data.capture_quadKey]]"></oj-bind-text></span>
                                 </td>
                                 <td>
                                     <oj-bind-if test="[[row.item.data.bing!=null]]">
@@ -963,11 +976,11 @@
                                 </td>
                             </tr>
                         </oj-bind-if>
-</table>
+                </table>
 
 
 
-    </oj-bind-if>
+            </oj-bind-if>
 
         </div>
     </div>

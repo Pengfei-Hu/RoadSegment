@@ -5,6 +5,8 @@ from PIL.Image import NONE
 from numpy.lib.function_base import append
 import pymssql
 import datetime
+import googlemaps
+
 class MSSQL:
     def __init__(self,host,user,pwd,db):
         self.host = host
@@ -164,7 +166,34 @@ class MSSQL:
         self.conn.close()
         print("Records SELECT successfully")
         return Next_id
-  
+
+    def get_geocoding(self, lat, lon):    
+        gmaps=googlemaps.Client(key='AIzaSyAhRnxOf_ELnG-vuGw3l0Sc_8uyBtvRZS4')
+        reverse_geocode_result = gmaps.reverse_geocode((lat, lon))
+        result = reverse_geocode_result[4]["formatted_address"]
+        return json.dumps(result)
+
+    def updateAddressOfLatLng(self, lat, lon, addr):
+        c = self.GetConnect()
+        val = (addr, lat, lon)
+        no = c.execute(" Update [location_photos] SET [address]=%s WHERE [lat]=%d and [lng]=%d ",val)
+        self.conn.commit()
+        self.conn.close()
+        print("Address updated successfully")
+        return no
+
+    def addAddressToAllLocationsWithoutAddress(self):
+        c = self.GetConnect()
+        c.execute("SELECT lat, lng, [address] FROM location_photos  ")
+        data_list = c.fetchall()
+        res = {}
+        for data in data_list:
+            addr = self.get_geocoding(data[0], data[1])
+            addr =addr.replace('"',"") 
+            print(addr)
+            self.updateAddressOfLatLng( data[0], data[1],addr )
+        self.conn.close()
+        return "All Locations has Address Now!"
 
     def getSeriesGroupRowArrayObjects(self, result):
         list =[]
@@ -183,11 +212,11 @@ class MSSQL:
         return list
 
     def get_places_number_words(self):
-        queryWordsMapProviderPerPlaces = """ SELECT CAST(lat as nvarchar)+','+CAST(lng as nvarchar)   as series,
+        queryWordsMapProviderPerPlaces = """ SELECT address  as series,
 		            CASE   map_provider WHEN 'G' THEN 'Google' WHEN 'O' THEN 'OSM'  WHEN 'B' THEN 'Bing' end as 'group', 
 		            SUM(LEN(ground_truth) - LEN(REPLACE(ground_truth, ',', ''))+1) as 'value'
                     from [location_photos]
-                    group by map_provider,CAST(lat as nvarchar)+','+CAST(lng as nvarchar)  """
+                    group by map_provider,address  """
         queryWordsMapProvider = """ SELECT	CAST(count(DISTINCT(CAST(lat as nvarchar)+'-'+CAST(lng as nvarchar) )) as varchar)+' places' as series, 
 		            CASE   map_provider WHEN 'G' THEN 'Google' WHEN 'O' THEN 'OSM'  WHEN 'B' THEN 'Bing' end as 'group', 
 		            SUM(LEN(ground_truth) - LEN(REPLACE(ground_truth, ',', ''))+1) as 'value'

@@ -9,7 +9,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
     "ojs/ojflattenedtreedataproviderview", "ojs/ojarraytreedataprovider", "ojs/ojknockouttemplateutils",
     "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander", "ojs/ojmessages", "ojs/ojcheckboxset", "ojs/ojlabelvalue",
     "ojs/ojfilepicker", "ojs/ojformlayout", 'ojs/ojavatar', 'ojs/ojinputtext', 'ojs/ojdialog', "ojs/ojchart",
-    'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton", "ojs/ojcollapsible"],
+    'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton", "ojs/ojcollapsible", "ojs/ojselectsingle"],
     function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, mapsCVModel, ArrayDataProvider, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
         function MapsCVViewModel() {
             let self = this;
@@ -17,6 +17,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.showTable = ko.observable(true);
             self.msgTitle = ko.observable();
             self.msgBody = ko.observable();
+            
+
             self.allLocationWholePhotos = ko.observableArray([]);
             self.partlist = ko.observable("");
             self.lastCorrectPartlist = ko.observable("");
@@ -99,6 +101,24 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 console.log(serverResult);
                 return serverResult;
             }
+
+            self.countrySelectVal = ko.observable();
+            self.countries = ko.observableArray([]);
+            self.countriesDP = new ArrayDataProvider(self.countries, {
+                keyAttributes: "value",
+            });
+            self.countrySelectVal.subscribe(function (selectedCountry) {
+                self.refreshAllData(selectedCountry);
+            });
+            self.loadCountries = () => {
+                MapImgModel.getCountriesWeHave((success, result) => {
+                    
+                    self.countries(result.data);
+                    self.countries.valueHasMutated();
+                });
+            }
+            self.loadCountries();
+
             self.refreshAllData = (filterValue) => {
                 MapImgModel.getAllLocationWholePhotos((success, serverResult) => {
                     if (filterValue == undefined) {
@@ -106,17 +126,17 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                         self.allLocationWholePhotos(self.formatImgPaths(serverResult));
                     } else {
                         let filteredResult = serverResult.filter(locationPhoto => {
-
+                            if (locationPhoto.address.indexOf(filterValue)>-1)
                             /*if (article.summary == undefined) article.summary = "";
                             if (article.content == undefined) article.content = "";
                             if (article.title.toLowerCase().indexOf(filterValue.toLowerCase()) != -1 ||
                                 article.summary.toLowerCase().indexOf(filterValue.toLowerCase()) != -1 ||
                                 article.content.toLowerCase().indexOf(filterValue.toLowerCase()) != -1)*/
-                            return true;
-                            //else
-                            //    return false;
+                                return true;
+                            else
+                                return false;
                         });
-                        self.allLocationWholePhotos(filteredResult);
+                        self.allLocationWholePhotos(self.formatImgPaths(filteredResult));
                     }
                     self.allLocationWholePhotos.valueHasMutated(); //Notify to subscribers(Refersh)
                 });
@@ -642,10 +662,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     send_mu()
                 }
                 MapImgModel.getAddressOfLatLng(self.lat(), self.lng(), (success, result) => {
-
                     self.address(result);
-
-
                 });
 
             }
