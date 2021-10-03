@@ -78,6 +78,26 @@ class MSSQL:
         print("Records created successfully")
         return idd
 
+    def inser_bi_all(self, id, lat, lon, map_provider, zoom_level, pic_url):
+        time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+        c = self.GetConnect()
+        val = (id, lat, lon, map_provider, zoom_level, pic_url,time_str)
+        idd = c.execute("INSERT INTO location_bi_photos(bi_id,lat,lon,map_provider,zoom_level,pic_url,timestamp) VALUES (%s,%s,%s,%s,%d,%s,%s)",val)
+        self.conn.commit()
+        self.conn.close()
+        print("Records created successfully")
+        return idd
+    
+    def inser_skeleton_all(self, id, lat, lon, map_provider, zoom_level, pic_url, road_length):
+        time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+        c = self.GetConnect()
+        val = (id, lat, lon, map_provider, zoom_level, pic_url,time_str, road_length)
+        idd = c.execute("INSERT INTO location_bi_photos(skeleton_id,lat,lon,map_provider,zoom_level,pic_url,road_length,timestamp) VALUES (%s,%s,%s,%s,%d,%s,%s,%s)",val)
+        self.conn.commit()
+        self.conn.close()
+        print("Records created successfully")
+        return idd
+
     def select_map_part(self, lat, lon, zoom_level, multi, quarter):
         c = self.GetConnect()
         query = "SELECT * FROM location_photos WHERE lat = %d AND lng = %d AND zoom_level = %d AND quarter = %s "
