@@ -38,7 +38,7 @@ def get_Insert_id():
 
 def updateLocationAddress(lat, lng):
     address =location_photos.get_geocoding(lat, lng)
-    no= location_photos.updateAddressOfLatLng(lat, lon, address)
+    no= location_photos.updateAddressOfLatLng(lat, lng, address)
     return json.dumps(no)
 
 
@@ -88,7 +88,7 @@ def download_bing_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id, quadKey
     for x in range(1,2):            # One Iteration Until now becuase we don't have more resolutions
         current_url = url
         current_url = current_url   # We will add something here to get more resolutions
-        pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( x*256), quadKey )
+        pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( x*256), quadKey)
         response = requests.get(current_url, stream=True, headers=headers)
         with open(pic_name, 'wb') as out_file:
             out_file.write(response.content)
@@ -383,7 +383,7 @@ def download_no_label_pic():
  #   response = requests.get(url, stream=True)
     response = requests.get(url, stream=True, headers=headers)
     assert response.status_code == 200, "connect error"
-    osm_name = 'map/vis/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom)
+    osm_name = 'MapsCapturing/map/vis/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom)
     with open(osm_name, 'wb') as out_file:
         out_file.write(response.content)
     #on label google
@@ -392,7 +392,7 @@ def download_no_label_pic():
         6MjF8cC52Om9mZixzLnQ6MjB8cC52Om9mZg!4e0&key=AIzaSyDk4C4EBWgjuL1eBnJlu1J80WytEtSIags&token=16750'''.format(tileZoom,tx,ty)
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
-    google_name = 'map/vis/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
+    google_name = 'MapsCapturing/map/vis/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
     with open(google_name, 'wb') as out_file:
         out_file.write(response.content)
     #no label osm
