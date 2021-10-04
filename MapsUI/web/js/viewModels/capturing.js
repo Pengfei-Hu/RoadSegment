@@ -4,17 +4,32 @@
 /*
  * Your customer ViewModel code goes here
  */
-define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils',  "ojs/ojprogress-bar",
+define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', "utils/coordinates", "ojs/ojprogress-bar",
     "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojinputtext", "ojs/ojlabel"],
 
- function(oj, ko, $, accUtils ) {
+    function (oj, ko, $, accUtils, Coordinates ) {
     function CapturingViewModel() {
         var self = this;
-        
+        self.quadKey = ko.observable();
         self.lat = ko.observable(6.9184);
         self.lon = ko.observable(79.9909);
         self.startzoomLevel = ko.observable(9);
         self.endzoomLevel = ko.observable(10);
+        //lat/lng to PixelXY after that convert PixelXY to TileXY and after that from TileXY to QuadKey
+        //When we add QuadKey we get the equavilant Lat/Lng
+        self.quadKey.subscribe(function (newQuad) {
+            Coordinates.QuadKeyToTileXY(newQuad, (newTileXY) => {
+                Coordinates.TileXYToPixelXY(newTileXY.tileX, newTileXY.tileX,
+                    (pixelX, pixelY) => {
+                        Coordinates.PixelXYToLatLong(pixelX, pixelY, newTileXY.levelOfDetail,
+                            (latitude, longitude) => {
+                                self.lat(latitude);
+                                self.lon(longitude);
+                            }); //end of PixelXYToLatLong
+                    });//end of TileXYToPixelXY
+            });
+        });
+
 
         this.downloadImages = () => {
             var progress = document.getElementById("progressBarWrapper");
