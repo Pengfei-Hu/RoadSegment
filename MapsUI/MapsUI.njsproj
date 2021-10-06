@@ -68,6 +68,9 @@
     <Content Include="src\js\appController.js" />
     <Content Include="src\js\main.js" />
     <Content Include="src\js\config\settings.json" />
+    <Content Include="src\js\utils\coordinates.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\js\models\stats.model.js" />
     <Content Include="src\js\models\mapimgs.model.js">
       <SubType>Code</SubType>
@@ -2355,6 +2358,7 @@
     <Folder Include="src\js\" />
     <Folder Include="src\js\models\" />
     <Folder Include="src\js\config\" />
+    <Folder Include="src\js\utils\" />
     <Folder Include="src\js\viewModels\" />
     <Folder Include="src\js\views\" />
     <Folder Include="staged-themes\" />

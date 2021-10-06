@@ -5,12 +5,12 @@
  * Your incidents ViewModel code goes here
  */
 define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 'models/textRecog.model',
-    'models/mapsCV.model', 'ojs/ojarraydataprovider',
+    'models/mapsCV.model', 'ojs/ojarraydataprovider','utils/coordinates',
     "ojs/ojflattenedtreedataproviderview", "ojs/ojarraytreedataprovider", "ojs/ojknockouttemplateutils",
     "ojs/ojradioset", "ojs/ojlabel", "ojs/ojrowexpander", "ojs/ojmessages", "ojs/ojcheckboxset", "ojs/ojlabelvalue",
     "ojs/ojfilepicker", "ojs/ojformlayout", 'ojs/ojavatar', 'ojs/ojinputtext', 'ojs/ojdialog', "ojs/ojchart",
     'ojs/ojtable', "ojs/ojknockout", "ojs/ojoption", "ojs/ojmenu", "ojs/ojbutton", "ojs/ojcollapsible", "ojs/ojselectsingle"],
-    function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, mapsCVModel, ArrayDataProvider, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
+    function (oj, ko, $, accUtils, MapImgModel, TextRecogModel, mapsCVModel, ArrayDataProvider, Coordinates, FlattenedTreeDataProviderView, ArrayTreeDataProvider, KnockoutTemplateUtils) {
         function MapsCVViewModel() {
             let self = this;
             self.imagesServer = "http://localhost:84/";
@@ -77,6 +77,29 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             this.arrayTreeDataProvider = new ArrayTreeDataProvider(self.allLocationWholePhotos, { keyAttributes: "lat" });
             this.dataProvider = ko.observable(new FlattenedTreeDataProviderView(this.arrayTreeDataProvider));
 
+            //lat/lng to PixelXY after that convert PixelXY to TileXY and after that from TileXY to QuadKey
+            //When we add QuadKey we get the equavilant Lat/Lng
+            /*
+            self.formatQuadKey = (serverResult) => {
+                serverResult.forEach((location, index) => {
+                    Coordinates
+                    location.lat;
+                    location.lng;
+                    location.capture_quadKey
+
+                    Coordinates.LatLongToPixelXY(newQuad, (newTileXY) => {
+                        Coordinates.TileXYToPixelXY(newTileXY.tileX, newTileXY.tileX,
+                            (pixelX, pixelY) => {
+                                Coordinates.PixelXYToLatLong(pixelX, pixelY, newTileXY.levelOfDetail,
+                                    (latitude, longitude) => {
+                                        self.lat(latitude);
+                                        self.lon(longitude);
+                                    }); //end of PixelXYToLatLong
+                            });//end of TileXYToPixelXY
+                    });
+
+                }
+            }*/
             self.formatImgPaths = (serverResult) => {
                 serverResult.forEach((location, index) => {
                     location.bing.imgPath = JSON.parse(location.bing.imgPath);
