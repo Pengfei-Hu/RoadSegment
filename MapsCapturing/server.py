@@ -370,6 +370,7 @@ def quadKeyToLatLong():
     latitude, longitude = t.PixelXYToLatLong(pixelX, pixelY, tileZoom)
     result = {'latitude':latitude,'longitude':longitude}
     return json.dumps(result)
+    
 @app.route('/nolabel/pic')
 def download_no_label_pic():
     lat = request.args["lat"]
@@ -377,13 +378,14 @@ def download_no_label_pic():
     tileZoom =int(request.args["tileZoom"])
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
+    qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
     #no label osm
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
     url = 'https://c.tiles.wmflabs.org/osm-no-labels/{}/{}/{}.png'.format(tileZoom,tx,ty)
  #   response = requests.get(url, stream=True)
     response = requests.get(url, stream=True, headers=headers)
     assert response.status_code == 200, "connect error"
-    osm_name = 'MapsCapturing/map/vis/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom)
+    osm_name = 'MapsCapturing/map/osm/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom)
     with open(osm_name, 'wb') as out_file:
         out_file.write(response.content)
     #on label google
@@ -392,103 +394,68 @@ def download_no_label_pic():
         6MjF8cC52Om9mZixzLnQ6MjB8cC52Om9mZg!4e0&key=AIzaSyDk4C4EBWgjuL1eBnJlu1J80WytEtSIags&token=16750'''.format(tileZoom,tx,ty)
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
-    google_name = 'MapsCapturing/map/vis/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
+    google_name = 'MapsCapturing/map/google/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
     with open(google_name, 'wb') as out_file:
         out_file.write(response.content)
-    #no label osm
-    result = {'osm': osm_name, 'google': google_name}
+
+   #no label bing
+    url = '''https://ecn.t2.tiles.virtualearth.net/tiles/r{}?g=671&stl=h&lbl=l0'''.format(qkStr)
+    response = requests.get(url, stream=True)
+    assert response.status_code == 200, "connect error"
+    bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
+    with open(bing_name, 'wb') as out_file:
+        out_file.write(response.content)
+
+
+    #Result
+    result = {'osm': osm_name, 'google': google_name,'bing': bing_name}
     return jsonify(result)
 
 
 @app.route('/pic2Bi')
 def pic2Bi():
-    img_path = request.args["path"]
-    #insert db
-    one = img_path.find('/')
-    two = img_path.find(',')
-    three = img_path.find('_')
-    four = img_path.find('_',three + 1)
-    lat = img_path[one+1:two]
-    lon = img_path[two+1:three]
-    zoom_level = img_path[three+1:four]
-    judge = img_path.find('google')
-    if judge >0 :#google
-        bi.genetare_google_bi(img_path)
-        map_provider = 'G'
-    else:
-        bi.genetare_osm_bi(img_path)
-        map_provider = 'O'
-    bi_img_path = img_path.replace('.png', '_bi.png')
- #   location_photos.inser_bi_all(get_uuid, lat, lon, map_provider, zoom_level, bi_img_path)
-    result = {'bi_path':bi_img_path}
+    lat = request.args["lat"]
+    lon = request.args["lon"]
+    tileZoom =int(request.args["tileZoom"])
+    #osm
+    osm_name = 'MapsCapturing/map/osm/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom) 
+    bi.genetare_osm_bi(osm_name)
+    bi_osm_img_path = osm_name.replace('.png', '_bi.png')
+    
+    #google
+    google_name = 'MapsCapturing/map/google/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
+    bi.genetare_google_bi(google_name)
+    bi_google_img_path = google_name.replace('.png', '_bi.png')
+    #bing
+    bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
+    bi.genetare_osm_bi(bing_name)
+    bi_bing_img_path = bing_name.replace('.png', '_bi.png')
+    
+ #  location_photos.inser_bi_all(get_uuid, lat, lon, map_provider, zoom_level, bi_img_path)
+    result = {'google': bi_google_img_path,'osm':bi_osm_img_path,'bing':bi_bing_img_path}
     return jsonify(result)
 
 @app.route('/bi2Skeleton')
 def bi2Skeleton():
-    img_path = request.args["path"]
-    road_length,  pic_skeleton_path= skeleton_gen(img_path)
-    result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
-    #insert db
- #   one = img_path.find('/')
- #   two = img_path.find(',')
- #   three = img_path.find('_')
- #   four = img_path.find('_',three + 1)
-  #  lat = img_path[one+1:two]
-  #  lon = img_path[two+1:three]
- #   zoom_level = img_path[three+1:four]
- #   judge = img_path.find('google')
-    print(result)
-#    if judge >0 :
-#        map_provider = 'G'
-#    else:
-#        map_provider = 'O'
- #   location_photos.inser_skeleton_all(get_uuid, lat, lon, map_provider, zoom_level, pic_skeleton_path, road_length)
- #   return jsonify(result)
-    return result
-
-@app.route('/auto')
-def auto():
     lat = request.args["lat"]
     lon = request.args["lon"]
     tileZoom =int(request.args["tileZoom"])
-    px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
-    tx, ty = t.PixelXYToTileXY(px, py)
-    #no label osm
-    url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
-    response = requests.get(url, stream=True)
-    assert response.status_code == 200, "connect error"
-    osm_name = 'map/vis/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom)
-    with open(osm_name, 'wb') as out_file:
-        out_file.write(response.content)
-    #on label google
-    url = '''https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{}!2i{}!3i{}!4i256!2m3!1e0!2sm!3i543268862!3m17!2szhC
-        N!3sUS!5e18!12m4!1e68!2m2!1sset!2sRoadmap!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmx8cC52Om9mZixzLnQ
-        6MjF8cC52Om9mZixzLnQ6MjB8cC52Om9mZg!4e0&key=AIzaSyDk4C4EBWgjuL1eBnJlu1J80WytEtSIags&token=16750'''.format(tileZoom,tx,ty)
-    response = requests.get(url, stream=True)
-    assert response.status_code == 200, "connect error"
-    google_name = 'map/vis/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom)
-    with open(google_name, 'wb') as out_file:
-        out_file.write(response.content)
-    #pic2Bi
-    ##insert osm
-    bi.genetare_osm_bi(osm_name)
-    map_provider = 'O'
-    bi_osm_img_path = osm_name.replace('.png', '_bi.png')
-    location_photos.inser_bi_all(get_uuid, lat, lon, map_provider, tileZoom, bi_osm_img_path)
-    ##insert google
-    bi.genetare_google_bi(google_name)
-    map_provider = 'G'
-    bi_google_img_path = google_name.replace('.png', '_bi.png')
-    location_photos.inser_bi_all(get_uuid, lat, lon, map_provider, tileZoom, bi_google_img_path)
-    #bi2Skeleton
-    ##insert google
-    google_road_length,  pic_skeleton_path= skeleton_gen(bi_google_img_path)
-    location_photos.inser_skeleton_all(get_uuid, lat, lon, map_provider, tileZoom, pic_skeleton_path, google_road_length)
-    ##insert osm
-    osm_road_length,  pic_skeleton_path= skeleton_gen(bi_osm_img_path)
-    location_photos.inser_skeleton_all(get_uuid, lat, lon, map_provider, tileZoom, pic_skeleton_path, osm_road_length)
-    result = {'google_road_length':google_road_length, 'osm_road_length':osm_road_length}
+    #OSM
+    osm_name = 'MapsCapturing/map/osm/{},{}_{}_whole_osm_bi.png'.format(lat,lon,tileZoom)
+    road_length,  pic_skeleton_path= skeleton_gen(osm_name)
+    osm_result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
+    #BING
+    bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing_bi.png'.format(lat,lon,tileZoom)
+    road_length,  pic_skeleton_path= skeleton_gen(bing_name)
+    bing_result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
+    #Google
+    google_name = 'MapsCapturing/map/google/{},{}_{}_whole_google_bi.png'.format(lat,lon,tileZoom)
+    road_length,  pic_skeleton_path= skeleton_gen(google_name)
+    google_result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
+
+    result = {'osm':osm_result,'bing':bing_result,'google':google_result}
     return jsonify(result)
+
 
 if __name__ == '__main__':
     app.run( port=84)
