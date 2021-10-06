@@ -120,7 +120,7 @@ namespace MapsUnderstanding.Controllers
                 var alldata = getAllLocationPhotosData();
                 var model = from s in alldata
                                       where s.quarter.Trim()=="whole"
-                                      select new { s.lat, s.lng, s.capture_quadKey, s.address,
+                                      select new { s.lat, s.lng,s.zoom_level, s.capture_quadKey, s.address,
                                           Google=(  from g in alldata
                                                     where g.lat == s.lat &&
                                                     g.lng == s.lng &&

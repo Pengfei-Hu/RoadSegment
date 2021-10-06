@@ -6,15 +6,7 @@
                 Visualization
             </oj-bind-text>
         </h4>
-        <div id="selection">
-            <oj-select-single id="countrySelect"
-                              label-hint="Filter by Country"
-                              label-edge="inside"
-                              class="oj-form-control-max-width-md"
-                              data="[[countriesDP]]"
-                              value="{{countrySelectVal}}">
-            </oj-select-single>
-        </div>
+
         <div class="oj-flex">
             <map name="quadrantmap">
                 <area shape="rect" id="upperLeftArea" coords="0,0,200,200" alt="upperLeft" href="#">
@@ -38,6 +30,16 @@
             </oj-dialog>
 
             <oj-bind-if test="[[showTable()]]">
+                <div id="selection" style="width: 1px; min-width: 100%;">
+                    <oj-select-single id="countrySelect"
+                                      label-hint="Filter by Country"
+                                      label-edge="inside"
+                                      class="oj-form-control-max-width-md"
+                                      data="[[countriesDP]]"
+                                      value="{{countrySelectVal}}">
+                    </oj-select-single>
+                </div>
+
                 <div id="table-contrainer" style="width: 1px; min-width: 100%;">
 
                     <oj-table id="mapImgsTable"
@@ -51,6 +53,7 @@
                               columns='[
                                 {"headerText":"lng", "field":"lng"},
                                 {"headerText":"lat", "field":"lat"},
+                              {"headerText":"lvl", "field":"zoom_level"},
                                 {"headerText":"Address", "field":"address"},
                                             {"headerText":"QuadKey", "field":"capture_quadKey"},
                                     {"headerText":"Bing Image", "field":"bing.imgPath",
@@ -81,7 +84,7 @@
 
 
                         <template slot="rowTemplate" data-oj-as='row'>
-                            <tr :class="[[( (row.item.data.google.ground_truth.length>0) || (row.item.data.osm.ground_truth.length>0) || (row.item.data.bing.ground_truth.length>0))?'hasTruth':'noTruth']]">
+                            <tr :class="[[( (row.item.data.google.ground_truth!=null) || (row.item.data.osm.ground_truth!=null) || (row.item.data.bing.ground_truth!=null))?'hasTruth':'noTruth']]">
                                 <!-- ko if: row.item.metadata.treeDepth === 0 -->
                                 <td>
                                     <oj-row-expander context="[[row]]"></oj-row-expander>
@@ -89,6 +92,9 @@
                                 </td>
                                 <td>
                                     <span><oj-bind-text value="[[row.item.data.lat]]"></oj-bind-text></span>
+                                </td>
+                                <td>
+                                    <span><oj-bind-text value="[[row.item.data.zoom_level]]"></oj-bind-text></span>
                                 </td>
                                 <td>
                                     <span><oj-bind-text value="[[row.item.data.address]]"></oj-bind-text></span>

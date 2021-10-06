@@ -24,6 +24,7 @@ USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
 location_photos = db.MSSQL(HOST,USER,PWD,BASE)
+BINGMAP_URLWITHKEY = url = 'https://dev.virtualearth.net/REST/v1/Imagery/Map/Road/latitude,longitude/zoomLevel?mapLayer=Basemap&format=png&mapMetadata=0&key=AofpOSpDDFfDdakQfgd1kEx7-uaOH1yokGbBf_pgLyFCfAJ5Lkkx7UdpzPngObmC'
 
 def get_uuid():
     idd = str(uuid.uuid1())
@@ -85,9 +86,13 @@ def download_bing_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id, quadKey
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
     tiles_urls = "["
     #capture_id = get_Insert_id()
-    for x in range(1,2):            # One Iteration Until now becuase we don't have more resolutions
-        current_url = url
-        current_url = current_url   # We will add something here to get more resolutions
+    for x in range(1,3):            # Two Iterations for (256,512) resolutions only
+        current_url = url.replace('latitude',lat).replace('longitude',lon)
+        if x==1:
+            current_url = current_url.replace('zoomLevel',str(tileZoom)) + "&mapSize=256,256"
+        elif x==2:
+            current_url = current_url.replace('zoomLevel',str(tileZoom+1) ) + "&mapSize=512,512"
+        print(current_url)
         pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( x*256), quadKey)
         response = requests.get(current_url, stream=True, headers=headers)
         with open(pic_name, 'wb') as out_file:
@@ -104,8 +109,7 @@ def download_tile(lat, lon, tileZoom, source):
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
     capture_id = get_Insert_id()
     if source == 'bing':
-        url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r' + qkStr + '.png?g=604&imageWidth=512'
-        return download_bing_tiles(url, lat,lon,tileZoom, capture_id,"whole",qkStr)
+        return download_bing_tiles(BINGMAP_URLWITHKEY, lat,lon,tileZoom, capture_id,"whole",qkStr)
     elif source == 'google':
         url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom)
         return download_google_tiles(url, lat,lon,tileZoom, capture_id,"whole")
@@ -135,11 +139,6 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
     end_tx, end_ty = t.QuadKeyToTileXY(end)
     loc = 0
     transfer_loc_part = {}
-    print("****************************\n")
-    print("start_ty:{}\n".format(start_ty))
-    print("end_ty:{}\n".format(end_ty))
-    print("start_tx:{}\n".format(start_tx))
-    print("end_tx:{}\n".format(end_tx))
 
     for ty in range(start_ty, end_ty + 1):
         for tx in range(start_tx, end_tx + 1):
@@ -151,8 +150,8 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
                 pic_name = download_google_tiles(url, lat,lon,tileZoom + multi, part_list,main_capture_Id )
             elif source == 'bing':
                 new_qkStr = t.TileXYToQuadKey(tx, ty, tileZoom + multi)
-                url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=512'.format(new_qkStr)
-                pic_name = download_bing_tiles(url, lat,lon,tileZoom + multi, part_list,main_capture_Id,new_qkStr)
+                #url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=512'.format(new_qkStr) the old url
+                pic_name = download_bing_tiles(BINGMAP_URLWITHKEY, lat,lon,tileZoom + multi, part_list,main_capture_Id,new_qkStr)
             elif source == 'osm':
                 url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,tx,ty)
                 pic_name = download_osm_tiles(url, lat,lon,tileZoom + multi, part_list,main_capture_Id )

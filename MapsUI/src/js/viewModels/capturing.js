@@ -10,7 +10,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', "utils/coordinates", "oj
     function (oj, ko, $, accUtils, Coordinates ) {
     function CapturingViewModel() {
         var self = this;
-        self.quadKey = ko.observable();
+        self.quadKey = ko.observable(12301131002310);
         self.lat = ko.observable(6.9184);
         self.lon = ko.observable(79.9909);
         self.startzoomLevel = ko.observable(9);
@@ -19,7 +19,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', "utils/coordinates", "oj
         //When we add QuadKey we get the equavilant Lat/Lng
         self.quadKey.subscribe(function (newQuad) {
             Coordinates.QuadKeyToTileXY(newQuad, (newTileXY) => {
-                Coordinates.TileXYToPixelXY(newTileXY.tileX, newTileXY.tileX,
+                Coordinates.TileXYToPixelXY(newTileXY.tileX, newTileXY.tileY,
                     (pixelX, pixelY) => {
                         Coordinates.PixelXYToLatLong(pixelX, pixelY, newTileXY.levelOfDetail,
                             (latitude, longitude) => {

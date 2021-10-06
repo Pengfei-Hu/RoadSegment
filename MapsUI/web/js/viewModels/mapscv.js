@@ -102,23 +102,25 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             }*/
             self.formatImgPaths = (serverResult) => {
                 serverResult.forEach((location, index) => {
-                    location.bing.imgPath = JSON.parse(location.bing.imgPath);
-                    location.bing.imgPath.forEach((path, i) => {
-                        path.url = self.imagesServer + path.url;
-                        location.bing.imgPath[i] = path;
-                    });
-                    location.google.imgPath = JSON.parse(location.google.imgPath);
-                    location.google.imgPath.forEach((path, i) => {
-                        path.url = self.imagesServer + path.url;
-                        location.google.imgPath[i] = path;
-                    });
-                    location.osm.imgPath = JSON.parse(location.osm.imgPath);
-                    location.osm.imgPath.forEach((path, i) => {
-                        path.url = self.imagesServer + path.url;
-                        location.osm.imgPath[i] = path;
-                    });
+                    try {
+                        location.bing.imgPath = JSON.parse(location.bing.imgPath);
+                        location.bing.imgPath.forEach((path, i) => {
+                            path.url = self.imagesServer + path.url;
+                            location.bing.imgPath[i] = path;
+                        });
+                        location.google.imgPath = JSON.parse(location.google.imgPath);
+                        location.google.imgPath.forEach((path, i) => {
+                            path.url = self.imagesServer + path.url;
+                            location.google.imgPath[i] = path;
+                        });
+                        location.osm.imgPath = JSON.parse(location.osm.imgPath);
+                        location.osm.imgPath.forEach((path, i) => {
+                            path.url = self.imagesServer + path.url;
+                            location.osm.imgPath[i] = path;
+                        });
 
-                    serverResult[index] = location
+                        serverResult[index] = location
+                    } catch (e) { console.log(e) }
                 });
                 console.log("Server Data");
                 console.log(serverResult);
@@ -192,6 +194,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     if (self.allLocationWholePhotos()[cell[0]] != undefined) {
                         self.lat(self.allLocationWholePhotos()[cell[0]].lat);
                         self.lng(self.allLocationWholePhotos()[cell[0]].lng);
+                        console.log("Start Zoom Level="); console.log(self.allLocationWholePhotos()[cell[0]].zoom_level);
                         self.startzoomLevel(self.allLocationWholePhotos()[cell[0]].zoom_level);
                         console.log("row=" + cell[0]);
                         console.log(self.startzoomLevel());
@@ -265,7 +268,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.actionMenuListener = (event, context) => {
                 var selectMenuItem = event.detail.selectedValue;
                 var rowData = context.item.data
-                //console.log(rowData);
+                console.log(rowData);
                 self.startzoomLevel(rowData["zoom_level"]);
                 self.lat(rowData["lat"]);
                 self.lng(rowData["lng"]);

@@ -70,7 +70,7 @@ class MSSQL:
         c = self.GetConnect()
         # for i in range(2**(multi * 2)):
             #pic_url = capture_url + '{}.png'.format(i)
-        print((lat, lon, map_provider, zoom_level+multi, capture_url,dic,main_capture_id))
+        # print((lat, lon, map_provider, zoom_level+multi, capture_url,dic,main_capture_id))
         val = (lat, lon, map_provider, zoom_level+multi, capture_url,dic,main_capture_id,time_str)
         idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id,timestamp) VALUES (%s,%s,%s,%d,%s,%s,%d,%s)",val)
         self.conn.commit()
@@ -102,8 +102,8 @@ class MSSQL:
         c = self.GetConnect()
         query = "SELECT * FROM location_photos WHERE lat = %d AND lng = %d AND zoom_level = %d AND quarter = %s "
         val =  (lat, lon, zoom_level+ multi, quarter)
-        print(query)
-        print(val)
+        # print(query)
+        # print(val)
         c.execute(query, val)
         data_list = c.fetchall()
         res = {}
@@ -190,7 +190,15 @@ class MSSQL:
     def get_geocoding(self, lat, lon):    
         gmaps=googlemaps.Client(key='AIzaSyAhRnxOf_ELnG-vuGw3l0Sc_8uyBtvRZS4')
         reverse_geocode_result = gmaps.reverse_geocode((lat, lon))
-        result = reverse_geocode_result[4]["formatted_address"]
+        # print(reverse_geocode_result)
+        try:
+            result = reverse_geocode_result[4]["formatted_address"]
+        except:
+            try:
+                result = reverse_geocode_result[0]["formatted_address"]
+            except:
+                result = "Unknown"
+        result.replace('"', '')
         return json.dumps(result)
 
     def updateAddressOfLatLng(self, lat, lon, addr):
@@ -210,7 +218,7 @@ class MSSQL:
         for data in data_list:
             addr = self.get_geocoding(data[0], data[1])
             addr =addr.replace('"',"") 
-            print(addr)
+            # print(addr)
             self.updateAddressOfLatLng( data[0], data[1],addr )
         self.conn.close()
         return "All Locations has Address Now!"
