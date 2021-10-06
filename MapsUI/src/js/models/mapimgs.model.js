@@ -169,7 +169,26 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     }
                 });
             }
+            getBinaryImages(bing, google, osm, notify) {
+                let api_url = this.pythonEndpoint + "pic2Bi?" + "bing=" + bing + "&google=" + google + "&osm=" + osm;
+                this.initializeModelCollection(api_url);
+                let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
 
+                mapsImgsRow.fetch({
+                    headers: {
+                        // 'Authorization': 'Basic cmVhZGVyX3VzZXI6RkBrZSEyMw==',
+
+                        'Content-Type': 'application/json'
+                    },
+                    success: function (coll, data) {
+                        notify(true, data);
+                    },
+                    error: function (model, xhr, options) {
+
+                        notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
+                    }
+                });
+            }
 
         }//end of class
         return new MapsImgs();

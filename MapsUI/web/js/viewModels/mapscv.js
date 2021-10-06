@@ -24,11 +24,18 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.lastCorrectPartlist = ko.observable("");
             self.data_multi = ko.observable(0);
             self.bingImagePath = ko.observable("https://blogs.bing.com/BingBlogs/files/dc/dce88d2a-2bf9-4c65-9cca-1c425d571e75.png");
+            self.bingImagePathRS = ko.observable("");
+            self.bingLbl0ImagePath = ko.observable();
             self.bingCaptureId = ko.observable(0);
             self.googleImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Google_Maps_Logo_2020.svg/1137px-Google_Maps_Logo_2020.svg.png");
+            self.googleImagePathRS = ko.observable("");
+            self.googleLbl0ImagePath = ko.observable();
             self.googleCaptureId = ko.observable(0);
             self.osmImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg");
+            self.osmImagePathRS = ko.observable("");
+            self.osmLbl0ImagePath = ko.observable();
             self.osmCaptureId = ko.observable(0);
+            
             self.bingEffImagePath = ko.observable();
             self.googleEffImagePath = ko.observable();
             self.osmEffImagePath = ko.observable();
@@ -52,7 +59,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.showTextProperties = ko.observable(false);
             self.showMeasureAccuracyResultGroundTruth = ko.observable(false);
             self.showColorDetection = ko.observable(false);
-
+            self.showLabeledImages = ko.observable(false);
+            self.showRoadDetection = ko.observable(false);
             self.selectedOptions = ko.observableArray([]);
 
             self.bingOCRResult = ko.observable("");
@@ -137,7 +145,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             });
             self.loadCountries = () => {
                 MapImgModel.getCountriesWeHave((success, result) => {
-                    
+                    result.data = result.data.filter(val => { console.log(val); val = val.toString().replace('\"', ''); return true; });
                     self.countries(result.data);
                     self.countries.valueHasMutated();
                 });
@@ -264,6 +272,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 self.showMeasureAccuracyResultImgs(false);
                 self.showAccuracyFilteredResults(false);
                 self.showMeasureAccuracyResultGroundTruth(false);
+                self.showLabeledImages(false);
+                self.showRoadDetection(false);
             }
             self.actionMenuListener = (event, context) => {
                 var selectMenuItem = event.detail.selectedValue;
@@ -273,6 +283,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 self.lat(rowData["lat"]);
                 self.lng(rowData["lng"]);
                 self.hideAllPanels();
+                self.showLabeledImages(true);
                 if (selectMenuItem == "ExtractAllText") {
                     self.showExtractedTextUnderMaps(true);
                     self.display();
@@ -306,6 +317,12 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     self.showMeasureAccuracyResultImgs(true);
                     self.showMeasureAccuracyResultGroundTruth(false);
                     self.showColorDetection(true);
+                    self.display();
+                } else if (selectMenuItem == "RoadDetection") {
+                    //Apply Two filters
+                    self.hideAllPanels();
+                    self.showLabeledImages(false);
+                    self.showRoadDetection(true);
                     self.display();
                 }
 
@@ -602,7 +619,11 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 return newPath.substring(0, newPath.lastIndexOf("/") + 1).toString() +
                     "filtered-" + newPath.substring(newPath.lastIndexOf("/") + 1);
             }
+            self.getNoLabelImgPath = (path) => {
+                return path.replace(".png", "-lbl0.png");
+            }
             self.bingImagePath.subscribe(function (newPath) {
+                self.bingLbl0ImagePath(self.getNoLabelImgPath(newPath));
 
                 self.bingEffImagePath(self.getFilteredPath(newPath));
                 self.readOCRResult(newPath)
@@ -623,6 +644,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
 
             });
             self.googleImagePath.subscribe(function (newPath) {
+                self.googleLbl0ImagePath(self.getNoLabelImgPath(newPath));
                 self.googleEffImagePath(self.getFilteredPath(newPath));
                 self.readOCRResult(newPath)
                     .then(result => {
@@ -641,6 +663,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     });
             });
             self.osmImagePath.subscribe(function (newPath) {
+                self.osmLbl0ImagePath(self.getNoLabelImgPath(newPath));
                 self.osmEffImagePath(self.getFilteredPath(newPath));
                 self.readOCRResult(newPath)
                     .then(result => {
@@ -657,6 +680,16 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                         self.osmDetailsOCRResult(err);
                     });
             });
+
+            self.roadSegments = () => {
+                MapImgModel.getBinaryImages(self.bingLbl0ImagePath().replace("http://localhost:84/", ""), self.googleLbl0ImagePath().replace("http://localhost:84/", ""), self.osmLbl0ImagePath().replace("http://localhost:84/", ""), (success, result) => {
+                    console.log(result);
+                    self.bingImagePathRS("http://localhost:84/"+result.bing);
+                    self.googleImagePathRS("http://localhost:84/" +result.google);
+                    self.osmImagePathRS("http://localhost:84/" +result.osm);
+                });
+            }
+
 
             self.upperLeft = () => {
                 self.partlist(self.partlist() + "0");

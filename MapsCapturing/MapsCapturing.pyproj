@@ -225,6 +225,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="bing.py" />
+    <Compile Include="generateBi.py" />
     <Compile Include="get_map.py" />
     <Compile Include="server.py" />
     <Compile Include="sqlite_util.py" />

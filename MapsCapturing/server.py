@@ -58,6 +58,8 @@ def download_google_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id ):
             out_file.write(response.content)
         data= {"url":pic_name,"resolution":x*256}
         tiles_urls= tiles_urls +json.dumps(data)+","
+    #Downloading capture without label
+    download_google_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id)
     tiles_urls = tiles_urls[0:len(tiles_urls)-1]
     tiles_urls = tiles_urls +"]"
     return tiles_urls
@@ -78,6 +80,8 @@ def download_osm_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id ):
             out_file.write(response.content)
         data= {"url":pic_name,"resolution":x*256}
         tiles_urls= tiles_urls +json.dumps(data)+","
+    #Downloading capture without label
+    download_osm_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id)
     tiles_urls = tiles_urls[0:len(tiles_urls)-1]
     tiles_urls = tiles_urls +"]"
     return tiles_urls
@@ -99,6 +103,7 @@ def download_bing_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id, quadKey
             out_file.write(response.content)
         data= {"url":pic_name,"resolution":x*256}
         tiles_urls= tiles_urls +json.dumps(data)+","
+    
     tiles_urls = tiles_urls[0:len(tiles_urls)-1]
     tiles_urls = tiles_urls +"]"
     return tiles_urls
@@ -109,11 +114,17 @@ def download_tile(lat, lon, tileZoom, source):
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
     capture_id = get_Insert_id()
     if source == 'bing':
+        #Downloading capture without label
+        download_bing_nolbl_tile(lat,lon,tileZoom, capture_id,"whole",qkStr)
         return download_bing_tiles(BINGMAP_URLWITHKEY, lat,lon,tileZoom, capture_id,"whole",qkStr)
     elif source == 'google':
+        #Downloading capture without label
+        download_google_nolbl_tile(lat,lon,tileZoom, capture_id,"whole")
         url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom)
         return download_google_tiles(url, lat,lon,tileZoom, capture_id,"whole")
     else:
+        #Downloading capture without label
+        download_osm_nolbl_tile(lat,lon,tileZoom, capture_id,"whole")
         url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
         return download_osm_tiles(url, lat,lon,tileZoom,capture_id, "whole")
 
@@ -146,13 +157,19 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
             part_list = new_qkStr[-multi:]
             transfer_loc_part[loc] = part_list
             if source == 'google':
+                #Downloading capture without label
+                download_google_nolbl_tile(lat,lon,tileZoom + multi, part_list,main_capture_Id)
                 url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom + multi)
                 pic_name = download_google_tiles(url, lat,lon,tileZoom + multi, part_list,main_capture_Id )
             elif source == 'bing':
                 new_qkStr = t.TileXYToQuadKey(tx, ty, tileZoom + multi)
+                #Downloading capture without label
+                download_bing_nolbl_tile(lat,lon,tileZoom + multi, part_list,main_capture_Id,new_qkStr)
                 #url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=512'.format(new_qkStr) the old url
                 pic_name = download_bing_tiles(BINGMAP_URLWITHKEY, lat,lon,tileZoom + multi, part_list,main_capture_Id,new_qkStr)
             elif source == 'osm':
+                #Downloading capture without label
+                download_osm_nolbl_tile(lat,lon,tileZoom + multi, part_list,main_capture_Id)
                 url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom + multi,tx,ty)
                 pic_name = download_osm_tiles(url, lat,lon,tileZoom + multi, part_list,main_capture_Id )
             else:
@@ -369,12 +386,46 @@ def quadKeyToLatLong():
     latitude, longitude = t.PixelXYToLatLong(pixelX, pixelY, tileZoom)
     result = {'latitude':latitude,'longitude':longitude}
     return json.dumps(result)
-    
-@app.route('/nolabel/pic')
-def download_no_label_pic():
-    lat = request.args["lat"]
-    lon = request.args["lon"]
-    tileZoom =int(request.args["tileZoom"])
+
+def download_bing_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id, quadKey):
+    url = '''https://ecn.t2.tiles.virtualearth.net/tiles/r{}?g=671&stl=h&lbl=l0'''.format(quadKey)
+    response = requests.get(url, stream=True)
+    assert response.status_code == 200, "connect error"
+    pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(256), quadKey)
+    print(pic_name)
+    with open(pic_name, 'wb') as out_file:
+        out_file.write(response.content)
+    return True
+
+def download_google_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
+    px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
+    tx, ty = t.PixelXYToTileXY(px, py)
+    url = '''https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{}!2i{}!3i{}!4i256!2m3!1e0!2sm!3i543268862!3m17!2szhC
+        N!3sUS!5e18!12m4!1e68!2m2!1sset!2sRoadmap!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmx8cC52Om9mZixzLnQ
+        6MjF8cC52Om9mZixzLnQ6MjB8cC52Om9mZg!4e0&key=AIzaSyDk4C4EBWgjuL1eBnJlu1J80WytEtSIags&token=16750'''.format(tileZoom,tx,ty)
+    response = requests.get(url, stream=True)
+    assert response.status_code == 200, "connect error"
+    pic_name = 'map/google/{}-{}-{}-{}-{}-{}-g-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(256) )
+    print(pic_name)
+    with open(pic_name, 'wb') as out_file:
+        out_file.write(response.content)
+    return True
+
+def download_osm_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
+    px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
+    tx, ty = t.PixelXYToTileXY(px, py)
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
+    url = 'https://c.tiles.wmflabs.org/osm-no-labels/{}/{}/{}.png'.format(tileZoom,tx,ty)
+    response = requests.get(url, stream=True, headers=headers)
+    assert response.status_code == 200, "connect error"
+    pic_name = 'map/osm/{}-{}-{}-{}-{}-{}-o-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( 256) )
+    print(pic_name)
+    with open(pic_name, 'wb') as out_file:
+        out_file.write(response.content)
+    return True
+
+
+def download_tile_Nolbl(lat,lon,tileZoom, quarter ,main_capture_id ):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
@@ -404,8 +455,15 @@ def download_no_label_pic():
     bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
     with open(bing_name, 'wb') as out_file:
         out_file.write(response.content)
+    return osm_name, google_name, bing_name
 
 
+@app.route('/nolabel/pic')
+def download_no_label_pic():
+    lat = request.args["lat"]
+    lon = request.args["lon"]
+    tileZoom =int(request.args["tileZoom"])
+    osm_name, google_name, bing_name = download_tile_Nolbl(lat, lon, tileZoom)
     #Result
     result = {'osm': osm_name, 'google': google_name,'bing': bing_name}
     return jsonify(result)
@@ -413,20 +471,23 @@ def download_no_label_pic():
 
 @app.route('/pic2Bi')
 def pic2Bi():
-    lat = request.args["lat"]
-    lon = request.args["lon"]
-    tileZoom =int(request.args["tileZoom"])
+    #lat = request.args["lat"]
+    #lon = request.args["lon"]
+    #tileZoom =int(request.args["tileZoom"])
+
+
     #osm
-    osm_name = 'MapsCapturing/map/osm/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom) 
+    osm_name = request.args["osm"] #'MapsCapturing/map/osm/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom) 
     bi.genetare_osm_bi(osm_name)
     bi_osm_img_path = osm_name.replace('.png', '_bi.png')
     
     #google
-    google_name = 'MapsCapturing/map/google/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
+    google_name = request.args["google"] # 'MapsCapturing/map/google/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
+    print("***************:"+google_name)
     bi.genetare_google_bi(google_name)
     bi_google_img_path = google_name.replace('.png', '_bi.png')
     #bing
-    bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
+    bing_name = request.args["bing"] # 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
     bi.genetare_osm_bi(bing_name)
     bi_bing_img_path = bing_name.replace('.png', '_bi.png')
     

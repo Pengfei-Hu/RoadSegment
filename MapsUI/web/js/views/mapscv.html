@@ -141,6 +141,9 @@
                                             <oj-option value="TextProperties">
                                                 <span class="oj-ux-ico-check" slot="startIcon"></span>Text Properties
                                             </oj-option>
+                                            <oj-option value="RoadDetection">
+                                                <span class="oj-ux-ico-check" slot="startIcon"></span>Road Detection
+                                            </oj-option>
                                         </oj-menu>
                                     </oj-menu-button>
 
@@ -203,17 +206,19 @@
                             <th style="width:33%;">OpenStreetMap</th>
 
                         </tr>
-                        <tr>
-                            <td>
-                                <img width="400" usemap="#quadrantmap" :src="[[bingImagePath]]" />
-                            </td>
-                            <td>
-                                <img width="400" usemap="#quadrantmap" :src="[[googleImagePath]]" />
-                            </td>
-                            <td>
-                                <img width="400" usemap="#quadrantmap" :src="[[osmImagePath]]" />
-                            </td>
-                        </tr>
+                        <oj-bind-if test="[[showLabeledImages()]]">
+                            <tr>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[bingImagePath]]" />
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[googleImagePath]]" />
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[osmImagePath]]" />
+                                </td>
+                            </tr>
+                        </oj-bind-if>
                         <oj-bind-if test="[[showImagesPath()]]">
                             <tr>
                                 <td colspan="3">
@@ -982,7 +987,62 @@
                                 </td>
                             </tr>
                         </oj-bind-if>
-                </table>
+
+                        <oj-bind-if test="[[showRoadDetection()]]">
+                            <tr>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[bingImagePath]]" />
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[googleImagePath]]" />
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[osmImagePath]]" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Bing without labels
+                                </td>
+                                <td>
+                                    Google without labels
+                                </td>
+                                <td>
+                                    OSM without labels
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[bingLbl0ImagePath]]" /> <br />
+                                    <oj-bind-text value="[[bingLbl0ImagePath]]"></oj-bind-text>
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[googleLbl0ImagePath]]" /> <br />
+                                    <oj-bind-text value="[[googleLbl0ImagePath]]"></oj-bind-text>
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[osmLbl0ImagePath]]" /> <br />
+                                    <oj-bind-text value="[[osmLbl0ImagePath]]"></oj-bind-text>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <oj-button on-oj-action="[[roadSegments]]"> Road Segments </oj-button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[bingImagePathRS]]" />
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[googleImagePathRS]]" />
+                                </td>
+                                <td>
+                                    <img width="400" usemap="#quadrantmap" :src="[[osmImagePathRS]]" />
+                                </td>
+                            </tr>
+                        </oj-bind-if>
+</table>
 
 
 

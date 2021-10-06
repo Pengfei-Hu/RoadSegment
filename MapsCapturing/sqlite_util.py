@@ -198,7 +198,7 @@ class MSSQL:
                 result = reverse_geocode_result[0]["formatted_address"]
             except:
                 result = "Unknown"
-        result.replace('"', '')
+        result = result.replace('\"', '')
         return json.dumps(result)
 
     def updateAddressOfLatLng(self, lat, lon, addr):
@@ -217,7 +217,7 @@ class MSSQL:
         res = {}
         for data in data_list:
             addr = self.get_geocoding(data[0], data[1])
-            addr =addr.replace('"',"") 
+            addr =addr.replace('"','') 
             # print(addr)
             self.updateAddressOfLatLng( data[0], data[1],addr )
         self.conn.close()

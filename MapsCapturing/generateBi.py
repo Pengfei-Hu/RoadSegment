@@ -22,7 +22,7 @@ class BiSystem:
      
     def genetare_google_bi(self, img_path):
         min_area = -1
-        if '_16_' in img_path:
+        if '-16-' in img_path:
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
             # road颜色
@@ -126,7 +126,7 @@ class BiSystem:
             # cv2.imwrite(img_path.replace('.png', '_color_vis.png'), color_img)
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
             # cv2.imwrite(img_path.replace('.png', '_vis.png'), img)    
-        elif '_17_' in img_path:
+        elif '-17-' in img_path:
             
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
@@ -237,7 +237,7 @@ class BiSystem:
             # cv2.imwrite(img_path.replace('.png', '_color_vis.png'), color_img)
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
             # cv2.imwrite(img_path.replace('.png', '_vis.png'), img)            
-        elif '_18_' in img_path:
+        elif '-18-' in img_path:
             
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
@@ -354,7 +354,7 @@ class BiSystem:
             # cv2.imwrite(img_path.replace('.png', '_color_vis.png'), color_img)
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
             # cv2.imwrite(img_path.replace('.png', '_vis.png'), img)               
-        elif '_15_' in img_path:
+        elif '-15-' in img_path:
             
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
@@ -469,7 +469,7 @@ class BiSystem:
             # cv2.imwrite(img_path.replace('.png', '_color_vis.png'), color_img)
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
             # cv2.imwrite(img_path.replace('.png', '_vis.png'), img)    
-        elif '_14_' in img_path:
+        elif '-14-' in img_path:
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
             # road颜色
@@ -539,8 +539,10 @@ class BiSystem:
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
 
     def genetare_osm_bi(self, img_path):
+        #img_path = "MapsCapturing/"+img_path
+        print(img_path)
         min_area = -1
-        if '_16_' in img_path:
+        if '-16-' in img_path:
             
               
             img = cv2.imread(img_path)
@@ -654,7 +656,7 @@ class BiSystem:
             final_map = cv2.morphologyEx(final_map.astype(np.uint8), cv2.MORPH_OPEN, kernel, 1)
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
             # cv2.imwrite(img_path.replace('.png', '_vis.png'), img)  
-        elif '_17_' in img_path:
+        elif '-17-' in img_path:
             
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
@@ -763,7 +765,7 @@ class BiSystem:
             cv2.imwrite(img_path.replace('.png', '_bi.png'), final_map)
             # cv2.imwrite(img_path.replace('.png', '_vis.png'), img)         
                
-        elif '_15_' in img_path:
+        elif '-15-' in img_path:
             
             img = cv2.imread(img_path)
             bi_img = np.zeros(img.shape[:2], dtype=np.bool)
