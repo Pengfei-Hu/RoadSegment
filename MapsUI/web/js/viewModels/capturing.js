@@ -37,7 +37,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', "utils/coordinates", "oj
             /*var lat = document.getElementById("lat");
             var lon = $('lon').val();
 */
-            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.endzoomLevel();
+            var data = "lon=" + self.lon() + "&lat=" + self.lat() + "&startz=" + self.startzoomLevel() + "&endz=" + self.endzoomLevel() + "&quadkey=" + self.quadKey();
             $.ajax({
                     url: 'http://localhost:84/multi/all',
                     datatype: 'json',
@@ -47,7 +47,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', "utils/coordinates", "oj
                     success: function () {
                         progress.style.visibility = "hidden";
                         alert("Map captured successfully！");
-                       
+                        window.history.forward(1);
                     },
                 error: function (err) {
                     progress.style.visibility = "hidden";

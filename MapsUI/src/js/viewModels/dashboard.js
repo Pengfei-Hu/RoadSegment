@@ -5,11 +5,34 @@
  * Your dashboard ViewModel code goes here
  */
 define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/stats.model',
-    'accUtils', "ojs/ojoffcanvas", "ojs/ojknockout", "ojs/ojchart", "ojs/ojtoolbar",
-    "ojs/ojmenu", "ojs/ojbutton", "ojs/ojoption"],
-    function (oj, ko, $, ArrayDataProvider, statsModel, accUtils) {
+    'accUtils', 'models/mapimgs.model', "ojs/ojoffcanvas", "ojs/ojknockout", "ojs/ojchart", "ojs/ojtoolbar",
+    "ojs/ojmenu", "ojs/ojbutton", "ojs/ojoption", "ojs/ojselectsingle"],
+    function (oj, ko, $, ArrayDataProvider, statsModel, accUtils, MapImgModel) {
         function DashboardViewModel() {
             let self = this;
+            self.jsonData = ko.observable("");
+            self.countrySelectVal = ko.observable();
+            self.countries = ko.observableArray([]);
+            self.countriesDP = new ArrayDataProvider(self.countries, {
+                keyAttributes: "value",
+            });
+            self.countrySelectVal.subscribe(function (selectedCountry) {
+                self.loadStats(selectedCountry);
+            });
+            self.loadCountries = () => {
+                MapImgModel.getCountriesWeHave((success, result) => {
+                    if (result.data != undefined) {
+                        result.data = result.data.filter(val => { console.log(val); val = val.toString().replace('\"', ''); return true; });
+                        self.countries(result.data);
+                        self.countries.valueHasMutated();
+                    } else {
+                        console.log(result);
+                    }
+                });
+            }
+            self.loadCountries();
+
+
             self.googlSelectedMenuItem = ko.observable("(None selected yet)");
             self.googleMenuItemAction = (event) => {
                 self.googlSelectedMenuItem(event.detail.selectedValue);
@@ -43,17 +66,69 @@ define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/s
             self.datafiltersMDRecallPreF1ForGoogle = ko.observableArray([]);
             self.datafiltersMDRecallPreF1ForGoogleDataProvider = new ArrayDataProvider(self.datafiltersMDRecallPreF1ForGoogle, {});
 
+            self.loadStats = (country) => {
+                statsModel.getProvidersPlacesWords(country, (success, result) => {
 
-            statsModel.getProvidersPlacesWords((success, result) => {
-                self.dataPerPlaces(result.wordsMapProviderPerPlacesResult);
-                self.dataAll(result.wordsMapProviderResult);
-                self.dataFiltersMapProvider(result.filtersMapProviderResult);
-                self.datafiltersDWU(result.filtersDetectedWrongUndetectedResult);
-                self.dataResolutionAccuracy(result.resolutionEffectsAccuracyResult);
-                self.dataImpactOfResolutionOnAccuracy(result.impactOfResolutionOnAccuracyResult);
-                self.datafiltersMDRecallPreF1For256(result.filtersMDRecallPreF1For256);
-                self.datafiltersMDRecallPreF1ForGoogle(result.filtersMDRecallPreF1ForGoogle);
-            });
+                    console.log("result");
+                    console.log(result);
+
+                    self.jsonData(result.wordsMapProviderResult);
+                    self.dataPerPlaces(result.wordsMapProviderPerPlacesResult);
+
+                    self.dataAll(result.wordsMapProviderResult);
+                    console.log("result.wordsMapProviderResult");
+                    console.log(result.wordsMapProviderResult);
+                    self.dataFiltersMapProvider(result.filtersMapProviderResult);
+                    self.datafiltersDWU(result.filtersDetectedWrongUndetectedResult);
+                    self.dataResolutionAccuracy(result.resolutionEffectsAccuracyResult);
+                    self.dataImpactOfResolutionOnAccuracy(result.impactOfResolutionOnAccuracyResult);
+                    self.datafiltersMDRecallPreF1For256(result.filtersMDRecallPreF1For256);
+                    self.datafiltersMDRecallPreF1ForGoogle(result.filtersMDRecallPreF1ForGoogle);
+                });
+            }
+            self.loadStats("");
+
+
+            self.parseJSONToCSVStr = (jsonData) => {
+                if (jsonData.length == 0) {
+                    return '';
+                }
+
+                let keys = Object.keys(jsonData[0]);
+                console.log("keys:" + keys)
+                let columnDelimiter = ',';
+                let lineDelimiter = '\n';
+
+                let csvColumnHeader = keys.join(columnDelimiter);
+                let csvStr = csvColumnHeader + lineDelimiter;
+
+              //  jsonData.forEach(data => {
+                    jsonData.forEach(item => {
+                        keys.forEach((key, index) => {
+                            console.log(item[key]);
+                            csvStr += (item[key] == null) ? "" : item[key].toString().replace(/,/g, '-');
+                            if (index < keys.length - 1) {
+                                csvStr += columnDelimiter;
+                            }
+                            //    csvStr += item[key];
+                        });
+                        csvStr += lineDelimiter;
+                    });
+              //  });//whole
+                return encodeURIComponent(csvStr);;
+            }
+
+            self.exportToCsvFile = () => {
+                let csvStr = self.parseJSONToCSVStr(self.jsonData());
+                let dataUri = 'data:text/csv;charset=utf-8,' + csvStr;
+
+                let exportFileDefaultName = 'data.csv';
+
+                let linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }
 
 
       this.connected = () => {
@@ -62,9 +137,6 @@ define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/s
         // Implement further logic if needed
       };
 
-      /**
-       * Optional ViewModel method invoked after the View is disconnected from the DOM.
-       */
       this.disconnected = () => {
         // Implement if needed
       };

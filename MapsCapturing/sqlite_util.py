@@ -55,24 +55,24 @@ class MSSQL:
         print("Records created successfully")
         return idd
 
-    def inser_map_original(self, lat, lon, map_provider, zoom_level, capture_url):
+    def inser_map_original(self, lat, lon, map_provider, zoom_level, capture_url,quadKey):
         time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-        val = (lat, lon, map_provider, zoom_level, capture_url,'whole',time_str)
+        val = (lat, lon, map_provider, zoom_level, capture_url,'whole',time_str,quadKey )
         c = self.GetConnect()
-        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,timestamp) VALUES (%s,%s,%s,%d,%s,%s,%s)",val)
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,timestamp, capture_quadKey) VALUES (%s,%s,%s,%d,%s,%s,%s,%s)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
         return idd
 
-    def inser_map_all(self, lat, lon, map_provider, zoom_level, capture_url, multi, dic,main_capture_id):
+    def inser_map_all(self, lat, lon, map_provider, zoom_level, capture_url, multi, dic,main_capture_id,quadKey):
         time_str = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         c = self.GetConnect()
         # for i in range(2**(multi * 2)):
             #pic_url = capture_url + '{}.png'.format(i)
         # print((lat, lon, map_provider, zoom_level+multi, capture_url,dic,main_capture_id))
-        val = (lat, lon, map_provider, zoom_level+multi, capture_url,dic,main_capture_id,time_str)
-        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id,timestamp) VALUES (%s,%s,%s,%d,%s,%s,%d,%s)",val)
+        val = (lat, lon, map_provider, zoom_level+multi, capture_url,dic,main_capture_id,time_str,quadKey)
+        idd = c.execute("INSERT INTO location_photos(lat,lng,map_provider,zoom_level,capture_url,quarter,main_capture_id,timestamp,capture_quadKey) VALUES (%s,%s,%s,%d,%s,%s,%d,%s,%s)",val)
         self.conn.commit()
         self.conn.close()
         print("Records created successfully")
@@ -239,46 +239,48 @@ class MSSQL:
             list.append( {'series': row[0],'group': row[1],'value': row[2],'x':row[3],'y':row[4],'z':row[5]})
         return list
 
-    def get_places_number_words(self):
+    def get_places_number_words(self, country):
         queryWordsMapProviderPerPlaces = """ SELECT address  as series,
 		            CASE   map_provider WHEN 'G' THEN 'Google' WHEN 'O' THEN 'OSM'  WHEN 'B' THEN 'Bing' end as 'group', 
 		            SUM(LEN(ground_truth) - LEN(REPLACE(ground_truth, ',', ''))+1) as 'value'
-                    from [location_photos]
-                    group by map_provider,address  """
+                    from [location_photos] 
+                    WHERE address like '%{}%' 
+                    group by map_provider,address  """.format(country)
         queryWordsMapProvider = """ SELECT	CAST(count(DISTINCT(CAST(lat as nvarchar)+'-'+CAST(lng as nvarchar) )) as varchar)+' places' as series, 
 		            CASE   map_provider WHEN 'G' THEN 'Google' WHEN 'O' THEN 'OSM'  WHEN 'B' THEN 'Bing' end as 'group', 
 		            SUM(LEN(ground_truth) - LEN(REPLACE(ground_truth, ',', ''))+1) as 'value'
                     from [location_photos]
-                    group by map_provider """
+                    WHERE address like '%{}%' 
+                    group by map_provider """.format(country)
         queryFiltersMapProvider  ="""SELECT	[effects] as series, 
 		            CASE SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1) WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end as 'group',
 		            ROUND(AVG(matching_degree*100),2) as 'value'
-                    from [mapImageRecogResults]
-                    where [resolution]=256
-                    group by SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1), [effects]"""
+                    from [mapImageRecogResults]  res inner join [location_photos] loc on (loc.capture_id=res.capture_id)
+                    where [resolution]=256 and loc.address like '%{}%' 
+                    group by SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1), [effects]""".format(country)
         queryFiltersDetectedWrongUndetected = """SELECT	[effects] as series, 
 		            CASE SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1) WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end as 'group',
 		            SUM([no_undetected_words]) as 'X',
 		            SUM([no_wrong_words]) as 'Y',
 		            SUM([no_detected_words]) as 'Z'
-                    from [mapImageRecogResults]
-                    where [resolution]=256
-                    group by SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1), [effects]"""
-        queryResolutionEffectsAccuracy = """SELECT	[effects] as series, 
+                    from [mapImageRecogResults]  res inner join [location_photos] loc on (loc.capture_id=res.capture_id) 
+                    where [resolution]=256  and loc.address like '%{}%' 
+                    group by SUBSTRING(picture_url, CHARINDEX('/', picture_url)+1,1), [effects]""".format(country)
+        queryResolutionEffectsAccuracy = """ SELECT	[effects] as series, 
 		                            [resolution]  as 'group',
 		                            ROUND(AVG(matching_degree*100),2) as 'value'
-                                    from [mapImageRecogResults]
-                                    where  CHARINDEX('google', picture_url) > 1
-                                    group by [resolution] , [effects]"""
+                                    from [mapImageRecogResults] res inner join [location_photos] loc on (loc.capture_id=res.capture_id) 
+                                    where  CHARINDEX('google', picture_url) > 1 and loc.address like '%{}%' 
+                                    group by [resolution] , [effects] """.format(country)
         queryImpactOfResolutionOnAccuracy= """SELECT	[resolution] as series, 
 		                                     'Google' as 'group',
 		                                    ROUND(AVG(matching_degree*100),2) as 'value',
 		                                    SUM([no_undetected_words]) as 'x',
 		                                    SUM([no_wrong_words]) as 'y',
 		                                    SUM([no_detected_words]) as 'z'
-                                            from [mapImageRecogResults]
-                                            where  CHARINDEX('google', picture_url) > 1
-                                            group by [resolution] """
+                                            from [mapImageRecogResults] res inner join [location_photos] loc on (loc.capture_id=res.capture_id) 
+                                            where  CHARINDEX('google', picture_url) > 1  and loc.address like '%{}%' 
+                                            group by [resolution] """.format(country)
         queryFiltersMDRecallPreF1For256 = """SELECT	effects as series, 
 		                                    CASE SUBSTRING(picture_url, CHARINDEX('/map/', picture_url)+5,1) 
 			                                WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end as 'group',
@@ -286,19 +288,20 @@ class MSSQL:
 		                                    ROUND(AVG(precision),2) as 'Precision',
 		                                    ROUND(AVG(recall),2) as 'Recall',
 		                                    ROUND(AVG(f1),2) as 'F1'
-                                            from [mapImageRecogResults]
-                                            where  [resolution]=256  AND CHARINDEX('itwiseText', effects)>0
+                                            from [mapImageRecogResults] res inner join [location_photos] loc on (loc.capture_id=res.capture_id) 
+                                            where  [resolution]=256  AND CHARINDEX('itwiseText', effects)>0  and loc.address like '%{}%' 
                                             group by effects ,CASE SUBSTRING(picture_url, CHARINDEX('/map/', picture_url)+5,1) 
-                                            WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end"""
+                                            WHEN 'g' THEN 'Google' WHEN 'o' THEN 'OSM'  WHEN 'b' THEN 'Bing' end""".format(country)
         queryFiltersMDRecallPreF1ForGoogle = """SELECT	[resolution] as series, 
 		                                        effects as 'group',
 		                                        ROUND(AVG(matching_degree*100),2) as 'matchingDegree',
 		                                        ROUND(AVG(precision),2) as 'Precision',
 		                                        ROUND(AVG(recall),2) as 'Recall',
 		                                        ROUND(AVG(f1),2) as 'F1'
-                                                from [mapImageRecogResults]
+                                                from [mapImageRecogResults] res inner join [location_photos] loc on (loc.capture_id=res.capture_id) 
                                                 where  SUBSTRING(picture_url, CHARINDEX('/map/', picture_url)+5,1)='g' AND CHARINDEX('itwiseText', effects)>0
-                                                group by [resolution],effects"""
+                                                 and loc.address like '%{}%' 
+                                                group by [resolution],effects""".format(country)
         try:
             cursor = self.GetConnect()
 

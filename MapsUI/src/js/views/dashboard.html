@@ -1,392 +1,383 @@
 
 <div class="oj-hybrid-padding">
     <div>
-        <!--  <oj-menu-button id="menuButton1" class="oj-sm-margin-5x-bottom">
-      Google Stats
-    <oj-menu id="googleMenu1" slot="menu" on-oj-menu-action="[[googleMenuItemAction]]">
-        <oj-option id="cut" value="Reply">
-            <span class="oj-ux-ico-email-reply" slot="startIcon"></span>Reply
-        </oj-option>
-        <oj-option id="copy" value="ReplyAll" disabled="true">
-            <span class="oj-ux-ico-email-reply-all" slot="startIcon"></span>Reply All
-        </oj-option>
-        <oj-option id="paste" value="Forward" disabled="true">
-            <span class="oj-ux-ico-email-forward" slot="startIcon"></span>Forward
-        </oj-option>
-        <oj-option>---------------------------------</oj-option>
-        <oj-option id="zoom">
-            <span>Move to</span>
-            <oj-menu id="zoom_menu">
-                <oj-option id="inbox" value="Inbox">
-                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>Inbox
-                </oj-option>
-                <oj-option id="archive" value="Archive">
-                    <span class="oj-ux-ico-archive " slot="startIcon"></span>Archive
-                </oj-option>
-            </oj-menu>
-        </oj-option>
-    </oj-menu>
-    </oj-menu-button>
-    -->
-        <div style="width: 1px; min-width: 100%; ">
-            <div id="wordcountregionmapprovider" style="width: 1px; min-width: 47%; float: left;">
-                <h7>Handwritten word count of maps in each region for each map provider</h7>
-                <div id='chart-container'>
-                    <oj-chart id="barChart"
-                              type="bar"
-                              orientation="[[orientationValue]]"
-                              stack="[[stackValue]]"
-                              data="[[dataProviderPerPlace]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              hover-behavior="dim"
-                              y-axis.title="The number of words">
+        <div id="selection" style="width: 1px; min-width: 100%;">
+            <oj-select-single id="countrySelect"
+                              label-hint="Filter by Country"
+                              label-edge="inside"
+                              class="oj-form-control-max-width-md"
+                              data="[[countriesDP]]"
+                              value="{{countrySelectVal}}">
+            </oj-select-single>
 
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.value]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                    <oj-toolbar id="myToolbar"
-                                aria-label="Chart Display Options Toolbar"
-                                aria-controls="barChart">
-                        <!-- vertical/horizontal toggle button -->
-
-
-
-
-                        <oj-buttonset-one chroming="borderless" value="{{orientationValue}}" id="checkWrapper" focus-management="none" class="oj-buttonset-width-auto">
-                            <oj-option id="toggle" value="vertical">
-                                <span slot="startIcon" class="oj-ux-ico-chart-bar-v-alt oj-button-icon oj-start"></span>
-                            </oj-option>
-                            <oj-option id="toggle" value="horizontal">
-                                <span slot="startIcon" class="oj-ux-ico-chart-bar-h-alt oj-button-icon oj-start"></span>
-                            </oj-option>
-                        </oj-buttonset-one>
-                        <span role="separator"
-                              aria-orientation="vertical"
-                              class="oj-toolbar-separator">
-                        </span>
-                        <!-- unstacked/stacked toggle button -->
-                        <oj-buttonset-one chroming="borderless" value="{{stackValue}}" id="checkWrapper" focus-management="none" class="oj-buttonset-width-auto">
-                            <oj-option id="toggle" value="on">
-                                <span slot="startIcon" class="oj-ux-ico-chart-bar-stack oj-button-icon oj-start"></span>
-                            </oj-option>
-                            <oj-option id="toggle" value="off">
-                                <span slot="startIcon" class="oj-ux-ico-chart-bar-unstack oj-button-icon oj-start"></span>
-                            </oj-option>
-                        </oj-buttonset-one>
-
-                        <demo-chart-stack-control id="stackControl"
-                                                  type="bar"
-                                                  focus-management="none"
-                                                  stack="{{stackValue}}">
-                        </demo-chart-stack-control>
-                    </oj-toolbar>
-                </div>
-            </div>
-            <div id="wordcountmapprovider" style="width: 1px; min-width: 47%; float: left;">
-                <h7>
-                    Handwritten words count of maps for each map provider
-                </h7>
-                <div id='chart-container'>
-                    <oj-chart id="barChart2"
-                              type="bar"
-                              orientation="[[orientationValue]]"
-                              stack="[[stackValue]]"
-                              data="[[dataProviderAll]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              hover-behavior="dim"
-                              y-axis.title="The number of words">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.value]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-
-                </div>
-            </div>
-        </div>
-        <div style="width: 1px; min-width: 100%; ">
-            <div id="filtersMapProviderResult" style="width: 1px; min-width: 100%; float: left;">
-                <h7>The best effects in extracting the correct results according to each Map Provider (Resolution 256x256) </h7>
-                <div id='chart-container'>
-                    <oj-chart id="lineAreaChart"
-                              type="line"
-                              data="[[filtersMapProviderData]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.line-type="curved"
-                              style-defaults.marker-displayed="on"
-                              orientation="[[orientationValue]]"
-                              stack="[[stackValue]]"
-                              y-axis.title="Average of Matching degree"
-                              hover-behavior="dim">
-                        <template slot="itemTemplate" data-oj-as="item">
-                            <oj-chart-item value="[[item.data.value]]"
-                                           group-id="[[ [item.data.group] ]]"
-                                           series-id="[[item.data.series]]">
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                </div>
-            </div>
+            
+            <oj-button id='button2' on-oj-action='[[exportToCsvFile]]' class="oj-button-lg">
+                Download statistics details
+                <span slot="endIcon" class="oj-ux-ico-download"></span>
+            </oj-button>
         </div>
 
-        <div style="width: 1px; min-width: 100%; ">
-            <div id="filtersDetectedWrongUndetectedResult" style="width: 1px; min-width: 100%; float: left;">
-                <h7>Evaluation of effects according to the number of incorrectly extracted and non-extracted words and the size of the circle expresses the correctly extracted words  (Resolution 256x256) </h7>
-                <div id='chart-container'>
-                    <oj-chart type="bubble"
-                              data="[[filtersDetectedWrongUndetectedDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              hover-behavior="dim"
-                              y-axis.title="Wrong Words"
-                              x-axis.title="Undetected Words">
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item x='[[item.data.x]]'
-                                           y='[[item.data.y]]'
-                                           z='[[item.data.z]]'
-                                           group-id='[[ [item.data.series] ]]'
-                                           series-id='[[item.data.group]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
+            <div style="width: 1px; min-width: 100%; ">
+
+
+                <div id="wordcountregionmapprovider" style="width: 1px; min-width: 47%; float: left;">
+                    <h7>Handwritten word count of maps in each region for each map provider</h7>
+                    <div id='chart-container'>
+                        <oj-chart id="barChart"
+                                  type="bar"
+                                  orientation="[[orientationValue]]"
+                                  stack="[[stackValue]]"
+                                  data="[[dataProviderPerPlace]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  hover-behavior="dim"
+                                  y-axis.title="The number of words">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.value]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                        <oj-toolbar id="myToolbar"
+                                    aria-label="Chart Display Options Toolbar"
+                                    aria-controls="barChart">
+                            <!-- vertical/horizontal toggle button -->
+
+
+
+
+                            <oj-buttonset-one chroming="borderless" value="{{orientationValue}}" id="checkWrapper" focus-management="none" class="oj-buttonset-width-auto">
+                                <oj-option id="toggle" value="vertical">
+                                    <span slot="startIcon" class="oj-ux-ico-chart-bar-v-alt oj-button-icon oj-start"></span>
+                                </oj-option>
+                                <oj-option id="toggle" value="horizontal">
+                                    <span slot="startIcon" class="oj-ux-ico-chart-bar-h-alt oj-button-icon oj-start"></span>
+                                </oj-option>
+                            </oj-buttonset-one>
+                            <span role="separator"
+                                  aria-orientation="vertical"
+                                  class="oj-toolbar-separator">
+                            </span>
+                            <!-- unstacked/stacked toggle button -->
+                            <oj-buttonset-one chroming="borderless" value="{{stackValue}}" id="checkWrapper" focus-management="none" class="oj-buttonset-width-auto">
+                                <oj-option id="toggle" value="on">
+                                    <span slot="startIcon" class="oj-ux-ico-chart-bar-stack oj-button-icon oj-start"></span>
+                                </oj-option>
+                                <oj-option id="toggle" value="off">
+                                    <span slot="startIcon" class="oj-ux-ico-chart-bar-unstack oj-button-icon oj-start"></span>
+                                </oj-option>
+                            </oj-buttonset-one>
+
+                            <demo-chart-stack-control id="stackControl"
+                                                      type="bar"
+                                                      focus-management="none"
+                                                      stack="{{stackValue}}">
+                            </demo-chart-stack-control>
+                        </oj-toolbar>
+                    </div>
+                </div>
+                <div id="wordcountmapprovider" style="width: 1px; min-width: 47%; float: left;">
+                    <h7>
+                        Handwritten words count of maps for each map provider
+                    </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="barChart2"
+                                  type="bar"
+                                  orientation="[[orientationValue]]"
+                                  stack="[[stackValue]]"
+                                  data="[[dataProviderAll]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  hover-behavior="dim"
+                                  y-axis.title="The number of words">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.value]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+
+                    </div>
                 </div>
             </div>
-        </div>
-
-
-        <div style="width: 1px; min-width: 100%; ">
-            <div id="dataResolutionAccuracy1" style="width: 1px; min-width: 47%; float: left;">
-                <h7>Impact of resolution on effects accuracy</h7>
-                <div id='chart-container'>
-                    <oj-chart id="barChart33"
-                              type="line"
-                              orientation="[[orientationValue]]"
-                              stack="[[stackValue]]"
-                              data="[[resolutionAccuracyDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              hover-behavior="dim"
-                              y-axis.title="Average of the matching degree"
-                              style-defaults.line-type="curved">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.value]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
+            <div style="width: 1px; min-width: 100%; ">
+                <div id="filtersMapProviderResult" style="width: 1px; min-width: 100%; float: left;">
+                    <h7>The best effects in extracting the correct results according to each Map Provider (Resolution 256x256) </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="lineAreaChart"
+                                  type="line"
+                                  data="[[filtersMapProviderData]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.line-type="curved"
+                                  style-defaults.marker-displayed="on"
+                                  orientation="[[orientationValue]]"
+                                  stack="[[stackValue]]"
+                                  y-axis.title="Average of Matching degree"
+                                  hover-behavior="dim">
+                            <template slot="itemTemplate" data-oj-as="item">
+                                <oj-chart-item value="[[item.data.value]]"
+                                               group-id="[[ [item.data.group] ]]"
+                                               series-id="[[item.data.series]]">
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
                 </div>
             </div>
-            <div id="dataResolutionAccuracy2" style="width: 1px; min-width: 47%; float: left;">
-                <h7>
-                    The effect and its results according to the resolution of the Google map image
-                </h7>
-                <div id='chart-container'>
-                    <oj-chart id="barChart4"
-                              type="bar"
-                              orientation="[[orientationValue]]"
-                              stack="[[stackValue]]"
-                              data="[[resolutionAccuracyDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              hover-behavior="dim"
-                              y-axis.title="Average of the matching degree">
 
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.value]]'
-                                           group-id='[[ [item.data.series] ]]'
-                                           series-id='[[item.data.group]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-
+            <div style="width: 1px; min-width: 100%; ">
+                <div id="filtersDetectedWrongUndetectedResult" style="width: 1px; min-width: 100%; float: left;">
+                    <h7>Evaluation of effects according to the number of incorrectly extracted and non-extracted words and the size of the circle expresses the correctly extracted words  (Resolution 256x256) </h7>
+                    <div id='chart-container'>
+                        <oj-chart type="bubble"
+                                  data="[[filtersDetectedWrongUndetectedDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  hover-behavior="dim"
+                                  y-axis.title="Wrong Words"
+                                  x-axis.title="Undetected Words">
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item x='[[item.data.x]]'
+                                               y='[[item.data.y]]'
+                                               z='[[item.data.z]]'
+                                               group-id='[[ [item.data.series] ]]'
+                                               series-id='[[item.data.group]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        <div style="width: 1px; min-width: 100%; ">
-            <div id="MatchingDegreeforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
-                <h7>Matching Degree for Retrieved Data (256x256) </h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Average of Matching degree">
+            <div style="width: 1px; min-width: 100%; ">
+                <div id="dataResolutionAccuracy1" style="width: 1px; min-width: 47%; float: left;">
+                    <h7>Impact of resolution on effects accuracy</h7>
+                    <div id='chart-container'>
+                        <oj-chart id="barChart33"
+                                  type="line"
+                                  orientation="[[orientationValue]]"
+                                  stack="[[stackValue]]"
+                                  data="[[resolutionAccuracyDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of the matching degree"
+                                  style-defaults.line-type="curved">
 
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.value]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.value]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="dataResolutionAccuracy2" style="width: 1px; min-width: 47%; float: left;">
+                    <h7>
+                        The effect and its results according to the resolution of the Google map image
+                    </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="barChart4"
+                                  type="bar"
+                                  orientation="[[orientationValue]]"
+                                  stack="[[stackValue]]"
+                                  data="[[resolutionAccuracyDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of the matching degree">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.value]]'
+                                               group-id='[[ [item.data.series] ]]'
+                                               series-id='[[item.data.group]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+
+                    </div>
                 </div>
             </div>
-            <div id="ThePrecisionforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Precision for Retrieved Data (256x256) </h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Precision">
 
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.x]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
+
+            <div style="width: 1px; min-width: 100%; ">
+                <div id="MatchingDegreeforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>Matching Degree for Retrieved Data (256x256) </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1For256DataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of Matching degree">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.value]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="ThePrecisionforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>The Precision for Retrieved Data (256x256) </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1For256DataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Precision">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.x]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="TheRecallforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>The Recall for Retrieved Data   (256x256)</h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1For256DataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Recall">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.y]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>  The F1(harmonic mean) for Retrieved Data (256x256)</h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1For256DataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.z]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
                 </div>
             </div>
-            <div id="TheRecallforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Recall for Retrieved Data   (256x256)</h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Recall">
 
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.y]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
+
+
+            <div style="width: 1px; min-width: 100%; ">
+                <div id="MatchingDegreeforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>Matching Degree for Google </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of Matching degree">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.value]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="ThePrecisionforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>The Precision for Google </h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of Precision">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.x]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="TheRecallforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>The Recall for Google</h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of Recall">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.y]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
+                </div>
+                <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
+                    <h7>  The F1(harmonic mean) for Google</h7>
+                    <div id='chart-container'>
+                        <oj-chart id="pieChart"
+                                  type="bar"
+                                  data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
+                                  animation-on-display="auto"
+                                  animation-on-data-change="auto"
+                                  style-defaults.three-d-effect="off"
+                                  hover-behavior="dim"
+                                  y-axis.title="Average of F1">
+
+                            <template slot='itemTemplate' data-oj-as='item'>
+                                <oj-chart-item value='[[item.data.z]]'
+                                               group-id='[[ [item.data.group] ]]'
+                                               series-id='[[item.data.series]]'>
+                                </oj-chart-item>
+                            </template>
+                        </oj-chart>
+                    </div>
                 </div>
             </div>
-            <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
-                <h7>  The F1(harmonic mean) for Retrieved Data (256x256)</h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1For256DataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.z]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                </div>
-            </div>
-        </div>
-
-
-
-        <div style="width: 1px; min-width: 100%; ">
-            <div id="MatchingDegreeforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
-                <h7>Matching Degree for Google </h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Average of Matching degree">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.value]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                </div>
-            </div>
-            <div id="ThePrecisionforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Precision for Google </h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Average of Precision">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.x]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                </div>
-            </div>
-            <div id="TheRecallforRetrievedData" style="width: 1px; min-width: 25%; float: left;">
-                <h7>The Recall for Google</h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Average of Recall">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.y]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                </div>
-            </div>
-            <div id="ImpactOfResOnWrong" style="width: 1px; min-width: 25%; float: left;">
-                <h7>  The F1(harmonic mean) for Google</h7>
-                <div id='chart-container'>
-                    <oj-chart id="pieChart"
-                              type="bar"
-                              data="[[datafiltersMDRecallPreF1ForGoogleDataProvider]]"
-                              animation-on-display="auto"
-                              animation-on-data-change="auto"
-                              style-defaults.three-d-effect="off"
-                              hover-behavior="dim"
-                              y-axis.title="Average of F1">
-
-                        <template slot='itemTemplate' data-oj-as='item'>
-                            <oj-chart-item value='[[item.data.z]]'
-                                           group-id='[[ [item.data.group] ]]'
-                                           series-id='[[item.data.series]]'>
-                            </oj-chart-item>
-                        </template>
-                    </oj-chart>
-                </div>
-            </div>
-        </div>

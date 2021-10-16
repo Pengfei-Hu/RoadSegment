@@ -17,7 +17,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.showTable = ko.observable(true);
             self.msgTitle = ko.observable();
             self.msgBody = ko.observable();
-            
+            self.quadKeySearch = ko.observable();
 
             self.allLocationWholePhotos = ko.observableArray([]);
             self.partlist = ko.observable("");
@@ -109,26 +109,45 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 }
             }*/
             self.formatImgPaths = (serverResult) => {
+                console.log("serverResult.length=");
+                console.log(serverResult.length);
+                var emptyObj = { ground_truth: '', imgPath: [{ url: '', resolution: 0 }] };
                 serverResult.forEach((location, index) => {
-                    try {
-                        location.bing.imgPath = JSON.parse(location.bing.imgPath);
-                        location.bing.imgPath.forEach((path, i) => {
-                            path.url = self.imagesServer + path.url;
-                            location.bing.imgPath[i] = path;
-                        });
-                        location.google.imgPath = JSON.parse(location.google.imgPath);
-                        location.google.imgPath.forEach((path, i) => {
+                    
+                     try {
+                         try { location.bing.imgPath = JSON.parse(location.bing.imgPath); } catch (ex) { console.log("bing********"); }
+                         if (location.bing != null)
+                             location.bing.imgPath.forEach((path, i) => {
+                                 if (path.url.indexOf("http://") != 0) {
+                                     path.url = self.imagesServer + path.url;
+                                     location.bing.imgPath[i] = path;
+                                 }
+                             });
+                         else
+                             location.bing = emptyObj;
+                         
+                    try { location.google.imgPath = JSON.parse(location.google.imgPath); } catch (ex) { console.log("google********");  }
+                         if (location.google != null)
+                    location.google.imgPath.forEach((path, i) => {
+                        if (path.url.indexOf("http://") != 0) {
                             path.url = self.imagesServer + path.url;
                             location.google.imgPath[i] = path;
+                        }
                         });
-                        location.osm.imgPath = JSON.parse(location.osm.imgPath);
-                        location.osm.imgPath.forEach((path, i) => {
+                         else
+                             location.google = emptyObj;
+                    try { location.osm.imgPath = JSON.parse(location.osm.imgPath); } catch (ex) { console.log("osm********"); }
+                         if (location.osm != null)
+                    location.osm.imgPath.forEach((path, i) => {
+                        if (path.url.indexOf("http://") != 0) {
                             path.url = self.imagesServer + path.url;
                             location.osm.imgPath[i] = path;
+                        }
                         });
-
-                        serverResult[index] = location
-                    } catch (e) { console.log(e) }
+                         else
+                             location.osm = emptyObj;
+                         serverResult[index] = location
+                     } catch (e) { console.log("location error"); console.log(location); console.log(e) }
                 });
                 console.log("Server Data");
                 console.log(serverResult);
@@ -141,35 +160,43 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 keyAttributes: "value",
             });
             self.countrySelectVal.subscribe(function (selectedCountry) {
-                self.refreshAllData(selectedCountry);
+                self.quadKeySearch("")
+                self.refreshAllData("address",selectedCountry);
             });
+            self.quadKeySearch.subscribe((searchVal) => {
+                self.countrySelectVal("");
+                self.refreshAllData("capture_quadKey", searchVal);
+            });
+
             self.loadCountries = () => {
                 MapImgModel.getCountriesWeHave((success, result) => {
-                    result.data = result.data.filter(val => { console.log(val); val = val.toString().replace('\"', ''); return true; });
-                    self.countries(result.data);
-                    self.countries.valueHasMutated();
+                    if (result.data != undefined) {
+                        result.data = result.data.filter(val => { console.log(val); val = val.toString().replace('\"', ''); return true; });
+                        self.countries(result.data);
+                        self.countries.valueHasMutated();
+                    } else {
+                        console.log(result);
+                    }
                 });
             }
             self.loadCountries();
 
-            self.refreshAllData = (filterValue) => {
+            self.refreshAllData = (filterField, filterValue) => {
                 MapImgModel.getAllLocationWholePhotos((success, serverResult) => {
                     if (filterValue == undefined) {
-
+                        var formattedData = self.formatImgPaths(serverResult);
                         self.allLocationWholePhotos(self.formatImgPaths(serverResult));
                     } else {
-                        let filteredResult = serverResult.filter(locationPhoto => {
-                            if (locationPhoto.address.indexOf(filterValue)>-1)
-                            /*if (article.summary == undefined) article.summary = "";
-                            if (article.content == undefined) article.content = "";
-                            if (article.title.toLowerCase().indexOf(filterValue.toLowerCase()) != -1 ||
-                                article.summary.toLowerCase().indexOf(filterValue.toLowerCase()) != -1 ||
-                                article.content.toLowerCase().indexOf(filterValue.toLowerCase()) != -1)*/
-                                return true;
-                            else
-                                return false;
-                        });
-                        self.allLocationWholePhotos(self.formatImgPaths(filteredResult));
+                        let filteredResult = "";
+                        filteredResult = serverResult.filter(locationPhoto => {
+                            var field = locationPhoto[filterField.toString()];
+                            try {
+                                return field.indexOf(filterValue) > -1;
+                            } catch { return false }
+                            
+                            });
+
+                        self.allLocationWholePhotos(filteredResult);
                     }
                     self.allLocationWholePhotos.valueHasMutated(); //Notify to subscribers(Refersh)
                 });
@@ -274,6 +301,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 self.showMeasureAccuracyResultGroundTruth(false);
                 self.showLabeledImages(false);
                 self.showRoadDetection(false);
+                self.showColorDetection(false);
             }
             self.actionMenuListener = (event, context) => {
                 var selectMenuItem = event.detail.selectedValue;
@@ -562,7 +590,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 var imagesPathes = self.bingImagePath().substring(self.bingImagePath().indexOf("map")) +
                     "," + self.googleImagePath().substring(self.googleImagePath().indexOf("map")) +
                     "," + self.osmImagePath().substring(self.osmImagePath().indexOf("map"));
-                console.log(self.selectedOptions())
+                console.log("imagesPathes")
+                console.log(imagesPathes)
                 mapsCVModel.setGrayEffectAllImgs(imagesPathes, self.selectedOptions(), (success, data) => {
                     self.bingEffImagePath(self.bingEffImagePath() + "?ref=" + new Date().getTime());
                     self.googleEffImagePath(self.googleEffImagePath() + "?ref=" + new Date().getTime());

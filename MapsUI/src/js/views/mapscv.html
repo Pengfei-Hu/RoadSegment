@@ -38,6 +38,8 @@
                                       data="[[countriesDP]]"
                                       value="{{countrySelectVal}}">
                     </oj-select-single>
+                    <oj-input-text id="text-input" value="{{quadKeySearch}}" class="oj-form-control-max-width-md"
+                                   label-hint="Find QuadKey" label-edge="inside"></oj-input-text>
                 </div>
 
                 <div id="table-contrainer" style="width: 1px; min-width: 100%;">
@@ -54,14 +56,14 @@
                                 {"headerText":"lng", "field":"lng"},
                                 {"headerText":"lat", "field":"lat"},
                               {"headerText":"lvl", "field":"zoom_level"},
-                                {"headerText":"Address", "field":"address"},
-                                            {"headerText":"QuadKey", "field":"capture_quadKey"},
-                                    {"headerText":"Bing Image", "field":"bing.imgPath",
+                              {"headerText":"Address", "field":"address"},
+                              {"headerText":"QuadKey", "field":"capture_quadKey"},
+                              {"headerText":"Bing Image", "field":"bing.imgPath",
                                     "sortable":"disabled","template":"bingImageTemplate"},
-                                {"headerText":"Google Image", "field":"google.imgPath",
+                              {"headerText":"Google Image", "field":"google.imgPath",
                                     "sortable":"disabled","template":"googleImageTemplate"},
-                                {"headerText":"OSM Image", "field":"osm.imgPath",
-                                    "sortable":"disabled","template":"osmImageTemplate"}, {
+                              {"headerText":"OSM Image", "field":"osm.imgPath",
+                                  "sortable":"disabled","template":"osmImageTemplate"}, {
                                   "headerText": "Action",
                                   "headerStyle": "text-align: center;",
                                   "frozenEdge": "end",

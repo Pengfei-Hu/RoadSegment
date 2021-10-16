@@ -44,7 +44,7 @@ def updateLocationAddress(lat, lng):
 
 
 def download_google_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id ):
-    #url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x=1485&s=&y=985&z=11'
+    #url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=en&src=app&x=1485&s=&y=985&z=11'
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
     tiles_urls = "["
     #capture_id = get_Insert_id()
@@ -120,7 +120,7 @@ def download_tile(lat, lon, tileZoom, source):
     elif source == 'google':
         #Downloading capture without label
         download_google_nolbl_tile(lat,lon,tileZoom, capture_id,"whole")
-        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom)
+        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=en&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom)
         return download_google_tiles(url, lat,lon,tileZoom, capture_id,"whole")
     else:
         #Downloading capture without label
@@ -140,7 +140,7 @@ def download_tile(lat, lon, tileZoom, source):
     #    print(response.content)
     #return pic_name
 
-def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id):
+def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id,quadKey):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
     qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
@@ -159,7 +159,7 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
             if source == 'google':
                 #Downloading capture without label
                 download_google_nolbl_tile(lat,lon,tileZoom + multi, part_list,main_capture_Id)
-                url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom + multi)
+                url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=en&src=app&x={}&s=&y={}&z={}'.format(tx,ty,tileZoom + multi)
                 pic_name = download_google_tiles(url, lat,lon,tileZoom + multi, part_list,main_capture_Id )
             elif source == 'bing':
                 new_qkStr = t.TileXYToQuadKey(tx, ty, tileZoom + multi)
@@ -186,7 +186,7 @@ def multi_pic_whole(lat, lon, tileZoom, multi, source, APIName, main_capture_Id)
             
             loc += 1
 
-            location_photos.inser_map_all(lat, lon, APIName, tileZoom, pic_name, multi, part_list, main_capture_Id)
+            location_photos.inser_map_all(lat, lon, APIName, tileZoom, pic_name, multi, part_list, main_capture_Id,quadKey)
     # Merge
 #    IMAGE_SIZE = 256  #   Image size is 256*256
  #   IMAGE_ROW = 2 ** multi  # The row of image
@@ -211,7 +211,7 @@ def multi_pic_part(lat, lon, tileZoom, multi, source, part_list):
     new_qkr = qkStr + part_list
     new_tx, new_ty = t.QuadKeyToTileXY(new_qkr)
     if source == 'google':
-        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=x-local&src=app&x={}&s=&y={}&z={}&scale=4'.format(new_tx,new_ty,tileZoom + multi)
+        url = 'https://mts1.google.com/vt/lyrs=m@186112443&hl=en&src=app&x={}&s=&y={}&z={}&scale=4'.format(new_tx,new_ty,tileZoom + multi)
     elif source == 'bing':
         url = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604&imageWidth=1024'.format(new_qkr)
     elif source == 'osm':
@@ -275,6 +275,7 @@ def multi_all():
     lon = request.args["lon"]
     tileZoom = int(request.args["startz"])
     endZoomLevel = int(request.args["endz"])
+    quadKey = int(request.args["quadkey"])
     i = endZoomLevel - tileZoom
     multi = 1
     
@@ -283,19 +284,19 @@ def multi_all():
     #    bing_name = 'map/{}/{}_{}_{}_{}.png'.format('bing', lat, lon, tileZoom + endZoomLevel, "whole")
     #    location_photos.inser_map_whole(lat, lon, 'B', tileZoom, bing_name, endZoomLevel)
 #    bing_original = 'map/{}/{}.png'.format('bing', bing_whole)
-    location_photos.inser_map_original(lat, lon, 'B', tileZoom, bing_whole)
+    location_photos.inser_map_original(lat, lon, 'B', tileZoom, bing_whole,quadKey)
 
     google_whole = download_tile(lat, lon, tileZoom,'google')
     #    google_name = 'map/{}/{}_{}_{}_{}.png'.format('google', lat, lon, tileZoom + endZoomLevel, "whole")
     #    location_photos.inser_map_whole(lat, lon, 'G', tileZoom, google_name, endZoomLevel)
 #    google_original = 'map/{}/{}.png'.format('google', google_whole)
-    location_photos.inser_map_original(lat, lon, 'G', tileZoom, google_whole)
+    location_photos.inser_map_original(lat, lon, 'G', tileZoom, google_whole,quadKey)
 
     osm_whole = download_tile(lat, lon, tileZoom,'osm')
     #    osm_name = 'map/{}/{}_{}_{}_{}.png'.format('osm', lat, lon, tileZoom + endZoomLevel, "whole")
     #    location_photos.inser_map_whole(lat, lon, 'O', tileZoom, osm_name, endZoomLevel)
  #   osm_original = 'map/{}/{}.png'.format('osm', osm_whole)
-    location_photos.inser_map_original(lat, lon, 'O', tileZoom, osm_whole)
+    location_photos.inser_map_original(lat, lon, 'O', tileZoom, osm_whole,quadKey)
     
     
     
@@ -307,15 +308,15 @@ def multi_all():
     results = {}
     #Generate partial images
     for multi in range(1, i + 1):
-        bing_result, dic = multi_pic_whole(lat, lon, tileZoom, multi, 'bing', "B",  main_capture_id_bing)
+        bing_result, dic = multi_pic_whole(lat, lon, tileZoom, multi, 'bing', "B",  main_capture_id_bing,quadKey)
         # bing_url = 'map/{}/{}_'.format('bing', bing_result)
         # location_photos.inser_map_all(lat, lon, 'B', tileZoom, bing_url,multi,dic, main_capture_id_bing)
     
-        google_result, dic = multi_pic_whole(lat, lon, tileZoom, multi, 'google',"G",  main_capture_id_google)
+        google_result, dic = multi_pic_whole(lat, lon, tileZoom, multi, 'google',"G",  main_capture_id_google,quadKey)
         # google_url = 'map/{}/{}_'.format('google', google_result)
         # location_photos.inser_map_all(lat, lon, 'G', tileZoom, google_url,multi, dic, main_capture_id_google)
         
-        osm_result, dic = multi_pic_whole(lat, lon, tileZoom, multi, 'osm', "O",  main_capture_id_osm)
+        osm_result, dic = multi_pic_whole(lat, lon, tileZoom, multi, 'osm', "O",  main_capture_id_osm,quadKey)
         # osm_url = 'map/{}/{}_'.format('osm', osm_result)
         # location_photos.inser_map_all(lat, lon, 'O', tileZoom, osm_url,multi,dic, main_capture_id_osm)
         # srt3 = 'osm_{}'.format(osm_result)
@@ -371,7 +372,10 @@ def geocoding():
 
 @app.route('/providerWordsStats')
 def providerWordsStats():
-    return json.dumps(location_photos.get_places_number_words())
+    country = ""
+    if len(request.args)!=0:
+        country = request.args["country"]
+    return json.dumps(location_photos.get_places_number_words(country))
 
 @app.route('/UpdateLocationsAddress')
 def updateLocationsAddress():
