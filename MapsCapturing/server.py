@@ -1,3 +1,4 @@
+import os
 from os import error
 from flask import Flask, jsonify, request
 import requests
@@ -11,7 +12,9 @@ import pandas as pd
 import numpy as np
 import json
 from generateBi import BiSystem
-from skeleton import skeleton_gen
+import sys
+from generateSki import *
+import cv2
 
 #app = Flask(__name__)
 app = Flask(__name__, static_folder="map")
@@ -19,7 +22,7 @@ CORS(app, supports_credentials=True)
 t = TileSystem()
 bi = BiSystem()
 
-HOST = 'localhost'
+HOST = 'uwtset1.tacoma.uw.edu'
 USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
@@ -429,39 +432,6 @@ def download_osm_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
     return True
 
 
-def download_tile_Nolbl(lat,lon,tileZoom, quarter ,main_capture_id ):
-    px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
-    tx, ty = t.PixelXYToTileXY(px, py)
-    qkStr = t.TileXYToQuadKey(tx, ty, tileZoom)
-    #no label osm
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
-    url = 'https://c.tiles.wmflabs.org/osm-no-labels/{}/{}/{}.png'.format(tileZoom,tx,ty)
- #   response = requests.get(url, stream=True)
-    response = requests.get(url, stream=True, headers=headers)
-    assert response.status_code == 200, "connect error"
-    osm_name = 'MapsCapturing/map/osm/{},{}_{}_whole_osm.png'.format(lat,lon,tileZoom)
-    with open(osm_name, 'wb') as out_file:
-        out_file.write(response.content)
-    #on label google
-    url = '''https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{}!2i{}!3i{}!4i256!2m3!1e0!2sm!3i543268862!3m17!2szhC
-        N!3sUS!5e18!12m4!1e68!2m2!1sset!2sRoadmap!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmx8cC52Om9mZixzLnQ
-        6MjF8cC52Om9mZixzLnQ6MjB8cC52Om9mZg!4e0&key=AIzaSyDk4C4EBWgjuL1eBnJlu1J80WytEtSIags&token=16750'''.format(tileZoom,tx,ty)
-    response = requests.get(url, stream=True)
-    assert response.status_code == 200, "connect error"
-    google_name = 'MapsCapturing/map/google/{},{}_{}_whole_google.png'.format(lat,lon,tileZoom) 
-    with open(google_name, 'wb') as out_file:
-        out_file.write(response.content)
-
-   #no label bing
-    url = '''https://ecn.t2.tiles.virtualearth.net/tiles/r{}?g=671&stl=h&lbl=l0'''.format(qkStr)
-    response = requests.get(url, stream=True)
-    assert response.status_code == 200, "connect error"
-    bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
-    with open(bing_name, 'wb') as out_file:
-        out_file.write(response.content)
-    return osm_name, google_name, bing_name
-
-
 @app.route('/nolabel/pic')
 def download_no_label_pic():
     lat = request.args["lat"]
@@ -471,6 +441,7 @@ def download_no_label_pic():
     #Result
     result = {'osm': osm_name, 'google': google_name,'bing': bing_name}
     return jsonify(result)
+
 
 
 @app.route('/pic2Bi')
@@ -491,7 +462,7 @@ def pic2Bi():
     bi.genetare_google_bi(google_name)
     bi_google_img_path = google_name.replace('.png', '_bi.png')
     #bing
-    bing_name = request.args["bing"] # 'MapsCapturing/map/bing/{},{}_{}_whole_bing.png'.format(lat,lon,tileZoom) 
+    bing_name = request.args["bing"] # 'v
     bi.genetare_osm_bi(bing_name)
     bi_bing_img_path = bing_name.replace('.png', '_bi.png')
     
@@ -499,27 +470,154 @@ def pic2Bi():
     result = {'google': bi_google_img_path,'osm':bi_osm_img_path,'bing':bi_bing_img_path}
     return jsonify(result)
 
+
+# http://127.0.0.1:84/bi2Skeleton?bing_bi=map/bing/25.35891851754525-51.4324951171875-16-15934-whole-256-1230230212032013-b-lbl0_bi.png&google_bi=map/google/25.35891851754525-51.4324951171875-16-15935-whole-256-g-lbl0_bi.png&osm_bi=map/osm/25.35891851754525-51.4324951171875-16-15936-whole-256-o-lbl0_bi.png
 @app.route('/bi2Skeleton')
 def bi2Skeleton():
-    lat = request.args["lat"]
-    lon = request.args["lon"]
-    tileZoom =int(request.args["tileZoom"])
+    osm_name = request.args["osm_bi"]
+    bing_name = request.args["bing_bi"]
+    google_name = request.args["google_bi"]
+    print(osm_name) # MapsCapturing\map\osm\25.35891851754525-51.4324951171875-16-15936-whole-256-o-lbl0_bi.png
+    print(bing_name)
+    print(google_name)
     #OSM
-    osm_name = 'MapsCapturing/map/osm/{},{}_{}_whole_osm_bi.png'.format(lat,lon,tileZoom)
-    road_length,  pic_skeleton_path= skeleton_gen(osm_name)
-    osm_result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
+    mask_path = osm_name
+    img_path = mask_path.replace('_bi.png', '.png')
+    img = cv2.imread(img_path)
+    mask = cv2.imread(mask_path)
+    print(os.getcwd())
+    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    skeleton = skeleton_gen(gray)
+    skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    cv2.imwrite(intersection_path, skeleton_node)  
+    osm_result = {'junction_img_path':intersection_path}
+    
     #BING
-    bing_name = 'MapsCapturing/map/bing/{},{}_{}_whole_bing_bi.png'.format(lat,lon,tileZoom)
-    road_length,  pic_skeleton_path= skeleton_gen(bing_name)
-    bing_result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
+    #BING
+    mask_path = bing_name
+    img_path = mask_path.replace('_bi.png', '.png')
+    img = cv2.imread(img_path)
+    mask = cv2.imread(mask_path)
+    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    skeleton = skeleton_gen(gray)
+    skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    cv2.imwrite(intersection_path, skeleton_node)  
+    bing_result = {'junction_img_path':intersection_path}
+    
     #Google
-    google_name = 'MapsCapturing/map/google/{},{}_{}_whole_google_bi.png'.format(lat,lon,tileZoom)
-    road_length,  pic_skeleton_path= skeleton_gen(google_name)
-    google_result = {'road_length':str(road_length), 'pic_length_path':pic_skeleton_path}
+    mask_path = google_name
+    img_path = mask_path.replace('_bi.png', '.png')
+    img = cv2.imread(img_path)
+    mask = cv2.imread(mask_path)
+    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    skeleton = skeleton_gen(gray)
+    skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    cv2.imwrite(intersection_path, skeleton_node)  
+    google_result = {'junction_img_path':intersection_path}
 
     result = {'osm':osm_result,'bing':bing_result,'google':google_result}
     return jsonify(result)
 
+# http://127.0.0.1:84/bi2info?bing_bi=map/bing/25.35891851754525-51.4324951171875-16-15934-whole-256-1230230212032013-b-lbl0_bi.png&google_bi=map/google/25.35891851754525-51.4324951171875-16-15935-whole-256-g-lbl0_bi.png&osm_bi=map/osm/25.35891851754525-51.4324951171875-16-15936-whole-256-o-lbl0_bi.png
+@app.route('/bi2info')
+def bi2info():
+    osm_name = request.args["osm_bi"]
+    bing_name = request.args["bing_bi"]
+    google_name = request.args["google_bi"]
+
+    #OSM
+    mask_path = osm_name
+    img_path = mask_path.replace('_bi.png', '.png')
+    img = cv2.imread(img_path)
+    mask = cv2.imread(mask_path)
+    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    skeleton = skeleton_gen(gray)
+    skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    # TODO
+    skeleton_node_lat_long_lst = get_lat_long(skeleton_node_cor_lst, os.path.basename(mask_path).split('-')[:2])
+    _data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    if len(skeleton_node_cor_lst) == 0:
+        _data['total_junction_num'] = ''
+        _data['lat_long'] = ''
+    excel_junction_path, excel_road_info_path = mask_path.replace('_bi.png', '_junction.xlsx'), mask_path.replace('_bi.png', '_road_info.xlsx')
+    generate_excel(
+        header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
+        data=_data,
+        xlsx_path=excel_junction_path
+    )
+    subroad_info = get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path)
+    generate_excel(
+        header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
+        data=subroad_info,
+        xlsx_path=excel_road_info_path
+    )
+    intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    cv2.imwrite(intersection_path, skeleton_node)  
+    osm_result = {'excel_junction_path':excel_junction_path, 'excel_road_info_path':excel_road_info_path}
+    
+    #BING
+    mask_path = bing_name
+    img_path = mask_path.replace('_bi.png', '.png')
+    img = cv2.imread(img_path)
+    mask = cv2.imread(mask_path)
+    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    skeleton = skeleton_gen(gray)
+    skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    skeleton_node_lat_long_lst = get_lat_long(skeleton_node_cor_lst, os.path.basename(mask_path).split('-')[:2])
+    _data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    if len(skeleton_node_cor_lst) == 0:
+        _data['total_junction_num'] = ''
+        _data['lat_long'] = ''
+    excel_junction_path, excel_road_info_path = mask_path.replace('_bi.png', '_junction.xlsx'), mask_path.replace('_bi.png', '_road_info.xlsx')
+    generate_excel(
+        header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
+        data=_data,
+        xlsx_path=excel_junction_path
+    )
+    subroad_info = get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path)
+    generate_excel(
+        header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
+        data=subroad_info,
+        xlsx_path=excel_road_info_path
+    )
+    intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    cv2.imwrite(intersection_path, skeleton_node)  
+    bing_result = {'excel_junction_path':excel_junction_path, 'excel_road_info_path':excel_road_info_path}
+    
+    #Google
+    mask_path = google_name
+    img_path = mask_path.replace('_bi.png', '.png')
+    img = cv2.imread(img_path)
+    mask = cv2.imread(mask_path)
+    gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    skeleton = skeleton_gen(gray)
+    skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    skeleton_node_lat_long_lst = get_lat_long(skeleton_node_cor_lst, os.path.basename(mask_path).split('-')[:2])
+    _data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    if len(skeleton_node_cor_lst) == 0:
+        _data['total_junction_num'] = ''
+        _data['lat_long'] = ''
+    excel_junction_path, excel_road_info_path = mask_path.replace('_bi.png', '_junction.xlsx'), mask_path.replace('_bi.png', '_road_info.xlsx')
+    generate_excel(
+        header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
+        data=_data,
+        xlsx_path=excel_junction_path
+    )
+    subroad_info = get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path)
+    generate_excel(
+        header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
+        data=subroad_info,
+        xlsx_path=excel_road_info_path
+    )
+    intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    cv2.imwrite(intersection_path, skeleton_node)  
+    google_result = {'excel_junction_path':excel_junction_path, 'excel_road_info_path':excel_road_info_path}
+
+    result = {'osm':osm_result,'bing':bing_result,'google':google_result}
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run( port=84)

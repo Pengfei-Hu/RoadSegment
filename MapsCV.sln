@@ -17,7 +17,7 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "MapsUI", "MapsUI\MapsUI.njs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapsTestBed", "MapsTestBed\MapsTestBed.csproj", "{AB245D72-C922-4771-A995-2A8F57CE5F8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapsRepos", "MapsRepos\MapsRepos.csproj", "{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapsRepos", "MapsRepos\MapsRepos.csproj", "{07ACDFAF-6695-4E77-BF97-9FCEFAA586E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
