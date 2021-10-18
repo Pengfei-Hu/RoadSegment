@@ -119,6 +119,7 @@ def download_tile(lat, lon, tileZoom, source):
     if source == 'bing':
         #Downloading capture without label
         download_bing_nolbl_tile(lat,lon,tileZoom, capture_id,"whole",qkStr)
+        url = 'http://ecn.dynamic.t1.tiles.virtualearth.net/comp/ch/{}?it=G,L&dpi=d2&rs=1&dre=1'.format(qkStr)
         return download_bing_tiles(BINGMAP_URLWITHKEY, lat,lon,tileZoom, capture_id,"whole",qkStr)
     elif source == 'google':
         #Downloading capture without label
@@ -128,7 +129,8 @@ def download_tile(lat, lon, tileZoom, source):
     else:
         #Downloading capture without label
         download_osm_nolbl_tile(lat,lon,tileZoom, capture_id,"whole")
-        url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
+        url = 'https://a.osm.rrze.fau.de/osmhd/{}/{}/{}.png'.format(tileZoom,tx,ty)
+        #url = 'https://c.tile.openstreetmap.org/{}/{}/{}.png'.format(tileZoom,tx,ty)
         return download_osm_tiles(url, lat,lon,tileZoom,capture_id, "whole")
 
     #response = requests.get(url, stream=True)
