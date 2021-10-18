@@ -373,8 +373,9 @@ def geocoding():
 @app.route('/providerWordsStats')
 def providerWordsStats():
     country = ""
-    if len(request.args)!=0:
+    if len(request.args)!=0 or request.args["country"]=="null" :
         country = request.args["country"]
+        print(type(country))
     return json.dumps(location_photos.get_places_number_words(country))
 
 @app.route('/UpdateLocationsAddress')

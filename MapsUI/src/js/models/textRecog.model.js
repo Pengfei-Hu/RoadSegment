@@ -22,6 +22,7 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                 this.mapsImgs = new this.MapsImgsCollDef;
 
             }
+       
             getImageDetails(api_url, imagePath, notify) {
                 this.initializeModelCollection(api_url);
                 let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);

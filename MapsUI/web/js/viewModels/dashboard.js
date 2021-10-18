@@ -67,12 +67,13 @@ define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/s
             self.datafiltersMDRecallPreF1ForGoogleDataProvider = new ArrayDataProvider(self.datafiltersMDRecallPreF1ForGoogle, {});
 
             self.loadStats = (country) => {
+                country = (country == null) ? "" : country
                 statsModel.getProvidersPlacesWords(country, (success, result) => {
 
                     console.log("result");
                     console.log(result);
 
-                    self.jsonData(result.wordsMapProviderResult);
+                    self.jsonData(result);
                     self.dataPerPlaces(result.wordsMapProviderPerPlacesResult);
 
                     self.dataAll(result.wordsMapProviderResult);
@@ -94,35 +95,44 @@ define(['ojs/ojcore', 'knockout', 'jquery', "ojs/ojarraydataprovider", 'models/s
                     return '';
                 }
 
-                let keys = Object.keys(jsonData[0]);
-                console.log("keys:" + keys)
-                let columnDelimiter = ',';
-                let lineDelimiter = '\n';
+                try {
+                    let firstRow = "filtersDetectedWrongUndetectedResult, , , , ,filtersMDRecallPreF1For256, , , ,filtersMDRecallPreF1ForGoogle, , , , ,filtersMapProviderResult, , ,impactOfResolutionOnAccuracyResult, , , , , resolutionEffectsAccuracyResult, , ,wordsMapProviderPerPlacesResult, , ,wordsMapProviderResult, , \n";
 
-                let csvColumnHeader = keys.join(columnDelimiter);
-                let csvStr = csvColumnHeader + lineDelimiter;
-
-              //  jsonData.forEach(data => {
-                    jsonData.forEach(item => {
-                        keys.forEach((key, index) => {
-                            console.log(item[key]);
-                            csvStr += (item[key] == null) ? "" : item[key].toString().replace(/,/g, '-');
-                            if (index < keys.length - 1) {
-                                csvStr += columnDelimiter;
-                            }
-                            //    csvStr += item[key];
-                        });
-                        csvStr += lineDelimiter;
-                    });
-              //  });//whole
-                return encodeURIComponent(csvStr);;
+                    let csvStr = "";
+                    let columnDelimiter = ',';
+                    let lineDelimiter = '\n';
+                    //  jsonData.forEach(data => {
+                    for (var objName in jsonData) {
+                        if (Object.prototype.hasOwnProperty.call(jsonData, objName)) {
+                            csvStr += "\n" + objName + "\n"
+                            console.log("jsonData[objName]"); console.log(jsonData[objName]);
+                            let keys = Object.keys(jsonData[objName][0]);
+                            let csvColumnHeader = keys.join(columnDelimiter);
+                            csvStr += csvColumnHeader + lineDelimiter;
+                            jsonData[objName].forEach(item => {
+                                keys.forEach((key, index) => {
+                                    csvStr += (item[key] == null) ? "" : item[key].toString().replace(/,/g, '-');
+                                    if (index < keys.length - 1) {
+                                        csvStr += columnDelimiter;
+                                    }
+                                    //    csvStr += item[key];
+                                });
+                                csvStr += lineDelimiter;
+                            });
+                            //  });//whole
+                        }
+                    }
+                    return encodeURIComponent(csvStr);
+                } catch (ex) {
+                    alert("Please select country that has stats data!, to download")
+                }
             }
 
             self.exportToCsvFile = () => {
                 let csvStr = self.parseJSONToCSVStr(self.jsonData());
                 let dataUri = 'data:text/csv;charset=utf-8,' + csvStr;
 
-                let exportFileDefaultName = 'data.csv';
+                let exportFileDefaultName = (self.countrySelectVal() == null) ? 'All-data.csv' : self.countrySelectVal()+ '-data.csv';
 
                 let linkElement = document.createElement('a');
                 linkElement.setAttribute('href', dataUri);

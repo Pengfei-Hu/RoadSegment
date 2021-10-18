@@ -48,11 +48,10 @@ namespace MapsUnderstanding.Controllers
                                             "enhanceDetail,bitwiseText", "bitwiseText,enhanceDetail", 
                                             "resize,bitwiseText,enhanceDetail", "enhanceDetail,resize,bitwiseText", 
                                             "enhanceDetail,resize,KMeans", "resize,Kmeans", "resize,bitwiseText",
-                                            "resize,enhanceDetail,bitwiseText", "bitwiseText,resize,enhanceDetail" };*/
-
-                string[] filtersGroups = {  "bgbitwise,bgtransparent,bgtrans2white,enhanceDetail,resize,bitwiseText",
-                                            "enhanceDetail,resize,bitwiseText,bgbitwise,bgtransparent,bgtrans2white"};
-
+                                            "resize,enhanceDetail,bitwiseText", "bitwiseText,resize,enhanceDetail",
+                                            "bgbitwise,bgtransparent,bgtrans2white,enhanceDetail,resize,bitwiseText",
+                                            "enhanceDetail,resize,bitwiseText,bgbitwise,bgtransparent,bgtrans2white" };*/
+                string[] filtersGroups = { "resize,gray" };
                 var locPhotosData = locPhotos.getAllLocationPhotosData();
                 Console.WriteLine("locPhotosData Count" + locPhotosData.Count());
                 List<CaptureUrl> allCaptures = new List<CaptureUrl>();

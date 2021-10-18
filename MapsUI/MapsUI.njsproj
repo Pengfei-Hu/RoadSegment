@@ -68,6 +68,9 @@
     <Content Include="src\js\appController.js" />
     <Content Include="src\js\main.js" />
     <Content Include="src\js\config\settings.json" />
+    <Content Include="src\js\models\mapRecogResults.model.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\js\utils\coordinates.js">
       <SubType>Code</SubType>
     </Content>
