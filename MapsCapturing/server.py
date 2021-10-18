@@ -395,10 +395,10 @@ def quadKeyToLatLong():
     return json.dumps(result)
 
 def download_bing_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id, quadKey):
-    url = '''https://ecn.t2.tiles.virtualearth.net/tiles/r{}?g=671&stl=h&lbl=l0'''.format(quadKey)
+    url = '''http://ak.dynamic.t2.tiles.virtualearth.net/comp/ch/{}?mkt=en-us&it=G&rs=1&shading=hill&n=z&cb=1'''.format(quadKey)
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
-    pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(256), quadKey)
+    pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(512), quadKey)
     print(pic_name)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
@@ -407,12 +407,11 @@ def download_bing_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id, quadKey
 def download_google_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
-    url = '''https://maps.googleapis.com/maps/vt?pb=!1m5!1m4!1i{}!2i{}!3i{}!4i256!2m3!1e0!2sm!3i543268862!3m17!2szhC
-        N!3sUS!5e18!12m4!1e68!2m2!1sset!2sRoadmap!12m3!1e37!2m1!1ssmartmaps!12m4!1e26!2m2!1sstyles!2zcy5lOmx8cC52Om9mZixzLnQ
-        6MjF8cC52Om9mZixzLnQ6MjB8cC52Om9mZg!4e0&key=AIzaSyDk4C4EBWgjuL1eBnJlu1J80WytEtSIags&token=16750'''.format(tileZoom,tx,ty)
+    scale = 2
+    url = '''https://mts0.google.com/vt/lyrs=m@289000001&hl=en&src=app&x={}&y={}&z={}&scale={}&s=Gal&apistyle=s.t:0|s.e:l|p.v:off'''.format(tx,ty,tileZoom,scale)
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
-    pic_name = 'map/google/{}-{}-{}-{}-{}-{}-g-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(256) )
+    pic_name = 'map/google/{}-{}-{}-{}-{}-{}-g-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(512) )
     print(pic_name)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
@@ -422,10 +421,10 @@ def download_osm_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
-    url = 'https://c.tiles.wmflabs.org/osm-no-labels/{}/{}/{}.png'.format(tileZoom,tx,ty)
+    url = "https://a.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{}/{}/{}@2x.png".format(tileZoom,tx,ty)
     response = requests.get(url, stream=True, headers=headers)
     assert response.status_code == 200, "connect error"
-    pic_name = 'map/osm/{}-{}-{}-{}-{}-{}-o-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( 256) )
+    pic_name = 'map/osm/{}-{}-{}-{}-{}-{}-o-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( 512) )
     print(pic_name)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
