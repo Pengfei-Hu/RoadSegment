@@ -41,23 +41,29 @@ namespace MapsVisionsAPI.Middleware
         }
         public static string[] getGoodList(string fullText)
         {
-            string pattern = @"\w\d{1,4}";
-            Regex rg = new Regex(pattern);
-            string[] bagOfWords = fullText.Split(",");
-            Console.WriteLine("Correct Words Before:" + bagOfWords.Length);
-            List<string> filteredWords = new List<string>();
-            foreach (var word in bagOfWords)
-                if (!rg.Match(word).Success && word.Trim().Length>1)
-                {
-                    var wordWithoutSpecialChars = Regex.Replace(word.Trim(), "[^a-zA-Z0-9\\s]+", "");
-                    if (wordWithoutSpecialChars.Length > 2)
-                        filteredWords.Add(wordWithoutSpecialChars);
-                    else
-                        if (isWhiteList(wordWithoutSpecialChars))
+            try
+            {
+                string pattern = @"\w\d{1,4}";
+                Regex rg = new Regex(pattern);
+                string[] bagOfWords = fullText.Split(",");
+                Console.WriteLine("Correct Words Before:" + bagOfWords.Length);
+                List<string> filteredWords = new List<string>();
+                foreach (var word in bagOfWords)
+                    if (!rg.Match(word).Success && word.Trim().Length > 1)
+                    {
+                        var wordWithoutSpecialChars = Regex.Replace(word.Trim(), "[^a-zA-Z0-9\\s]+", "");
+                        if (wordWithoutSpecialChars.Length > 2)
                             filteredWords.Add(wordWithoutSpecialChars);
-                }
-            Console.WriteLine("Correct Words After:" + filteredWords.Count);
-            return filteredWords.ToArray();
+                        else
+                            if (isWhiteList(wordWithoutSpecialChars))
+                            filteredWords.Add(wordWithoutSpecialChars);
+                    }
+                Console.WriteLine("Correct Words After:" + filteredWords.Count);
+                return filteredWords.ToArray();
+            }catch(Exception ex)
+            {
+                return new string[] {};
+            }
         }
         public static bool isWhiteList(string wordWithoutSpecialChars)
         {

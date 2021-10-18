@@ -103,27 +103,39 @@ namespace MapsVisionsAPI.Middleware
         }
         private static bool saveMatImage(Mat img, string name, string sourcePath)
         {
-            var imagePath = Path.Combine(sourcePath.Substring(0,sourcePath.LastIndexOf("\\")+1),
-                   name +"-"+ sourcePath.Substring(sourcePath.LastIndexOf("\\")+1));
-            //if (! IsFileLocked(new FileInfo(imagePath))){
-            img.SaveImage(imagePath);
-            img.Dispose();
+            try
+            {
+                var imagePath = Path.Combine(sourcePath.Substring(0, sourcePath.LastIndexOf("\\") + 1),
+                       name + "-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
+                //if (! IsFileLocked(new FileInfo(imagePath))){
+                img.SaveImage(imagePath);
+                img.Dispose();
                 /*using (Bitmap bitmap = BitmapConverter.ToBitmap(img))
                 {
                     bitmap.Save(imagePath);
                 }*/
-                    
-            //}
-            return true;
+
+                //}
+                return true;
+            }catch(Exception ex)
+            {
+                return false;
+            }
         }
         public static bool removeEffectedImg(string imagePath)
         {
-            if (File.Exists(getfilteredImgPath(imagePath)))
+            try
             {
-                File.Delete(getfilteredImgPath(imagePath));
+                if (File.Exists(getfilteredImgPath(imagePath)))
+                {
+                    File.Delete(getfilteredImgPath(imagePath));
 
+                }
+                return saveMatImage(readFilteredImg(imagePath), "filtered", imagePath);
+            }catch(Exception ex)
+            {
+                return false;
             }
-            return saveMatImage(readFilteredImg(imagePath), "filtered", imagePath);
         }
         public static bool applyGrayFilter(string imagePath)
         {
