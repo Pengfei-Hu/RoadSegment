@@ -19,13 +19,13 @@ map_color_width_info = {
         }
     },
     'bing': {
-        "name": ['yellow_11', 'yellow_17', 'white_4', 'white_7', 'white_13'],
-        "width": [11, 17, 4, 7, 13],
-        "color": ['yellow', 'yellow', 'white', 'white', 'white'],  # rgb
-        "color_name": {'yellow':(255, 246, 169), 'white':(255, 255, 255)},
+        "name": ['orange_11', 'yellow_7', 'purple_12' 'white_4', 'white_8', 'grey_18', 'mid_white_4', 'grey_5'],
+        "width": [11, 7, 12, 4, 8, 18, 4, 5],
+        "color": ['orange', 'yellow', 'purple', 'white', 'white', 'grey', 'mid_white', 'grey'],  # rgb
+        "color_name": {'orange':(255, 244, 171), 'yellow':(255, 254, 2379), 'white':(255, 255, 255), 'purple':(233, 211, 250), 'grey':(217, 215, 210), 'mid_white':(232, 231, 226)},
         "name_map": {
-            'yellow_11':'free_way', 'yellow_17':'free_way', 'white_13':'trunk', 
-            'white_7':'primary_roads', 'white_4':'residential_roads'            
+            'grey_18':'provincial_boundariy', 'grey_5':'railway', 'mid_white_4':'unclassied roads',
+            'orange_11':'freeway', 'yellow_7':'freeway', 'purple':'freeway', 'white_8':'trunks', 'white_4':'primary_roads'
         }
     },
     'osm': {
@@ -59,6 +59,7 @@ def sum_around(skeleton_pad):
 
 def skeleton_gen(img):
     img[img == 255] = 1
+    print(np.unique(img))
     skeleton0 = morphology.skeletonize(img)
     skeleton = skeleton0.astype(np.uint8)*255
     return skeleton
@@ -131,13 +132,23 @@ def get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path):
     subroad_width_lst = []
     for subroad_pts in sort_subroad_pts_lst:
         subroad_pts = subroad_pts[:, None, :]
-        dis_matrix = np.linalg.norm(bg_pts - subroad_pts, ord=2, axis=2)
-        min_dis = np.min(dis_matrix, axis=1)
+        if bg_pts.shape[1] <= 256 * 256:
+            dis_matrix = np.linalg.norm(bg_pts - subroad_pts, ord=2, axis=2)
+            min_dis = np.min(dis_matrix, axis=1)
+        else:
+            min_dis = np.zeros(subroad_pts.shape[0])
+            subroad_pts_lst_unit = subroad_pts.shape[0] // 16
+            subroad_pts_lst = [subroad_pts[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit, 0, :] for i in range(16)]            
+            for i, subroad_pts_part in enumerate(subroad_pts_lst):
+                dis_matrix_part = np.linalg.norm(bg_pts - subroad_pts_part[:, None, :], ord=2, axis=2)
+                min_dis_part = np.min(dis_matrix_part, axis=1)
+                min_dis[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit] = min_dis_part
         start, end = 3/10, 7/10
         dis_lst = np.sort(min_dis)
         if len(dis_lst) > 1:
             dis_lst = np.sort(min_dis)[int(start * len(min_dis)):int(end * len(min_dis))]
         subroad_width_lst.append(np.mean(dis_lst) * 2)
+
 
     # 根据颜色与宽度判断道路类别
     map_type = 'google' if 'google' in mask_path else 'osm' if 'osm' in mask_path else 'bing'
@@ -296,6 +307,8 @@ if __name__ == "__main__":
             xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
         )        
         cv2.imwrite(mask_path.replace('bi.png', 'bi_vis.png'), skeleton_node)
+
+
 
 
         

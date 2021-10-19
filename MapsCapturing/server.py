@@ -15,6 +15,7 @@ from generateBi import BiSystem
 import sys
 from generateSki import *
 import cv2
+import copy
 
 #app = Flask(__name__)
 app = Flask(__name__, static_folder="map")
@@ -410,11 +411,11 @@ def download_bing_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id, quadKey
 def download_google_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
     px, py = t.LatLongToPixelXY(float(lat), float(lon), tileZoom)
     tx, ty = t.PixelXYToTileXY(px, py)
-    scale = 2
+    scale = 4
     url = '''https://mts0.google.com/vt/lyrs=m@289000001&hl=en&src=app&x={}&y={}&z={}&scale={}&s=Gal&apistyle=s.t:0|s.e:l|p.v:off'''.format(tx,ty,tileZoom,scale)
     response = requests.get(url, stream=True)
     assert response.status_code == 200, "connect error"
-    pic_name = 'map/google/{}-{}-{}-{}-{}-{}-g-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(512) )
+    pic_name = 'map/google/{}-{}-{}-{}-{}-{}-g-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(1024) )
     print(pic_name)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
@@ -538,27 +539,32 @@ def bi2info():
     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
     skeleton = skeleton_gen(gray)
     skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
-    # TODO
+    skeleton_node_cor_lst = [list(t) for t in skeleton_node_cor_lst]
     skeleton_node_lat_long_lst = get_lat_long(skeleton_node_cor_lst, os.path.basename(mask_path).split('-')[:2])
-    _data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    junc_data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    junc_data_copy = copy.deepcopy(junc_data)
+    junc_data['junction_coordinate'] = str(junc_data['junction_coordinate'])
+    junc_data['lat_long'] = str(junc_data['lat_long'])    
     if len(skeleton_node_cor_lst) == 0:
-        _data['total_junction_num'] = ''
-        _data['lat_long'] = ''
+        junc_data['total_junction_num'] = ''
+        junc_data['lat_long'] = ''
+        junc_data_copy['total_junction_num'] = ''
+        junc_data_copy['lat_long'] = ''
+    generate_excel(
+            header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
+            data=junc_data_copy,
+            xlsx_path=mask_path.replace('_bi.png', '_junction.xlsx')
+        )
     excel_junction_path, excel_road_info_path = mask_path.replace('_bi.png', '_junction.xlsx'), mask_path.replace('_bi.png', '_road_info.xlsx')
-    generate_excel(
-        header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
-        data=_data,
-        xlsx_path=excel_junction_path
-    )
     subroad_info = get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path)
-    generate_excel(
-        header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
-        data=subroad_info,
-        xlsx_path=excel_road_info_path
-    )
     intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    generate_excel(
+            header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
+            data=subroad_info,
+            xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
+        )  
     cv2.imwrite(intersection_path, skeleton_node)  
-    osm_result = {'excel_junction_path':excel_junction_path, 'excel_road_info_path':excel_road_info_path}
+    osm_result = {'excel_junction':junc_data, 'excel_road_info':subroad_info}
     
     #BING
     mask_path = bing_name
@@ -568,27 +574,33 @@ def bi2info():
     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
     skeleton = skeleton_gen(gray)
     skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    skeleton_node_cor_lst = [list(t) for t in skeleton_node_cor_lst]
     skeleton_node_lat_long_lst = get_lat_long(skeleton_node_cor_lst, os.path.basename(mask_path).split('-')[:2])
-    _data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    junc_data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    junc_data_copy = copy.deepcopy(junc_data)    
+    junc_data['junction_coordinate'] = str(junc_data['junction_coordinate'])
+    junc_data['lat_long'] = str(junc_data['lat_long'])
     if len(skeleton_node_cor_lst) == 0:
-        _data['total_junction_num'] = ''
-        _data['lat_long'] = ''
+        junc_data['total_junction_num'] = ''
+        junc_data['lat_long'] = ''
+        junc_data_copy['total_junction_num'] = ''
+        junc_data_copy['lat_long'] = ''
+    generate_excel(
+            header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
+            data=junc_data_copy,
+            xlsx_path=mask_path.replace('_bi.png', '_junction.xlsx')
+        )
     excel_junction_path, excel_road_info_path = mask_path.replace('_bi.png', '_junction.xlsx'), mask_path.replace('_bi.png', '_road_info.xlsx')
-    generate_excel(
-        header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
-        data=_data,
-        xlsx_path=excel_junction_path
-    )
     subroad_info = get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path)
-    generate_excel(
-        header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
-        data=subroad_info,
-        xlsx_path=excel_road_info_path
-    )
     intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    generate_excel(
+            header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
+            data=subroad_info,
+            xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
+        )  
     cv2.imwrite(intersection_path, skeleton_node)  
-    bing_result = {'excel_junction_path':excel_junction_path, 'excel_road_info_path':excel_road_info_path}
-    
+    bing_result = {'excel_junction':junc_data, 'excel_road_info':subroad_info}
+
     #Google
     mask_path = google_name
     img_path = mask_path.replace('_bi.png', '.png')
@@ -597,26 +609,31 @@ def bi2info():
     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
     skeleton = skeleton_gen(gray)
     skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
+    skeleton_node_cor_lst = [list(t) for t in skeleton_node_cor_lst]
     skeleton_node_lat_long_lst = get_lat_long(skeleton_node_cor_lst, os.path.basename(mask_path).split('-')[:2])
-    _data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    junc_data = {'total_junction_num':[len(skeleton_node_cor_lst)] + ['' for _ in range(len(skeleton_node_cor_lst) - 1)], 'junction_coordinate':skeleton_node_cor_lst, 'lat_long':skeleton_node_lat_long_lst}
+    junc_data_copy = copy.deepcopy(junc_data)    
+    junc_data['junction_coordinate'] = str(junc_data['junction_coordinate'])
+    junc_data['lat_long'] = str(junc_data['lat_long'])
     if len(skeleton_node_cor_lst) == 0:
-        _data['total_junction_num'] = ''
-        _data['lat_long'] = ''
-    excel_junction_path, excel_road_info_path = mask_path.replace('_bi.png', '_junction.xlsx'), mask_path.replace('_bi.png', '_road_info.xlsx')
+        junc_data['total_junction_num'] = ''
+        junc_data['lat_long'] = ''
+        junc_data_copy['total_junction_num'] = ''
+        junc_data_copy['lat_long'] = ''
     generate_excel(
-        header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
-        data=_data,
-        xlsx_path=excel_junction_path
-    )
+            header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
+            data=junc_data_copy,
+            xlsx_path=mask_path.replace('_bi.png', '_junction.xlsx')
+        )
     subroad_info = get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path)
-    generate_excel(
-        header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
-        data=subroad_info,
-        xlsx_path=excel_road_info_path
-    )
     intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
+    generate_excel(
+            header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
+            data=subroad_info,
+            xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
+        )   
     cv2.imwrite(intersection_path, skeleton_node)  
-    google_result = {'excel_junction_path':excel_junction_path, 'excel_road_info_path':excel_road_info_path}
+    google_result = {'excel_junction':junc_data, 'excel_road_info':subroad_info}
 
     result = {'osm':osm_result,'bing':bing_result,'google':google_result}
     return jsonify(result)

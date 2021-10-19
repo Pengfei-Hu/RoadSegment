@@ -229,7 +229,6 @@
     <Compile Include="get_map.py" />
     <Compile Include="server.py" />
     <Compile Include="generateSki.py" />
-    <Compile Include="skeleton.py" />
     <Compile Include="sqlite_util.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
