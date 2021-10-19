@@ -25,14 +25,17 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.data_multi = ko.observable(0);
             self.bingImagePath = ko.observable("https://blogs.bing.com/BingBlogs/files/dc/dce88d2a-2bf9-4c65-9cca-1c425d571e75.png");
             self.bingImagePathRS = ko.observable("");
+            self.bingImagePathCJ = ko.observable("");
             self.bingLbl0ImagePath = ko.observable();
             self.bingCaptureId = ko.observable(0);
             self.googleImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Google_Maps_Logo_2020.svg/1137px-Google_Maps_Logo_2020.svg.png");
             self.googleImagePathRS = ko.observable("");
+            self.googleImagePathCJ = ko.observable("");
             self.googleLbl0ImagePath = ko.observable();
             self.googleCaptureId = ko.observable(0);
             self.osmImagePath = ko.observable("https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_logo.svg");
             self.osmImagePathRS = ko.observable("");
+            self.osmImagePathCJ = ko.observable("");
             self.osmLbl0ImagePath = ko.observable();
             self.osmCaptureId = ko.observable(0);
             
@@ -649,6 +652,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     "filtered-" + newPath.substring(newPath.lastIndexOf("/") + 1);
             }
             self.getNoLabelImgPath = (path) => {
+                path = path.replace("256", "512");
                 return path.replace(".png", "-lbl0.png");
             }
             self.bingImagePath.subscribe(function (newPath) {
@@ -711,11 +715,26 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             });
 
             self.roadSegments = () => {
-                MapImgModel.getBinaryImages(self.bingLbl0ImagePath().replace("http://localhost:84/", ""), self.googleLbl0ImagePath().replace("http://localhost:84/", ""), self.osmLbl0ImagePath().replace("http://localhost:84/", ""), (success, result) => {
+                MapImgModel.getBinaryImages(
+                    self.bingLbl0ImagePath().replace(self.imagesServer, ""),
+                    self.googleLbl0ImagePath().replace(self.imagesServer, ""),
+                    self.osmLbl0ImagePath().replace(self.imagesServer, ""), (success, result) => {
                     console.log(result);
-                    self.bingImagePathRS("http://localhost:84/"+result.bing);
-                    self.googleImagePathRS("http://localhost:84/" +result.google);
-                    self.osmImagePathRS("http://localhost:84/" +result.osm);
+                    self.bingImagePathRS(self.imagesServer+result.bing);
+                    self.googleImagePathRS(self.imagesServer +result.google);
+                    self.osmImagePathRS(self.imagesServer +result.osm);
+                });
+            }
+
+            self.roadConjunctions = () => {
+                //*******************
+                MapImgModel.getConjunctionsImages(self.bingLbl0ImagePath().replace(self.imagesServer, ""),
+                    self.googleLbl0ImagePath().replace(self.imagesServer, ""),
+                    self.osmLbl0ImagePath().replace(self.imagesServer, ""), (success, result) => {
+                    console.log(result);
+                    self.bingImagePathCJ(self.imagesServer + result.bing);
+                    self.googleImagePathCJ(self.imagesServer+ result.google);
+                    self.osmImagePathCJ(self.imagesServer + result.osm);
                 });
             }
 
