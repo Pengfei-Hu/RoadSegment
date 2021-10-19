@@ -427,7 +427,7 @@ def download_osm_nolbl_tile(lat,lon,tileZoom, quarter ,main_capture_id):
     url = "https://a.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{}/{}/{}@2x.png".format(tileZoom,tx,ty)
     response = requests.get(url, stream=True, headers=headers)
     assert response.status_code == 200, "connect error"
-    pic_name = 'map/osm/{}-{}-{}-{}-{}-{}-o-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( 512) )
+    pic_name = 'map/osm/{}-{}-{}-{}-{}-{}-o-lbl0.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str(512) )
     print(pic_name)
     with open(pic_name, 'wb') as out_file:
         out_file.write(response.content)
