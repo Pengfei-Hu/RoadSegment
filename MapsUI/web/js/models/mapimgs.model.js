@@ -189,6 +189,24 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                     }
                 });
             }
+            getConjunctionsImages(bing, google, osm, notify) {
+                let api_url = this.pythonEndpoint + "bi2Skeleton?" + "bing=" + bing + "&google=" + google + "&osm=" + osm;
+                this.initializeModelCollection(api_url);
+                let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
+
+                mapsImgsRow.fetch({
+                    headers: {
+                        'Content-Type': 'application/json' 
+                    },
+                    success: function (coll, data) {
+                        notify(true, data);
+                    },
+                    error: function (model, xhr, options) {
+
+                        notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `);
+                    }
+                });
+            }
 
         }//end of class
         return new MapsImgs();

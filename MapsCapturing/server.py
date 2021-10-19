@@ -95,9 +95,9 @@ def download_bing_tiles(url, lat,lon,tileZoom, quarter ,main_capture_id, quadKey
     #capture_id = get_Insert_id()
     for x in range(1,3):            # Two Iterations for (256,512) resolutions only
         current_url = url.replace('latitude',lat).replace('longitude',lon)
-        if x==1:
+        if x==1: #256
             current_url = current_url.replace('zoomLevel',str(tileZoom)) + "&mapSize=256,256"
-        elif x==2:
+        elif x==2: #512
             current_url = current_url.replace('zoomLevel',str(tileZoom+1) ) + "&mapSize=512,512"
         print(current_url)
         pic_name = 'map/bing/{}-{}-{}-{}-{}-{}-{}-b.png'.format(lat, lon, tileZoom,quarter ,main_capture_id,str( x*256), quadKey)
@@ -119,7 +119,8 @@ def download_tile(lat, lon, tileZoom, source):
     if source == 'bing':
         #Downloading capture without label
         download_bing_nolbl_tile(lat,lon,tileZoom, capture_id,"whole",qkStr)
-        url = 'http://ecn.dynamic.t1.tiles.virtualearth.net/comp/ch/{}?it=G,L&dpi=d2&rs=1&dre=1'.format(qkStr)
+        url256 = 'http://ecn.t0.tiles.virtualearth.net/tiles/r{}.png?g=604'.format(qkStr)
+        url = 'http://ecn.dynamic.t1.tiles.virtualearth.net/comp/ch/{}?it=G,L&dpi=d2&rs=1&dre=1'.format(qkStr) #512
         return download_bing_tiles(BINGMAP_URLWITHKEY, lat,lon,tileZoom, capture_id,"whole",qkStr)
     elif source == 'google':
         #Downloading capture without label
@@ -380,7 +381,6 @@ def providerWordsStats():
     country = ""
     if len(request.args)!=0 or request.args["country"]=="null" :
         country = request.args["country"]
-        print(type(country))
     return json.dumps(location_photos.get_places_number_words(country))
 
 @app.route('/UpdateLocationsAddress')
@@ -476,9 +476,9 @@ def pic2Bi():
 # http://127.0.0.1:84/bi2Skeleton?bing_bi=map/bing/25.35891851754525-51.4324951171875-16-15934-whole-256-1230230212032013-b-lbl0_bi.png&google_bi=map/google/25.35891851754525-51.4324951171875-16-15935-whole-256-g-lbl0_bi.png&osm_bi=map/osm/25.35891851754525-51.4324951171875-16-15936-whole-256-o-lbl0_bi.png
 @app.route('/bi2Skeleton')
 def bi2Skeleton():
-    osm_name = request.args["osm_bi"]
-    bing_name = request.args["bing_bi"]
-    google_name = request.args["google_bi"]
+    osm_name = request.args["osm"]
+    bing_name = request.args["bing"]
+    google_name = request.args["google"]
     print(osm_name) # MapsCapturing\map\osm\25.35891851754525-51.4324951171875-16-15936-whole-256-o-lbl0_bi.png
     print(bing_name)
     print(google_name)
@@ -526,9 +526,9 @@ def bi2Skeleton():
 # http://127.0.0.1:84/bi2info?bing_bi=map/bing/25.35891851754525-51.4324951171875-16-15934-whole-256-1230230212032013-b-lbl0_bi.png&google_bi=map/google/25.35891851754525-51.4324951171875-16-15935-whole-256-g-lbl0_bi.png&osm_bi=map/osm/25.35891851754525-51.4324951171875-16-15936-whole-256-o-lbl0_bi.png
 @app.route('/bi2info')
 def bi2info():
-    osm_name = request.args["osm_bi"]
-    bing_name = request.args["bing_bi"]
-    google_name = request.args["google_bi"]
+    osm_name = request.args["osm"]
+    bing_name = request.args["bing"]
+    google_name = request.args["google"]
 
     #OSM
     mask_path = osm_name
