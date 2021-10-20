@@ -652,7 +652,10 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                     "filtered-" + newPath.substring(newPath.lastIndexOf("/") + 1);
             }
             self.getNoLabelImgPath = (path) => {
-                path = path.replace("256", "512");
+                if (path.indexOf("google") > -1)
+                    path = path.replace("256", "1024");
+                else
+                    path = path.replace("256", "512");
                 return path.replace(".png", "-lbl0.png");
             }
             self.bingImagePath.subscribe(function (newPath) {
@@ -728,10 +731,10 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
 
             self.roadConjunctions = () => {
                 //*******************
-                MapImgModel.getConjunctionsImages(self.bingLbl0ImagePath().replace(self.imagesServer, ""),
-                    self.googleLbl0ImagePath().replace(self.imagesServer, ""),
-                    self.osmLbl0ImagePath().replace(self.imagesServer, ""), (success, result) => {
-                    console.log(result);
+                MapImgModel.getConjunctionsImages(self.bingImagePathRS().replace(self.imagesServer, ""),
+                    self.googleImagePathRS().replace(self.imagesServer, ""),
+                    self.osmImagePathRS().replace(self.imagesServer, ""), (success, result, info) => {
+                    console.log("Info"); console.log(info);
                     self.bingImagePathCJ(self.imagesServer + result.bing);
                     self.googleImagePathCJ(self.imagesServer+ result.google);
                     self.osmImagePathCJ(self.imagesServer + result.osm);

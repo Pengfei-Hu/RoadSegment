@@ -19,7 +19,7 @@ map_color_width_info = {
         }
     },
     'bing': {
-        "name": ['orange_11', 'yellow_7', 'purple_12' 'white_4', 'white_8', 'grey_18', 'mid_white_4', 'grey_5'],
+        "name": ['orange_11', 'yellow_7', 'purple_12' ,'white_4', 'white_8', 'grey_18', 'mid_white_4', 'grey_5'],
         "width": [11, 7, 12, 4, 8, 18, 4, 5],
         "color": ['orange', 'yellow', 'purple', 'white', 'white', 'grey', 'mid_white', 'grey'],  # rgb
         "color_name": {'orange':(255, 244, 171), 'yellow':(255, 254, 2379), 'white':(255, 255, 255), 'purple':(233, 211, 250), 'grey':(217, 215, 210), 'mid_white':(232, 231, 226)},
@@ -42,8 +42,14 @@ map_color_width_info = {
 }
 
 def generate_excel(header, data, xlsx_path):
-    df = DataFrame(data, columns=header)
-    df.to_excel(xlsx_path, index=False)
+    try:
+        df = DataFrame(data, columns=header)
+        print(xlsx_path)
+        df.to_excel(xlsx_path, index=False)
+        print("DataFrame written to Excel Successfully")
+    except Exception as e:
+        print("An error occur")
+        print(e)
 
 def sum_around(skeleton_pad):
     up = np.pad(skeleton_pad, ((1, 0), (0, 0)), 'constant', constant_values=0)[:-1, :]
@@ -140,9 +146,13 @@ def get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path):
             subroad_pts_lst_unit = subroad_pts.shape[0] // 16
             subroad_pts_lst = [subroad_pts[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit, 0, :] for i in range(16)]            
             for i, subroad_pts_part in enumerate(subroad_pts_lst):
-                dis_matrix_part = np.linalg.norm(bg_pts - subroad_pts_part[:, None, :], ord=2, axis=2)
-                min_dis_part = np.min(dis_matrix_part, axis=1)
-                min_dis[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit] = min_dis_part
+                try:
+                    dis_matrix_part = np.linalg.norm(bg_pts - subroad_pts_part[:, None, :], ord=2, axis=2)
+                    min_dis_part = np.min(dis_matrix_part, axis=1)
+                    min_dis[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit] = min_dis_part
+                except Exception as ex:
+                    print("Error Ocurred")
+                    print(ex)
         start, end = 3/10, 7/10
         dis_lst = np.sort(min_dis)
         if len(dis_lst) > 1:

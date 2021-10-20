@@ -193,13 +193,30 @@ define(['jquery', 'knockout', 'ojs/ojmodel', 'text!../settings.json'],
                 let api_url = this.pythonEndpoint + "bi2Skeleton?" + "bing=" + bing + "&google=" + google + "&osm=" + osm;
                 this.initializeModelCollection(api_url);
                 let mapsImgsRow = new this.MapsImgsModelDef({}, this.mapsImgs);
-
+                self = this;
                 mapsImgsRow.fetch({
                     headers: {
                         'Content-Type': 'application/json' 
                     },
                     success: function (coll, data) {
-                        notify(true, data);
+                        let api_url_info = self.pythonEndpoint + "bi2info?" + "bing=" + bing + "&google=" + google + "&osm=" + osm;
+                        self.initializeModelCollection(api_url_info);
+                        var mapsImgsRowInfo = new self.MapsImgsModelDef({}, self.mapsImgs);
+                        
+                        mapsImgsRowInfo.fetch({
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            success: function (coll, info) {
+
+                                notify(true, data, info);
+                            },
+                            error: function (model, xhr, options) {
+
+                                notify(false, `Error Code: ${xhr.status}, msg:${options.textStatus} `, data);
+                            }
+                        });
+                       
                     },
                     error: function (model, xhr, options) {
 

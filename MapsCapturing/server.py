@@ -23,7 +23,7 @@ CORS(app, supports_credentials=True)
 t = TileSystem()
 bi = BiSystem()
 
-HOST = 'uwtset1.tacoma.uw.edu'
+HOST = 'localhost'
 USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
@@ -494,7 +494,7 @@ def bi2Skeleton():
     skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
     intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
     cv2.imwrite(intersection_path, skeleton_node)  
-    osm_result = {'junction_img_path':intersection_path}
+    osm_result = intersection_path
     
     #BING
     #BING
@@ -507,7 +507,7 @@ def bi2Skeleton():
     skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
     intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
     cv2.imwrite(intersection_path, skeleton_node)  
-    bing_result = {'junction_img_path':intersection_path}
+    bing_result =intersection_path
     
     #Google
     mask_path = google_name
@@ -519,7 +519,7 @@ def bi2Skeleton():
     skeleton_node, skeleton_node_cor_lst = get_road_intersection(skeleton)
     intersection_path = mask_path.replace('bi.png', 'bi_vis.png')
     cv2.imwrite(intersection_path, skeleton_node)  
-    google_result = {'junction_img_path':intersection_path}
+    google_result = intersection_path
 
     result = {'osm':osm_result,'bing':bing_result,'google':google_result}
     return jsonify(result)
