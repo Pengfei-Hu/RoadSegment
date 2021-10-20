@@ -752,18 +752,89 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 });
             }
 
+            self.bingTotalConjunctions = ko.observable(0);
+            self.bingTotalLength = ko.observable(0);
+            self.bingTotalInMeter = ko.observable(0);
+            self.googleTotalConjunctions = ko.observable(0);
+            self.googleTotalLength = ko.observable(0);
+            self.googleTotalInMeter = ko.observable(0);
+            self.osmTotalConjunctions = ko.observable(0);
+            self.osmTotalLength = ko.observable(0);
+            self.osmTotalInMeter = ko.observable(0);
+
+            self.bingConjunctions = ko.observableArray([]);
+            bingConjunctionsDataprovider = new ArrayDataProvider(self.bingConjunctions, {
+                keyAttributes: "road_type",
+                implicitSort: [{ attribute: "road_type", direction: "ascending" }],
+            });
+
+            self.googleConjunctions = ko.observableArray([]);
+            googleConjunctionsDataprovider = new ArrayDataProvider(self.googleConjunctions, {
+                keyAttributes: "road_type",
+                implicitSort: [{ attribute: "road_type", direction: "ascending" }],
+            });
+            self.osmConjunctions = ko.observableArray([]);
+            osmConjunctionsDataprovider = new ArrayDataProvider(self.osmConjunctions, {
+                keyAttributes: "road_type",
+                implicitSort: [{ attribute: "road_type", direction: "ascending" }],
+            });
+
             self.roadConjunctions = () => {
                 //*******************
                 MapImgModel.getConjunctionsImages(self.bingImagePathRS().replace(self.imagesServer, ""),
                     self.googleImagePathRS().replace(self.imagesServer, ""),
                     self.osmImagePathRS().replace(self.imagesServer, ""), (success, result, info) => {
-                    console.log("Info"); console.log(info);
+                        /*
+                            bing.excel_junction.total_junction_num
+                            bing.excel_road_info.
+	                            road_type
+	                            road_name
+	                            road_length
+	                            road_length_meter
+                         */
+                        self.bingTotalLength(info.bing.excel_road_info.total_road_length[0]);
+                        self.bingTotalInMeter(info.bing.excel_road_info.total_road_length_meter[0]);
+                        self.googleTotalLength(info.google.excel_road_info.total_road_length[0]);
+                        self.googleTotalInMeter(info.google.excel_road_info.total_road_length_meter[0]);
+                        self.osmTotalLength(info.osm.excel_road_info.total_road_length[0]);
+                        self.osmTotalInMeter(info.osm.excel_road_info.total_road_length_meter[0]);
+
+
+
+                        info.bing.excel_road_info = self.ReshapeRoadsInfo(info.bing.excel_road_info);
+                        self.bingConjunctions(info.bing.excel_road_info);
+                        info.google.excel_road_info = self.ReshapeRoadsInfo(info.google.excel_road_info);
+                        self.googleConjunctions(info.google.excel_road_info);
+                        info.osm.excel_road_info = self.ReshapeRoadsInfo(info.osm.excel_road_info);
+                        self.osmConjunctions(info.osm.excel_road_info);
+
+                        console.log("Info"); console.log(info);
+                        self.bingTotalConjunctions(info.bing.excel_junction.total_junction_num);
+                        self.googleTotalConjunctions(info.google.excel_junction.total_junction_num);
+                        self.osmTotalConjunctions(info.osm.excel_junction.total_junction_num);
+
                     self.bingImagePathCJ(self.imagesServer + result.bing);
                     self.googleImagePathCJ(self.imagesServer+ result.google);
                     self.osmImagePathCJ(self.imagesServer + result.osm);
                 });
             }
 
+            self.ReshapeRoadsInfo = (excel_road_info) => {
+                var roads_type = excel_road_info.road_type;
+                var roads_name = excel_road_info.road_name;
+                var roads_length = excel_road_info.road_length;
+                var roads_length_meter = excel_road_info.road_length_meter;
+
+                var RoadsInfo=[];
+                for (var x = 0; x < roads_type.length; x++) {
+                    var RoadInfo = {
+                        road_type: roads_type[x], road_name: roads_name[x],
+                        road_length: roads_length[x], road_length_meter: roads_length_meter[x]
+                    }
+                    RoadsInfo[x] = RoadInfo;
+                }
+                return RoadsInfo;
+            }
 
             self.upperLeft = () => {
                 self.partlist(self.partlist() + "0");

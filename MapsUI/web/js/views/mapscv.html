@@ -1179,6 +1179,89 @@
                                     <img width="400" usemap="#quadrantmap" :src="[[osmImagePathCJ]]" />
                                 </td>
                             </tr>
+                            <tr>
+                                <td>
+                                    <b>Bing total number of conjunctions:</b> <oj-bind-text value="[[bingTotalConjunctions]]"> </oj-bind-text> <br />
+                                    <b>Total Length:</b> <oj-bind-text value="[[bingTotalLength]]"> </oj-bind-text> <br />
+                                    <b>Total Length in meters:</b> <oj-bind-text value="[[bingTotalInMeter]]"> </oj-bind-text> <br />
+                                    <br />
+                                    <b>Bing Road Info</b>
+                                    <oj-table id='tableBingConjunctions' aria-label='Details'
+                                              data='[[bingConjunctionsDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "Type",
+                                                                     "field": "road_type",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Name",
+                                                                     "field": "road_name",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Length",
+                                                                     "field": "road_length",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Meter Length",
+                                                                     "field": "road_length_meter",
+                                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table> <br />
+                                </td>
+                                <td>
+                                    Google total number of conjunctions: <oj-bind-text value="[[googleTotalConjunctions]]"> </oj-bind-text> <br />
+                                    <b>Total Length:</b> <oj-bind-text value="[[googleTotalLength]]"> </oj-bind-text> <br />
+                                    <b>Total Length in meters:</b> <oj-bind-text value="[[googleTotalInMeter]]"> </oj-bind-text> <br />
+                                    <br />
+                                    <b>Google Road Info</b>
+                                    <oj-table id='tableGoogleConjunctions' aria-label='Details'
+                                              data='[[googleConjunctionsDataprovider]]'
+                                              selection-mode='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "Type",
+                                                                     "field": "road_type",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Name",
+                                                                     "field": "road_name",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Length",
+                                                                     "field": "road_length",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Meter Length",
+                                                                     "field": "road_length_meter",
+                                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table> <br />
+                                </td>
+                                <td>
+                                    OSM total number of conjunctions: <oj-bind-text value="[[osmTotalConjunctions]]"> </oj-bind-text> <br />
+                                    <b>Total Length:</b> <oj-bind-text value="[[osmTotalLength]]"> </oj-bind-text> <br />
+                                    <b>Total Length in meters:</b> <oj-bind-text value="[[osmTotalInMeter]]"> </oj-bind-text> <br />
+                                    <br />
+                                    <b>OSM Road Info</b>
+                                    <oj-table id='tableOSMConjunctions' aria-label='Details'
+                                              data='[[osmConjunctionsDataprovider]]'
+                                              selection-mode`='{"row": "single", "column": "multiple"}'
+                                              dnd='{"reorder": {"columns": "enabled"}}'
+                                              scroll-policy='loadMoreOnScroll'
+                                              scroll-policy-options='{"fetchSize": 10}'
+                                              columns='[{"headerText": "Type",
+                                                                     "field": "road_type",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Name",
+                                                                     "field": "road_name",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Length",
+                                                                     "field": "road_length",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "Meter Length",
+                                                                     "field": "road_length_meter",
+                                                                     "resizable": "enabled"}]'
+                                              class='demo-table-container oj-bg-body'>
+                                    </oj-table> <br />
+                                </td>
+                            </tr>
 
                         </oj-bind-if>
 </table>
