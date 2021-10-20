@@ -143,8 +143,9 @@ def get_subroad_info(skeleton, skeleton_node_cor_lst, img, gray, mask_path):
             min_dis = np.min(dis_matrix, axis=1)
         else:
             min_dis = np.zeros(subroad_pts.shape[0])
-            subroad_pts_lst_unit = subroad_pts.shape[0] // 16
-            subroad_pts_lst = [subroad_pts[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit, 0, :] for i in range(16)]            
+            split_num = 32
+            subroad_pts_lst_unit = subroad_pts.shape[0] // split_num
+            subroad_pts_lst = [subroad_pts[i*subroad_pts_lst_unit:(i+1)*subroad_pts_lst_unit, 0, :] for i in range(split_num)]            
             for i, subroad_pts_part in enumerate(subroad_pts_lst):
                 try:
                     dis_matrix_part = np.linalg.norm(bg_pts - subroad_pts_part[:, None, :], ord=2, axis=2)
