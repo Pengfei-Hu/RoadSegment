@@ -24,6 +24,7 @@ t = TileSystem()
 bi = BiSystem()
 
 HOST = 'localhost'
+#HOST = 'uwtset1.tacoma.uw.edu'
 USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
@@ -548,7 +549,7 @@ def bi2info():
     if len(skeleton_node_cor_lst) == 0:
         junc_data['total_junction_num'] = ''
         junc_data['lat_long'] = ''
-        junc_data_copy['total_junction_num'] = ''
+        junc_data_copy['total_junction_num'] = ['']
         junc_data_copy['lat_long'] = ''
     generate_excel(
             header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
@@ -564,7 +565,7 @@ def bi2info():
             xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
         )  
     cv2.imwrite(intersection_path, skeleton_node)  
-    osm_result = {'excel_junction':junc_data, 'excel_road_info':subroad_info}
+    osm_result = {'excel_junction':{'total_junction_num':junc_data_copy['total_junction_num'][0]}, 'excel_road_info':subroad_info}
     
     #BING
     mask_path = bing_name
@@ -583,7 +584,7 @@ def bi2info():
     if len(skeleton_node_cor_lst) == 0:
         junc_data['total_junction_num'] = ''
         junc_data['lat_long'] = ''
-        junc_data_copy['total_junction_num'] = ''
+        junc_data_copy['total_junction_num'] = ['']
         junc_data_copy['lat_long'] = ''
     generate_excel(
             header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
@@ -599,7 +600,7 @@ def bi2info():
             xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
         )  
     cv2.imwrite(intersection_path, skeleton_node)  
-    bing_result = {'excel_junction':junc_data, 'excel_road_info':subroad_info}
+    bing_result = {'excel_junction':{'total_junction_num':junc_data_copy['total_junction_num'][0]}, 'excel_road_info':subroad_info}
 
     #Google
     mask_path = google_name
@@ -618,7 +619,7 @@ def bi2info():
     if len(skeleton_node_cor_lst) == 0:
         junc_data['total_junction_num'] = ''
         junc_data['lat_long'] = ''
-        junc_data_copy['total_junction_num'] = ''
+        junc_data_copy['total_junction_num'] = ['']
         junc_data_copy['lat_long'] = ''
     generate_excel(
             header=['total_junction_num', 'junction_coordinate', 'lat_long'], 
@@ -631,9 +632,9 @@ def bi2info():
             header=['road_type', 'road_name', 'road_length', 'road_length_meter', 'total_road_length',  'total_road_length_meter'], 
             data=subroad_info,
             xlsx_path=mask_path.replace('_bi.png', '_road_info.xlsx')
-        )   
+        )
     cv2.imwrite(intersection_path, skeleton_node)  
-    google_result = {'excel_junction':junc_data, 'excel_road_info':subroad_info}
+    google_result = {'excel_junction':{'total_junction_num':junc_data_copy['total_junction_num'][0]}, 'excel_road_info':subroad_info}
 
     result = {'osm':osm_result,'bing':bing_result,'google':google_result}
     return jsonify(result)
