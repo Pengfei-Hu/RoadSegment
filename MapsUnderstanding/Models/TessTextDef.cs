@@ -26,6 +26,6 @@ namespace MapsUnderstanding.Models
         public string text { set; get; }
         public string CorrectWord { set; get; }
         public double MatchingDegree { set; get; }
-
+        public string Color { set; get; }
     }
 }

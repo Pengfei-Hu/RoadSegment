@@ -64,6 +64,9 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             self.showColorDetection = ko.observable(false);
             self.showLabeledImages = ko.observable(false);
             self.showRoadDetection = ko.observable(false);
+            self.showColorsCountDisplay = ko.observable(false);
+            self.showTextColorsDetection = ko.observable(false);
+
             self.selectedOptions = ko.observableArray([]);
 
             self.bingOCRResult = ko.observable("");
@@ -305,6 +308,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 self.showLabeledImages(false);
                 self.showRoadDetection(false);
                 self.showColorDetection(false);
+                self.showColorsCountDisplay(false);
+                self.showTextColorsDetection(false);
             }
             self.actionMenuListener = (event, context) => {
                 var selectMenuItem = event.detail.selectedValue;
@@ -386,8 +391,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                 var rgb = color.split(",");
                 return "#" + self.componentToHex(rgb[0]) + self.componentToHex(rgb[1]) + self.componentToHex(rgb[2]);
             }
-
-            self.getColorsCounts = () => {
+            self.textColorsDetection = () => {
 
                 var bingEffEndTo = (self.bingEffImagePath().indexOf("?") == -1) ? self.bingEffImagePath().length : self.bingEffImagePath().indexOf("?");
                 var googleEffEndTo = (self.googleEffImagePath().indexOf("?") == -1) ? self.googleEffImagePath().length : self.googleEffImagePath().indexOf("?");
@@ -403,6 +407,26 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
                             console.log(data);
                         }
                     });
+                self.showTextColorsDetection(true);
+
+            }
+            self.getColorsCounts = () => {
+
+                var bingEffEndTo = (self.bingEffImagePath().indexOf("?") == -1) ? self.bingEffImagePath().length : self.bingEffImagePath().indexOf("?");
+                var googleEffEndTo = (self.googleEffImagePath().indexOf("?") == -1) ? self.googleEffImagePath().length : self.googleEffImagePath().indexOf("?");
+                var osmEffEndTo = (self.osmEffImagePath().indexOf("?") == -1) ? self.osmEffImagePath().length : self.osmEffImagePath().indexOf("?");
+                mapsCVModel.getColorsCounts(self.bingEffImagePath().substring(self.bingEffImagePath().indexOf("map"), bingEffEndTo),
+                    self.googleEffImagePath().substring(self.googleEffImagePath().indexOf("map"), googleEffEndTo),
+                    self.osmEffImagePath().substring(self.osmEffImagePath().indexOf("map"), osmEffEndTo), (success, data) => {
+                        if (success) {
+                            self.bingColors(data.bingColorsCounter);
+                            self.googleColors(data.googleColorsCounter);
+                            self.osmColors(data.osmColorsCounter);
+                        } else {
+                            console.log(data);
+                        }
+                });
+                self.showColorsCountDisplay(true);
             }
             //Fuzzy Measurments
 
@@ -500,10 +524,9 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'accUtils', 'models/mapimgs.model', 
             });
 
             self.getFAccuracyBing = () => {
-                TextRecogModel.getFAccuracy(self.bingManualText(), self.bingImagePath().substring(self.bingImagePath().indexOf("map")),
+                TextRecogModel.getFAccuracy(self.bingManualText(),
+                    self.bingImagePath().substring(self.bingImagePath().indexOf("map")),
                     (success, data) => {
-                        console.log("getFAccuracyBing");
-                        console.log(data);
                         self.bingNoDetectedWords(data.results.no_detected_words);
                         self.bingAvgMDegree(data.results.matching_degree);
                         self.bingUndetectedWords(data.results.no_undetected_words);

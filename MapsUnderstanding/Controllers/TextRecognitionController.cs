@@ -18,6 +18,7 @@ namespace MapsUnderstanding.Controllers
     {
        // protected readonly string mapsFolder = "C:\\Users\\Adel\\source\\repos\\WebDataScience\\MapsVisionGit\\MapsCapturing\\";
         TesseractReading Tess = new TesseractReading();
+        TextRecogHandler textRecog = new TextRecogHandler();
 
         [HttpGet("TextList")]
         public IActionResult GetTextList()
@@ -56,9 +57,10 @@ namespace MapsUnderstanding.Controllers
                 float confidence = 0.0f;
                 string detailedText = "";
                 List<TessTextDef> wordsList=new List<TessTextDef>();
-                Tess.TesseractReader(imagePath, out confidence, out _, out detailedText);
+                //Tess.TesseractReader(imagePath, out confidence, out _, out detailedText);
                 string textList = "";
-                wordsList = TextProcessing.CastCSVToDataTable(new StringReader(detailedText),out textList);
+                //wordsList = TextProcessing.CastCSVToDataTable(new StringReader(detailedText),out textList);
+                textRecog.readTextDetails(imagePath,out confidence,out _,out detailedText,out wordsList,out textList);
                 return Ok(new { Success = true, Confidence = confidence, wordsList = wordsList, textList =textList, imagePath= imagePath, detailedText= detailedText });
             }
             catch (ArgumentNullException ex)
@@ -108,7 +110,7 @@ namespace MapsUnderstanding.Controllers
                     Request.Headers.TryGetValue("imagePath", out var imageName);
                     imageName = imageName.ToString().Replace("/", "\\");
                     var imagePath = Path.Combine(Util.mapsPath(), imageName);
-                    TextRecogHandler textRecog = new TextRecogHandler();
+                    
                     if (allWords.Count == 0)
                         return BadRequest(new { error = "you must send the correctWords in headers. That contains all correct words in the image" });
                     else

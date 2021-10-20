@@ -18,11 +18,11 @@ namespace MapsVisionsAPI.Middleware
             return saveMatImage(Grayscale, "Grayscale1", imagePath);
         }
 
-        public static string getfilteredImgPath(string sourcePath)
+        public static string getfilteredImgPath(string sourcePath,string subsequent= "filtered")
         {
-            if (sourcePath.IndexOf("filtered-") == -1)
+            if (sourcePath.IndexOf(subsequent) == -1)
                 return Path.Combine(sourcePath.Substring(0, sourcePath.LastIndexOf("\\") + 1),
-                          "filtered-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
+                         subsequent+ "-" + sourcePath.Substring(sourcePath.LastIndexOf("\\") + 1));
             else
                 return sourcePath;
         }
@@ -144,13 +144,13 @@ namespace MapsVisionsAPI.Middleware
             Cv2.CvtColor(image, grayImg, ColorConversionCodes.BGR2GRAY);
             return saveMatImage(grayImg, "filtered", imagePath);
         }
-        private static Mat readFilteredImg(string imagePath)
+        internal static Mat readFilteredImg(string imagePath, string subsequent = "filtered")
         {
             Mat image;
-            if (!File.Exists(getfilteredImgPath(imagePath)))
+            if (!File.Exists(getfilteredImgPath(imagePath, subsequent)))
                 image = Cv2.ImRead(imagePath, ImreadModes.Unchanged);
             else
-                image = Cv2.ImRead(getfilteredImgPath(imagePath), ImreadModes.Unchanged);
+                image = Cv2.ImRead(getfilteredImgPath(imagePath,subsequent), ImreadModes.Unchanged);
             return image;
         }
         public static bool applyDilateFilter(string imagePath)
@@ -582,7 +582,14 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
             bitmap.Save(newImgPath);
             return newImgPath;
         }
-        private static List<OpenCvSharp.Rect> getRectangles(ref Mat img_txt, StringReader csvText, string filePath)
+        internal static void kmeansTextOnly(string textImgPath,string coloredImgPath, StringReader csvText)
+        {
+            Mat img_txt = ImageFilters.readFilteredImg(textImgPath, "kmeans");
+            var rects = getRectangles(ref img_txt, csvText);
+            //Mat croped = new Mat(
+
+        }
+        internal static List<OpenCvSharp.Rect> getRectangles(ref Mat img_txt, StringReader csvText, string filePath="")
         {
             string line = "";
             List<OpenCvSharp.Rect> rects = new List<OpenCvSharp.Rect>();
@@ -600,20 +607,12 @@ cv2.drawContours(img_contours, contours, -1, (0, 255, 0), 3)
                             Int32.Parse(cells[8].Trim()),
                             Int32.Parse(cells[9].Trim()));
                     rects.Add(rect);
-                    //   Cv2.Rectangle(img_txt, rect, Scalar.Purple);
+                    Cv2.Rectangle(img_txt, rect, Scalar.Purple);
                     if(filePath!="")
                         File.AppendAllText(filePath, line + "\n");
-                    /*Cv2.ImShow("Image Text", img_gray);
-                    Cv2.WaitKey(0);
-                    Cv2.DestroyAllWindows();*/
-                    /*}*/
                 }
             }
             return rects;
-            //Cv2.ImShow("Gray mage", img_gray);
-            //Cv2.WaitKey(0);
-            //Cv2.DestroyAllWindows();
-
         }
 
     }

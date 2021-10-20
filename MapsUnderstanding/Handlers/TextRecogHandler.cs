@@ -14,6 +14,11 @@ namespace MapsUnderstanding.Handlers
     {
         TesseractReading Tess = new TesseractReading();
 
+        public void readTextDetails(string imagePath,out float confidence, out string text, out string detailedText,out List<TessTextDef> wordsList, out string textList)
+        {
+            Tess.TesseractReader(imagePath, out confidence, out text, out detailedText);
+            wordsList = TextProcessing.CastCSVToDataTable(new StringReader(detailedText), out textList);
+        }
 
         public MapImageRecogResults getTextRecogDetails(string groundTruth, string imagePath, 
             int capture_id,string effects, int resolution,out List<TessTextDef> detectedWordsTable, bool isPathFinal = false)

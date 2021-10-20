@@ -863,6 +863,10 @@
                                         <span slot='startIcon' class="oj-ux-ico-color"></span>
                                         Colors count display
                                     </oj-button>
+                                    <oj-button on-oj-action="[[textColorsDetection]]">
+                                        <span slot='startIcon' class="oj-ux-ico-color"></span>
+                                        Text and Colors Detection
+                                    </oj-button>
                                 </td>
                             </tr>
                             <tr>
@@ -872,122 +876,238 @@
                                             <p slot="header" class="selected-title"> Colors Detection from maps </p>
                                             <span class="technical-notes">
                                             <li>Detection using OpenCvSharp. Version 4.5.3</li>
+                                            <li>Color Identification using KMeans</li>
                                             </span>
                                         </oj-collapsible>
                                     </div>
                                 </td>
                             </tr>
-                            <tr style="vertical-align:top">
-                                <td>
-                                    <b>Colors Detection results from (Bing):</b> <br />
-                                    <oj-table id='tableBingColors' aria-label='Details'
-                                              data='[[bingColorsResultDataprovider]]'
-                                              selection-mode='{"row": "single", "column": "multiple"}'
-                                              dnd='{"reorder": {"columns": "enabled"}}'
-                                              scroll-policy='loadMoreOnScroll'
-                                              scroll-policy-options='{"fetchSize": 10}'
-                                              columns='[{"headerText": "Color",
+                            <oj-bind-if test="[[showColorsCountDisplay()]]">
+                                <tr style="vertical-align:top">
+                                    <td>
+                                        <b>Colors Detection results from (Bing):</b> <br />
+                                        <oj-table id='tableBingColors' aria-label='Details'
+                                                  data='[[bingColorsResultDataprovider]]'
+                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                  scroll-policy='loadMoreOnScroll'
+                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                  columns='[{"headerText": "Color",
                                                                      "field": "color",
                                                                      "resizable": "enabled"},
                                                                     {"headerText": "count",
                                                                      "field": "count",
                                                                      "resizable": "enabled"}]'
-                                              class='demo-table-container oj-bg-body'>
-                                    </oj-table> <br />
-                                    <div id='chart-container'>
-                                        <oj-chart id="pieChartBingColors"
-                                                  type="pie"
-                                                  data="[[bingColorsResultDataprovider]]"
-                                                  animation-on-display="auto"
-                                                  animation-on-data-change="auto"
-                                                  hover-behavior="dim">
+                                                  class='demo-table-container oj-bg-body'>
+                                        </oj-table> <br />
+                                        <div id='chart-container'>
+                                            <oj-chart id="pieChartBingColors"
+                                                      type="pie"
+                                                      data="[[bingColorsResultDataprovider]]"
+                                                      animation-on-display="auto"
+                                                      animation-on-data-change="auto"
+                                                      hover-behavior="dim">
 
-                                            <template slot='itemTemplate' data-oj-as='item'>
-                                                <oj-chart-item value='[[item.data.count]]'
-                                                               group-id='[[ [item.data.undefined] ]]'
-                                                               series-id='[[item.data.color]]'>
-                                                </oj-chart-item>
-                                            </template>
-                                            <template slot='seriesTemplate' data-oj-as='series'>
-                                                <oj-chart-series color='[[rgbToHex(series.id) ]]'>
-                                                </oj-chart-series>
-                                            </template>
-                                        </oj-chart>
-                                    </div>
-                                </td>
-                                <td>
-                                    <b>Colors Detection results from (Google):</b> <br />
-                                    <oj-table id='tableGoogleColors' aria-label='Details'
-                                              data='[[googleColorsResultDataprovider]]'
-                                              selection-mode='{"row": "single", "column": "multiple"}'
-                                              dnd='{"reorder": {"columns": "enabled"}}'
-                                              scroll-policy='loadMoreOnScroll'
-                                              scroll-policy-options='{"fetchSize": 10}'
-                                              columns='[{"headerText": "Color",
+                                                <template slot='itemTemplate' data-oj-as='item'>
+                                                    <oj-chart-item value='[[item.data.count]]'
+                                                                   group-id='[[ [item.data.undefined] ]]'
+                                                                   series-id='[[item.data.color]]'>
+                                                    </oj-chart-item>
+                                                </template>
+                                                <template slot='seriesTemplate' data-oj-as='series'>
+                                                    <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                    </oj-chart-series>
+                                                </template>
+                                            </oj-chart>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <b>Colors Detection results from (Google):</b> <br />
+                                        <oj-table id='tableGoogleColors' aria-label='Details'
+                                                  data='[[googleColorsResultDataprovider]]'
+                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                  scroll-policy='loadMoreOnScroll'
+                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                  columns='[{"headerText": "Color",
                                                                      "field": "color",
                                                                      "resizable": "enabled"},
                                                                     {"headerText": "count",
                                                                      "field": "count",
                                                                      "resizable": "enabled"}]' class='demo-table-container oj-bg-body'>
-                                    </oj-table><br />
-                                    <div id='chart-container'>
-                                        <oj-chart id="pieChartGoogleColors"
-                                                  type="pie"
-                                                  data="[[googleColorsResultDataprovider]]"
-                                                  animation-on-display="auto"
-                                                  animation-on-data-change="auto"
-                                                  hover-behavior="dim">
+                                        </oj-table><br />
+                                        <div id='chart-container'>
+                                            <oj-chart id="pieChartGoogleColors"
+                                                      type="pie"
+                                                      data="[[googleColorsResultDataprovider]]"
+                                                      animation-on-display="auto"
+                                                      animation-on-data-change="auto"
+                                                      hover-behavior="dim">
 
-                                            <template slot='itemTemplate' data-oj-as='item'>
-                                                <oj-chart-item value='[[item.data.count]]'
-                                                               group-id='[[ [item.data.undefined] ]]'
-                                                               series-id='[[item.data.color]]'>
-                                                </oj-chart-item>
-                                            </template>
-                                            <template slot='seriesTemplate' data-oj-as='series'>
-                                                <oj-chart-series color='[[rgbToHex(series.id) ]]'>
-                                                </oj-chart-series>
-                                            </template>
-                                        </oj-chart>
-                                    </div>
-                                </td>
-                                <td>
-                                    <b>Colors Detection results from (OSM):</b> <br />
-                                    <oj-table id='tableosmColors' aria-label='Details'
-                                              data='[[osmColorsResultDataprovider]]'
-                                              selection-mode='{"row": "single", "column": "multiple"}'
-                                              dnd='{"reorder": {"columns": "enabled"}}'
-                                              scroll-policy='loadMoreOnScroll'
-                                              scroll-policy-options='{"fetchSize": 10}'
-                                              columns='[{"headerText": "Color",
+                                                <template slot='itemTemplate' data-oj-as='item'>
+                                                    <oj-chart-item value='[[item.data.count]]'
+                                                                   group-id='[[ [item.data.undefined] ]]'
+                                                                   series-id='[[item.data.color]]'>
+                                                    </oj-chart-item>
+                                                </template>
+                                                <template slot='seriesTemplate' data-oj-as='series'>
+                                                    <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                    </oj-chart-series>
+                                                </template>
+                                            </oj-chart>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <b>Colors Detection results from (OSM):</b> <br />
+                                        <oj-table id='tableosmColors' aria-label='Details'
+                                                  data='[[osmColorsResultDataprovider]]'
+                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                  scroll-policy='loadMoreOnScroll'
+                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                  columns='[{"headerText": "Color",
                                                                      "field": "color",
                                                                      "resizable": "enabled"},
                                                                     {"headerText": "count",
                                                                      "field": "count",
                                                                      "resizable": "enabled"}]' class='demo-table-container oj-bg-body'>
-                                    </oj-table><br />
-                                    <div id='chart-container'>
-                                        <oj-chart id="pieChartOSMColors"
-                                                  type="pie"
-                                                  data="[[osmColorsResultDataprovider]]"
-                                                  animation-on-display="auto"
-                                                  animation-on-data-change="auto"
-                                                  hover-behavior="dim">
+                                        </oj-table><br />
+                                        <div id='chart-container'>
+                                            <oj-chart id="pieChartOSMColors"
+                                                      type="pie"
+                                                      data="[[osmColorsResultDataprovider]]"
+                                                      animation-on-display="auto"
+                                                      animation-on-data-change="auto"
+                                                      hover-behavior="dim">
 
-                                            <template slot='itemTemplate' data-oj-as='item'>
-                                                <oj-chart-item value='[[item.data.count]]'
-                                                               group-id='[[ [item.data.undefined] ]]'
-                                                               series-id='[[item.data.color]]'>
-                                                </oj-chart-item>
-                                            </template>
-                                            <template slot='seriesTemplate' data-oj-as='series'>
-                                                <oj-chart-series color='[[rgbToHex(series.id) ]]'>
-                                                </oj-chart-series>
-                                            </template>
-                                        </oj-chart>
-                                    </div>
-                                </td>
-                            </tr>
+                                                <template slot='itemTemplate' data-oj-as='item'>
+                                                    <oj-chart-item value='[[item.data.count]]'
+                                                                   group-id='[[ [item.data.undefined] ]]'
+                                                                   series-id='[[item.data.color]]'>
+                                                    </oj-chart-item>
+                                                </template>
+                                                <template slot='seriesTemplate' data-oj-as='series'>
+                                                    <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                    </oj-chart-series>
+                                                </template>
+                                            </oj-chart>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </oj-bind-if>
+                            <oj-bind-if test="[[showTextColorsDetection()]]">
+                                <tr style="vertical-align:top">
+                                    <td>
+                                        <b>Colors Detection results from (Bing):</b> <br />
+                                        <oj-table id='tableBingColors' aria-label='Details'
+                                                  data='[[bingColorsResultDataprovider]]'
+                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                  scroll-policy='loadMoreOnScroll'
+                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                  columns='[{"headerText": "Color",
+                                                                     "field": "color",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "count",
+                                                                     "field": "count",
+                                                                     "resizable": "enabled"}]'
+                                                  class='demo-table-container oj-bg-body'>
+                                        </oj-table> <br />
+                                        <div id='chart-container'>
+                                            <oj-chart id="pieChartBingColors"
+                                                      type="pie"
+                                                      data="[[bingColorsResultDataprovider]]"
+                                                      animation-on-display="auto"
+                                                      animation-on-data-change="auto"
+                                                      hover-behavior="dim">
+
+                                                <template slot='itemTemplate' data-oj-as='item'>
+                                                    <oj-chart-item value='[[item.data.count]]'
+                                                                   group-id='[[ [item.data.undefined] ]]'
+                                                                   series-id='[[item.data.color]]'>
+                                                    </oj-chart-item>
+                                                </template>
+                                                <template slot='seriesTemplate' data-oj-as='series'>
+                                                    <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                    </oj-chart-series>
+                                                </template>
+                                            </oj-chart>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <b>Colors Detection results from (Google):</b> <br />
+                                        <oj-table id='tableGoogleColors' aria-label='Details'
+                                                  data='[[googleColorsResultDataprovider]]'
+                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                  scroll-policy='loadMoreOnScroll'
+                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                  columns='[{"headerText": "Color",
+                                                                     "field": "color",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "count",
+                                                                     "field": "count",
+                                                                     "resizable": "enabled"}]' class='demo-table-container oj-bg-body'>
+                                        </oj-table><br />
+                                        <div id='chart-container'>
+                                            <oj-chart id="pieChartGoogleColors"
+                                                      type="pie"
+                                                      data="[[googleColorsResultDataprovider]]"
+                                                      animation-on-display="auto"
+                                                      animation-on-data-change="auto"
+                                                      hover-behavior="dim">
+
+                                                <template slot='itemTemplate' data-oj-as='item'>
+                                                    <oj-chart-item value='[[item.data.count]]'
+                                                                   group-id='[[ [item.data.undefined] ]]'
+                                                                   series-id='[[item.data.color]]'>
+                                                    </oj-chart-item>
+                                                </template>
+                                                <template slot='seriesTemplate' data-oj-as='series'>
+                                                    <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                    </oj-chart-series>
+                                                </template>
+                                            </oj-chart>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <b>Colors Detection results from (OSM):</b> <br />
+                                        <oj-table id='tableosmColors' aria-label='Details'
+                                                  data='[[osmColorsResultDataprovider]]'
+                                                  selection-mode='{"row": "single", "column": "multiple"}'
+                                                  dnd='{"reorder": {"columns": "enabled"}}'
+                                                  scroll-policy='loadMoreOnScroll'
+                                                  scroll-policy-options='{"fetchSize": 10}'
+                                                  columns='[{"headerText": "Color",
+                                                                     "field": "color",
+                                                                     "resizable": "enabled"},
+                                                                    {"headerText": "count",
+                                                                     "field": "count",
+                                                                     "resizable": "enabled"}]' class='demo-table-container oj-bg-body'>
+                                        </oj-table><br />
+                                        <div id='chart-container'>
+                                            <oj-chart id="pieChartOSMColors"
+                                                      type="pie"
+                                                      data="[[osmColorsResultDataprovider]]"
+                                                      animation-on-display="auto"
+                                                      animation-on-data-change="auto"
+                                                      hover-behavior="dim">
+
+                                                <template slot='itemTemplate' data-oj-as='item'>
+                                                    <oj-chart-item value='[[item.data.count]]'
+                                                                   group-id='[[ [item.data.undefined] ]]'
+                                                                   series-id='[[item.data.color]]'>
+                                                    </oj-chart-item>
+                                                </template>
+                                                <template slot='seriesTemplate' data-oj-as='series'>
+                                                    <oj-chart-series color='[[rgbToHex(series.id) ]]'>
+                                                    </oj-chart-series>
+                                                </template>
+                                            </oj-chart>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </oj-bind-if>
                         </oj-bind-if>
 
                         <oj-bind-if test="[[showRoadDetection()]]">
