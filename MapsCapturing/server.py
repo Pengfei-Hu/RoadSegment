@@ -23,8 +23,8 @@ CORS(app, supports_credentials=True)
 t = TileSystem()
 bi = BiSystem()
 
-HOST = 'localhost'
-#HOST = 'uwtset1.tacoma.uw.edu'
+#HOST = 'localhost'
+HOST = 'uwtset1.tacoma.uw.edu'
 USER = 'mapsuser'
 PWD = 'mapsuser'
 BASE = 'mapsvisions'
